@@ -7,7 +7,7 @@ description: >-
   context, plan, get approval, implement, verify. Works standalone or as a
   teammate in a team.
 tools: Read, Write, Edit, Glob, Grep, Bash, WebSearch, WebFetch
-model: inherit
+model: sonnet
 color: green
 skills:
   - team-collaboration
