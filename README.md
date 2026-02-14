@@ -11,6 +11,7 @@ and skills for team-based debugging workflows.
 | **implementer** | Generic implementation agent. Receives tasks with an optional skill directive. Falls back to a default workflow: context discovery, planning with approval gate, implementation, verification. |
 | **tester** | Finds bugs and writes reproduction tests. Uses the finding-bugs skill, then verifies tests fail before handing findings to the implementer. |
 | **lead-engineer** | Receives specs, reviews them, creates implementation plans, delegates trivial tasks to implementer agents, and implements hard tasks itself. Uses opus model. |
+| **code-reviewer** | Reviews code changes for bugs, security issues, and spec conformance. Read-only -- does not modify code. Communicates via team-collaboration protocol. |
 
 ## Skills
 
@@ -38,9 +39,10 @@ lead-engineer (spec-driven development)
 ├── Reviews spec and creates implementation plan
 ├── Classifies tasks: [DELEGATE] vs [SELF]
 ├── implementer (handles trivial delegated tasks)
-│   └── Produces: implemented features per plan
-└── lead-engineer implements hard tasks directly
-    └── Reviews all changes → merges → reports
+│   └── code-reviewer reviews implementer's code
+├── lead-engineer implements hard tasks directly
+│   └── code-reviewer reviews lead-engineer's own code
+└── Merges all reviewed changes → reports
 ```
 
 The **implementer** is generic — it can be directed to use any skill. When the
