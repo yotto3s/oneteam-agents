@@ -81,7 +81,16 @@ roles:
       Follow your default workflow (context discovery, planning is already
       done -- skip to implementation, then verification). Report completion
       to the lead engineer.
-flow: "lead-engineer plans -> implementer builds delegated tasks -> lead-engineer reviews -> converge"
+  - name: "reviewer"
+    agent_type: "code-reviewer"
+    starts_first: false
+    instructions: |
+      Review code changes against the implementation plan and project
+      conventions. Check for bugs, security issues, spec conformance, and
+      test coverage. Send findings to the lead engineer. If issues are
+      found in implementer code, you may also message the implementer
+      directly with specific fix suggestions.
+flow: "lead-engineer plans -> implementer builds -> reviewer reviews implementer -> lead-engineer implements hard parts -> reviewer reviews lead-engineer -> converge"
 escalation_threshold: 3
 ```
 
