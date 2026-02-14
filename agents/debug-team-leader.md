@@ -3,7 +3,7 @@ name: debug-team-leader
 description: >-
   Use to run a full debugging sweep of a codebase or specific modules. Spawns
   tester/implementer pairs to find and fix bugs, reviews all changes, merges fixes.
-tools: Read, Write, Edit, Glob, Grep, Bash
+tools: Read, Write, Glob, Grep, Bash
 model: inherit
 color: blue
 skills:
