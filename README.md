@@ -10,6 +10,7 @@ and skills for team-based debugging workflows.
 | **debug-team-leader** | Orchestrates a debugging sweep. Spawns tester/implementer pairs, reviews changes, merges fixes. |
 | **implementer** | Generic implementation agent. Receives tasks with an optional skill directive. Falls back to a default workflow: context discovery, planning with approval gate, implementation, verification. |
 | **tester** | Finds bugs and writes reproduction tests. Uses the finding-bugs skill, then verifies tests fail before handing findings to the implementer. |
+| **lead-engineer** | Receives specs, reviews them, creates implementation plans, delegates trivial tasks to implementer agents, and implements hard tasks itself. Uses opus model. |
 
 ## Skills
 
@@ -18,6 +19,7 @@ and skills for team-based debugging workflows.
 | **finding-bugs** | 6-phase bug discovery pipeline: scope definition, contract inventory, impact tracing, adversarial analysis, gap analysis, shallow verification. |
 | **team-collaboration** | Communication protocol for multi-agent teams. Close the loop, never block silently, know who owns what, speak up early. |
 | **team-leadership** | Full orchestration lifecycle: work analysis, team setup with git worktrees, agent spawning, progress monitoring, code review, sequential merge, cleanup. |
+| **lead-engineering** | 5-phase workflow: spec review, implementation planning with complexity classification, mode decision, execution with delegation, integration and verification. |
 
 ## How It Works
 
@@ -29,6 +31,16 @@ debug-team-leader (orchestrator)
     └── Produces: fixes verified against reproduction tests
 
 Leader reviews all changes → merges → reports
+```
+
+```
+lead-engineer (spec-driven development)
+├── Reviews spec and creates implementation plan
+├── Classifies tasks: [DELEGATE] vs [SELF]
+├── implementer (handles trivial delegated tasks)
+│   └── Produces: implemented features per plan
+└── lead-engineer implements hard tasks directly
+    └── Reviews all changes → merges → reports
 ```
 
 The **implementer** is generic — it can be directed to use any skill. When the
@@ -75,6 +87,12 @@ To use the implementer standalone for a task:
 
 ```
 /agent implementer
+```
+
+To use the lead engineer for feature development:
+
+```
+/agent lead-engineer
 ```
 
 ## Requirements
