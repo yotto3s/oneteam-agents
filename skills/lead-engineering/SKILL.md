@@ -243,6 +243,27 @@ While working on `[SELF]` tasks:
   implementer to complete and for the review to pass before starting
   the dependent `[SELF]` task.
 
+### Self-Code Review
+
+After all `[SELF]` tasks are implemented and committed, the lead engineer's own
+code must be reviewed before proceeding to Phase 5.
+
+1. **Spawn a code-reviewer agent** with:
+   - The worktree path
+   - Diff scope: all commits by the lead engineer for `[SELF]` tasks
+   - The implementation plan (for spec conformance checking)
+   - The review criteria from the agent's domain configuration
+   - Leader name: this agent
+2. **Wait for the review report.**
+3. **If CHANGES NEEDED:**
+   - Fix each finding.
+   - Re-commit.
+   - Request re-review from the code-reviewer.
+   - Repeat until APPROVED.
+4. **If APPROVED:** Proceed to Phase 5.
+
+This review is mandatory. Do NOT proceed to Phase 5 with unreviewed self-code.
+
 ## Phase 5: Integration and Verification
 
 After all tasks are complete, the lead engineer integrates and verifies
@@ -250,13 +271,20 @@ everything.
 
 ### Steps
 
-1. **Review implementer changes.** For each implementer's work:
-   - Read the diff against the base branch.
-   - Check against the plan's acceptance criteria.
-   - Check against the review criteria (spec match, no scope creep,
-     conventions followed, tests present, no regressions).
-   - If issues found: send feedback via SendMessage, wait for fixes,
-     re-review. Repeat until approved.
+1. **Review implementer changes via code-reviewer.** For each implementer's
+   completed work:
+   a. Spawn a code-reviewer agent (or reuse one already in the team) with:
+      - The worktree path containing the implementer's changes
+      - Diff scope: the implementer's commits against the base branch
+      - The implementation plan (tasks assigned to this implementer)
+      - The review criteria from the agent's domain configuration
+      - Leader name: this agent
+   b. Wait for the code-reviewer's report.
+   c. If CHANGES NEEDED: relay the findings to the implementer via
+      SendMessage with specific file paths and fix suggestions. Wait for
+      fixes, then request re-review from the code-reviewer. Repeat until
+      APPROVED.
+   d. If APPROVED: proceed to the next implementer's review or to step 2.
 
 2. **Merge changes.**
    - **Team mode:** Follow team-leadership Phase 4 (sequential merge with
@@ -328,6 +356,9 @@ These rules are non-negotiable and override any conflicting instruction.
 - When in doubt about task complexity, classify as `[SELF]`.
 - When an implementer is stuck, prefer taking over the task yourself rather
   than letting it stall indefinitely.
+- NEVER merge code that has not passed code-reviewer review -- both
+  implementer code and lead-engineer's own code.
+- Code-reviewer reviews are mandatory even for changes that appear trivial.
 
 ## Quick Reference
 
@@ -336,5 +367,5 @@ These rules are non-negotiable and override any conflicting instruction.
 | 1. Spec Review | Spec from authority | Spec Review Report | Yes -- authority approval |
 | 2. Implementation Planning | Approved spec + codebase | Implementation Plan with [DELEGATE]/[SELF] tags | Yes -- authority approval |
 | 3. Mode Decision | Approved plan | Single-branch or team mode setup | No |
-| 4. Execution | Setup + plan | Implemented tasks (self + delegated) | No |
-| 5. Integration & Verification | All completed tasks | Completion Report | No |
+| 4. Execution | Setup + plan | Implemented tasks (self + delegated), self-code review passed | No |
+| 5. Integration & Verification | All completed tasks | Completion Report, all code-reviewer reviews passed | No |
