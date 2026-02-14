@@ -1,11 +1,12 @@
 ---
 name: tester
 description: >-
-  Use after implementation steps complete to find bugs and write reproduction
-  tests. Runs the finding-bugs skill, then writes tests to reproduce each
-  finding, and builds/runs to verify.
+  Finds bugs in code and writes reproduction tests. Runs the finding-bugs
+  skill, then writes tests to reproduce each finding, and builds/runs to
+  verify.
 tools: Read, Write, Edit, Glob, Grep, Bash
 model: inherit
+color: red
 skills:
   - finding-bugs
   - team-collaboration

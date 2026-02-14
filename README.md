@@ -81,5 +81,5 @@ To use the implementer standalone for a task:
 
 - [Claude Code](https://docs.anthropic.com/en/docs/claude-code) CLI
 - The `systematic-debugging` skill (from the
-  [superpowers](https://github.com/anthropics/claude-code-plugins) plugin) is
+  [superpowers](https://github.com/anthropics/claude-plugins-official) plugin) is
   required for the debug workflow

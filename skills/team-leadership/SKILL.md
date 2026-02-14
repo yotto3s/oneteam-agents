@@ -208,9 +208,11 @@ them into the base branch sequentially.
       git -C <worktree_path> diff $BASE_BRANCH...HEAD
       ```
    b. Present the diff output in the conversation context for analysis.
-   c. Invoke the Skill tool with `skill: "superpowers:requesting-code-review"`
-      to apply the structured review process.
-   d. Follow the skill's structured review guidance to evaluate the changes.
+   c. If the `superpowers:requesting-code-review` skill is available, invoke
+      the Skill tool with `skill: "superpowers:requesting-code-review"` to
+      apply the structured review process. Otherwise, review the diff manually
+      against the criteria below.
+   d. Follow the structured review guidance to evaluate the changes.
    e. If the leader has defined `review_criteria`, evaluate the diff against
       each criterion in the checklist. Document pass/fail for each item.
 
