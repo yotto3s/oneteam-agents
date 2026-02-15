@@ -45,7 +45,7 @@ YAML frontmatter with `name` and `description`, followed by phased pipeline docu
 | writing-plans | 4-phase: design analysis → strategy decision → plan writing → execution handoff |
 | bug-hunting | 6-phase: scope → contract inventory → impact tracing → adversarial analysis → gap analysis → verification |
 | team-collaboration | 4 principles: close the loop, never block silently, know ownership, speak up early |
-| team-leadership | 5-phase orchestration: analysis (conditional) → team setup → monitoring → review/merge → consolidation |
+| team-management | 5-phase orchestration: analysis (conditional) → team setup → monitoring → review/merge → consolidation |
 | research | 3-phase: clarify → gather → synthesize |
 | implementation | 2-phase: context discovery → verification + common best practices |
 
@@ -54,7 +54,7 @@ YAML frontmatter with `name` and `description`, followed by phased pipeline docu
 The standard development pipeline follows this flow:
 1. **brainstorming** (superpowers) → produces design document
 2. **writing-plans** (override) → analyzes design, asks user for strategy, writes plan
-3. **Execution** → `superpowers:subagent-driven-development` (subagent) or `team-leadership` (team)
+3. **Execution** → `superpowers:subagent-driven-development` (subagent) or `team-management` (team)
 
 ### Two Main Workflows
 

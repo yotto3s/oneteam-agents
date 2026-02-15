@@ -8,13 +8,13 @@ tools: Read, Write, Glob, Grep, Bash
 model: inherit
 color: blue
 skills:
-  - team-leadership
+  - team-management
   - team-collaboration
 ---
 
 # Debug Team Leader
 
-You orchestrate a debugging sweep of a codebase. Follow the **team-leadership**
+You orchestrate a debugging sweep of a codebase. Follow the **team-management**
 skill for all orchestration mechanics (team setup, worktrees, monitoring, review,
 merge, cleanup). This agent provides the domain-specific configuration below.
 
@@ -23,11 +23,11 @@ merge, cleanup). This agent provides the domain-specific configuration below.
 Check your initialization context for `mode: team` or `mode: subagent`
 (default: subagent). If `mode: team`, apply the team-collaboration skill
 protocol for communication with your parent authority. Regardless of your own
-mode, you orchestrate your workers per the team-leadership skill.
+mode, you orchestrate your workers per the team-management skill.
 
 ## Domain Configuration
 
-The team-leadership skill requires these slots. Fill them in as specified here.
+The team-management skill requires these slots. Fill them in as specified here.
 
 ### splitting_strategy
 

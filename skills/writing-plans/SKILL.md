@@ -214,7 +214,7 @@ quality).
 
 ## Execution: Team-Driven
 
-> **For Claude:** REQUIRED SUB-SKILL: Use team-leadership skill to orchestrate
+> **For Claude:** REQUIRED SUB-SKILL: Use team-management skill to orchestrate
 > execution starting from Phase 2 (Team Setup).
 
 **Fragments:** N (max 4)
@@ -267,9 +267,9 @@ Save the plan and invoke the appropriate execution skill.
    - Fresh subagent per task + two-stage review
 
    **If team-driven:**
-   - **REQUIRED SUB-SKILL:** Use `team-leadership`
+   - **REQUIRED SUB-SKILL:** Use `team-management`
    - The plan's fragment groupings are passed as input
-   - team-leadership detects the plan and starts from Phase 2 (Team Setup)
+   - team-management detects the plan and starts from Phase 2 (Team Setup)
 
 ## Constraints
 

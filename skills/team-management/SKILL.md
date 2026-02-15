@@ -1,5 +1,5 @@
 ---
-name: team-leadership
+name: team-management
 description: >-
   Use when orchestrating a team of agents to work on a project. Provides the
   complete lifecycle for team mode: work analysis, team setup with git worktrees,
@@ -8,7 +8,7 @@ description: >-
   agents load this skill and fill in domain-specific configuration slots.
 ---
 
-# Team Leadership
+# Team Management
 
 ## Overview
 
