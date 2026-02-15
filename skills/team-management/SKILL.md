@@ -149,11 +149,12 @@ agents. Every sub-step must complete before the next begins.
    - For reviewer roles specifically, create one task per lead group (not per
      fragment), since a reviewer covers all fragments in their lead group. The
      reviewer task subject should be:
-     `"{group}-reviewer fragment N: review tasks for <fragment description>"`.
+     `"{group}-reviewer lead-group-N: review tasks for fragments X-Y"`.
      Set `addBlockedBy` pointing to all engineer tasks in the reviewer's lead
      group, so the reviewer is notified as each engineer task completes.
 
-4. **Spawn agents.** For each fragment N, for each role in `organization.roles`:
+4. **Spawn agents.** For each fragment N, for each role in `organization.roles`
+   (for reviewer roles, spawn one agent per lead group rather than per fragment):
    - Agent name: `{group}-{role}-{N}`
    - `subagent_type`: from the role's `agent_type` field
    - `team_name`: the team name established in step 1
@@ -444,37 +445,43 @@ initial findings.
 
 ### Example 2: Feature Development Team
 
-A build-and-review team where junior and senior engineers write code and
-reviewers validate it, with a lower escalation threshold for faster iteration.
+A four-role team where a lead-engineer coordinates engineers and a reviewer,
+with per-task review checkpoints and a two-stage fragment completion review.
 
 ```yaml
 organization:
   group: "feature"
   roles:
+    - name: "[oneteam:agent] lead-engineer"
+      agent_type: "[oneteam:agent] lead-engineer"
+      starts_first: true
+      instructions: "Oversee fragments, coordinate per-task reviews, trigger fragment completion review"
     - name: "[oneteam:agent] junior-engineer"
       agent_type: "[oneteam:agent] junior-engineer"
       starts_first: true
-      instructions: "Implement trivial tasks per plan, write tests, send for review"
+      instructions: "Implement [JUNIOR] tasks, wait for reviewer approval between tasks"
     - name: "[oneteam:agent] senior-engineer"
       agent_type: "[oneteam:agent] senior-engineer"
       starts_first: true
-      instructions: "Implement complex tasks per plan, write tests, send for review"
+      instructions: "Implement [SENIOR] tasks, wait for reviewer approval between tasks"
     - name: "reviewer"
       agent_type: "[oneteam:agent] code-reviewer"
       starts_first: false
-      instructions: "Review implementation against spec, send feedback or approval"
-  flow: "engineers build -> reviewer reviews -> engineers fix -> converge"
+      instructions: "Per-task single-pass review, per-fragment two-stage review (spec + quality)"
+  flow: "lead delegates -> engineers build task -> reviewer reviews task ->
+         repeat until all tasks done -> reviewer does two-stage fragment review ->
+         lead reports completion"
   escalation_threshold: 2
 ```
 
-Agent naming for 2 fragments: `feature-junior-engineer-1`,
-`feature-senior-engineer-1`, `feature-reviewer-1`,
-`feature-junior-engineer-2`, `feature-senior-engineer-2`,
-`feature-reviewer-2`.
+Agent naming for 2 fragments with 1 lead group: `feature-lead-engineer-1`,
+`feature-junior-engineer-1`, `feature-senior-engineer-1`,
+`feature-reviewer-1`, `feature-junior-engineer-2`,
+`feature-senior-engineer-2`.
 
-The reviewer role uses `starts_first: false` so each reviewer waits until
-both engineers in their fragment have completed initial work before beginning
-review.
+The lead-engineer oversees 2-3 fragments per lead group. The reviewer covers
+all fragments in the lead group and uses `starts_first: false` so it waits
+until engineers produce initial work before beginning per-task reviews.
 
 ### Example 3: Multi-Group Project
 
