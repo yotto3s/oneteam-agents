@@ -10,13 +10,29 @@ description: >-
 These modifications apply on top of the superpowers `brainstorming` skill.
 Follow the standard brainstorming process with these changes:
 
-## Change 1: Do NOT commit design files
+## Change 1: Choose working branch
+
+After the design is approved but before writing the design doc file, ask the
+user which branch to work on. Get the current branch with
+`git branch --show-current`, then present options via `AskUserQuestion`
+(header: "Branch"):
+
+| Option label | Description |
+|---|---|
+| Stay on `<branch>` | Continue on the current branch |
+| Switch to existing | User types the target branch name |
+| Create new branch | Suggest `feat/<topic-slug>` derived from the design topic; user can accept or edit |
+
+If the user picks **Switch to existing**, run `git checkout <branch>`.
+If the user picks **Create new branch**, run `git checkout -b <name>`.
+
+## Change 2: Do NOT commit design files
 
 After writing the design doc to `docs/plans/YYYY-MM-DD-<topic>-design.md`,
 do NOT run `git add` or `git commit`. The file stays as an uncommitted local
 file.
 
-## Change 2: Offer GitHub issue posting
+## Change 3: Offer GitHub issue posting
 
 After writing the design file (and before invoking writing-plans), ask the user
 if they want to post the design to a GitHub issue. If they decline, proceed
