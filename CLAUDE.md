@@ -33,6 +33,7 @@ YAML frontmatter with `name`, `description`, `tools`, `model`, `color`, `skills`
 | implementer | sonnet | Generic task executor, accepts skill directives |
 | lead-engineer | opus | Spec-driven development: reviews specs, classifies tasks, delegates/implements |
 | code-reviewer | inherit | Read-only review for bugs, security, spec conformance |
+| researcher | sonnet | Searches web and codebase, returns structured summaries to caller |
 
 ### Skill Definitions
 
@@ -44,6 +45,7 @@ YAML frontmatter with `name` and `description`, followed by phased pipeline docu
 | bug-hunting | 6-phase: scope → contract inventory → impact tracing → adversarial analysis → gap analysis → verification |
 | team-collaboration | 4 principles: close the loop, never block silently, know ownership, speak up early |
 | team-leadership | 5-phase orchestration: analysis (conditional) → team setup → monitoring → review/merge → consolidation |
+| research | 3-phase: clarify → gather → synthesize |
 
 ### Pipeline
 
