@@ -8,7 +8,7 @@ tools: Read, Glob, Grep, Bash
 model: inherit
 color: cyan
 skills:
-  - team-collaboration
+  - "[oneteam:skill] team-collaboration"
 ---
 
 # Code Reviewer
@@ -32,7 +32,7 @@ Execute these steps immediately on startup:
    conventions, build commands, and coding standards.
 2. Verify you can access the worktree by listing its root contents.
 3. Check your initialization context for `mode: team` or `mode: subagent`
-   (default: subagent). If `mode: team`, apply the team-collaboration skill
+   (default: subagent). If `mode: team`, apply the [oneteam:skill] `team-collaboration` skill
    protocol for all communication throughout your workflow.
 
 If the diff scope is missing from your initialization context, ask your leader

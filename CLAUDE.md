@@ -24,7 +24,7 @@ Or with flags for non-interactive use:
 
 - **Skills** (`skills/{name}/SKILL.md`) contain all domain logic — phased workflows, constraints, output formats
 - **Agents** (`agents/{name}.md`) are thin wrappers that combine tools + skills + model selection
-- **Subagent is base**: Agent files describe core work without team infrastructure assumptions. Team behavior is layered on via the `team-collaboration` skill when `mode: team`.
+- **Subagent is base**: Agent files describe core work without team infrastructure assumptions. Team behavior is layered on via the [oneteam:skill] `team-collaboration` skill when `mode: team`.
 
 ### Agent Definitions
 
@@ -32,13 +32,13 @@ YAML frontmatter with `name`, `description`, `tools`, `model`, `color`, `skills`
 
 | Agent | Model | Role |
 |-------|-------|------|
-| architect | inherit | Reads design docs and codebase, writes implementation plans |
-| bug-hunter | inherit | Finds bugs via bug-hunting skill, writes reproduction tests |
-| junior-engineer | sonnet | Trivial task executor, follows detailed plans precisely |
-| senior-engineer | opus | Complex task executor, plans own approach, handles architectural work |
-| lead-engineer | opus | Orchestrates feature implementation or debugging sweeps, delegates all work |
-| code-reviewer | inherit | Read-only review for bugs, security, spec conformance |
-| researcher | haiku | Searches web and codebase, returns structured summaries to caller |
+| [oneteam:agent] architect | inherit | Reads design docs and codebase, writes implementation plans |
+| [oneteam:agent] bug-hunter | inherit | Finds bugs via [oneteam:skill] `bug-hunting` skill, writes reproduction tests |
+| [oneteam:agent] junior-engineer | sonnet | Trivial task executor, follows detailed plans precisely |
+| [oneteam:agent] senior-engineer | opus | Complex task executor, plans own approach, handles architectural work |
+| [oneteam:agent] lead-engineer | opus | Orchestrates feature implementation or debugging sweeps, delegates all work |
+| [oneteam:agent] code-reviewer | inherit | Read-only review for bugs, security, spec conformance |
+| [oneteam:agent] researcher | haiku | Searches web and codebase, returns structured summaries to caller |
 
 ### Skill Definitions
 
@@ -46,28 +46,28 @@ YAML frontmatter with `name` and `description`, followed by phased pipeline docu
 
 | Skill | Phases |
 |-------|--------|
-| brainstorming | Collaborative design: explores intent, proposes approaches, writes design doc, optional GitHub issue posting, invokes writing-plans |
-| writing-plans | 4-phase orchestrator: dispatch analyzer → strategy decision → dispatch architect → execution handoff |
-| bug-hunting | 6-phase: scope → contract inventory → impact tracing → adversarial analysis → gap analysis → verification |
-| plan-authoring | Plan-writing methodology: task granularity, document structure, strategy-adapted sections |
-| team-collaboration | 4 principles: close the loop, never block silently, know ownership, speak up early |
-| team-management | 5-phase orchestration: analysis (conditional) → team setup → monitoring → review/merge → consolidation |
-| research | 3-phase: clarify → gather → synthesize |
-| spec-review | 6-phase: read spec → analyze codebase → quality check → issue identification → report → approval gate |
-| implementation | 2-phase: context discovery → verification + common best practices |
+| [oneteam:skill] brainstorming | Collaborative design: explores intent, proposes approaches, writes design doc, optional GitHub issue posting, invokes [oneteam:skill] `writing-plans` |
+| [oneteam:skill] writing-plans | 4-phase orchestrator: dispatch analyzer → strategy decision → dispatch [oneteam:agent] `architect` → execution handoff |
+| [oneteam:skill] bug-hunting | 6-phase: scope → contract inventory → impact tracing → adversarial analysis → gap analysis → verification |
+| [oneteam:skill] plan-authoring | Plan-writing methodology: task granularity, document structure, strategy-adapted sections |
+| [oneteam:skill] team-collaboration | 4 principles: close the loop, never block silently, know ownership, speak up early |
+| [oneteam:skill] team-management | 5-phase orchestration: analysis (conditional) → team setup → monitoring → review/merge → consolidation |
+| [oneteam:skill] research | 3-phase: clarify → gather → synthesize |
+| [oneteam:skill] spec-review | 6-phase: read spec → analyze codebase → quality check → issue identification → report → approval gate |
+| [oneteam:skill] implementation | 2-phase: context discovery → verification + common best practices |
 
 ### Pipeline
 
 The standard development pipeline follows this flow:
-1. **brainstorming** → produces design document, optionally posts to GitHub issue
-2. **writing-plans** (override) → dispatches analyzer (sonnet) for triage, user picks strategy, dispatches architect to write plan
-3. **Execution** → `superpowers:subagent-driven-development` (subagent) or `team-management` (team)
+1. [oneteam:skill] **`brainstorming`** → produces design document, optionally posts to GitHub issue
+2. [oneteam:skill] **`writing-plans`** (override) → dispatches analyzer (sonnet) for triage, user picks strategy, dispatches [oneteam:agent] `architect` to write plan
+3. **Execution** → [superpowers:skill] `subagent-driven-development` (subagent) or [oneteam:skill] `team-management` (team)
 
 ### Two Main Workflows
 
-**Feature workflow:** `lead-engineer` (feature mode) → invokes spec-review skill → classifies tasks as [JUNIOR] or [SENIOR] → delegates to junior/senior engineers → reviews → merges
+**Feature workflow:** [oneteam:agent] `lead-engineer` (feature mode) → invokes [oneteam:skill] `spec-review` skill → classifies tasks as [JUNIOR] or [SENIOR] → delegates to [oneteam:agent] `junior-engineer`/[oneteam:agent] `senior-engineer` → reviews → merges
 
-**Debug workflow:** `lead-engineer` (debug mode) → spawns `bug-hunter` + `junior-engineer`/`senior-engineer` pairs (by severity) → reviews → merges
+**Debug workflow:** [oneteam:agent] `lead-engineer` (debug mode) → spawns [oneteam:agent] `bug-hunter` + [oneteam:agent] `junior-engineer`/[oneteam:agent] `senior-engineer` pairs (by severity) → reviews → merges
 
 ## Conventions for Writing Agents and Skills
 
