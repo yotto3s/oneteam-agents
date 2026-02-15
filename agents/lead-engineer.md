@@ -151,7 +151,8 @@ Delegate all tasks and monitor progress.
    (default 3), review the problem and choose: **guide** (send advice),
    **reassign** (escalate junior task to [oneteam:agent] `senior-engineer`), or **skip**
    (mark unresolvable).
-3. When an agent reports completion, review their changes immediately.
+3. When an agent reports completion, review their changes immediately
+   (or trigger the paired reviewer if per-task review coordination is active).
 4. **Per-task review coordination:** After delegating a task, monitor for
    the engineer's completion report. On task completion, trigger the
    fragment's paired reviewer via `SendMessage` with the task diff and
@@ -220,8 +221,8 @@ Analyze the implementation plan to identify delegatable fragments:
 ```yaml
 group: "feature"
 roles:
-  - name: "lead-engineer"
-    agent_type: "lead-engineer"
+  - name: "[oneteam:agent] lead-engineer"
+    agent_type: "[oneteam:agent] lead-engineer"
     starts_first: true
     instructions: |
       Oversee your assigned fragments. For each task an engineer completes,
@@ -229,20 +230,20 @@ roles:
       next task. After all tasks in a fragment complete, trigger the two-stage
       fragment review (spec compliance + code quality). Report fragment
       completion to the top-level orchestrator.
-  - name: "junior-engineer"
-    agent_type: "junior-engineer"
+  - name: "[oneteam:agent] junior-engineer"
+    agent_type: "[oneteam:agent] junior-engineer"
     starts_first: true
     instructions: |
       Implement delegated [JUNIOR] tasks. After each task, wait for reviewer
       approval before starting the next task. Follow TDD workflow.
-  - name: "senior-engineer"
-    agent_type: "senior-engineer"
+  - name: "[oneteam:agent] senior-engineer"
+    agent_type: "[oneteam:agent] senior-engineer"
     starts_first: true
     instructions: |
       Implement delegated [SENIOR] tasks. After each task, wait for reviewer
       approval before starting the next task. Plan approach, implement, verify.
   - name: "reviewer"
-    agent_type: "code-reviewer"
+    agent_type: "[oneteam:agent] code-reviewer"
     starts_first: false
     instructions: |
       Per-task: single-pass review (spec + quality) after each engineer task.
