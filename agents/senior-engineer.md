@@ -6,7 +6,7 @@ description: >-
   implements. Works standalone or as a teammate in a team.
 tools: Read, Write, Edit, Glob, Grep, Bash, WebSearch, WebFetch
 model: opus
-color: cyan
+color: blue
 skills:
   - team-collaboration
   - implementation

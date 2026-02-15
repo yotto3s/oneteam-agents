@@ -6,7 +6,7 @@ description: >-
   questions and receives concise answers without polluting its own context window.
 tools: Read, Glob, Grep, Bash, WebSearch, WebFetch
 model: haiku
-color: yellow
+color: white
 skills:
   - research
   - team-collaboration
