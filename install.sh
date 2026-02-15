@@ -89,6 +89,14 @@ fi
 mkdir -p "$TARGET"
 TARGET="$(cd "$TARGET" && pwd -P)"
 
+# ── Self-install guard ─────────────────────────────────────────────────────
+
+if [[ "$TARGET" == "$SCRIPT_DIR" ]]; then
+  echo "Error: target directory is the repo itself ($SCRIPT_DIR)." >&2
+  echo "Choose a different target (e.g. ~/.claude)." >&2
+  exit 1
+fi
+
 # ── Helpers ────────────────────────────────────────────────────────────────
 
 # Symlink a single agent file.
