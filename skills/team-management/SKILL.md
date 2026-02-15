@@ -146,6 +146,12 @@ agents. Every sub-step must complete before the next begins.
      task ID of the `starts_first: true` role's task for the same fragment.
      This ensures dependent roles wait until their prerequisite completes.
    - Use `TaskCreate` for each task.
+   - For roles where the plan's Team Composition table specifies a reviewer
+     (e.g., `reviewer-N`), create one task per reviewer per lead group. The
+     reviewer task subject should be:
+     `"{group}-reviewer fragment N: review tasks for <fragment description>"`.
+     Set `addBlockedBy` pointing to all engineer tasks in the reviewer's lead
+     group, so the reviewer is notified as each engineer task completes.
 
 4. **Spawn agents.** For each fragment N, for each role in `organization.roles`:
    - Agent name: `{group}-{role}-{N}`
@@ -158,6 +164,9 @@ agents. Every sub-step must complete before the next begins.
      - The names of all other agents working on the same fragment (so they
        can message each other directly)
      - The leader's name for escalation messages
+     - If the plan includes a Team Composition table with reviewer assignments:
+       the name of the paired reviewer for this fragment (so the lead-engineer
+       knows which reviewer to trigger for per-task reviews)
      - The role-specific `instructions` from the role definition
    - For multi-group organizations (where `organization.groups` is an array
      instead of a single group): spawn group leaders the same way, passing
@@ -221,6 +230,39 @@ communication throughout the execution phase.
    - Agents CAN message across groups directly (flat team architecture), but
      the leader should facilitate when agents do not know about each other's
      work or when coordination is needed.
+
+6. **Per-task review loop.** When the plan includes per-task review checkpoints
+   (indicated by a Team Composition table with reviewer roles):
+   1. Engineer reports task complete to lead-engineer.
+   2. Lead-engineer triggers the fragment's paired reviewer to review the diff
+      for that task. Send via `SendMessage` to the reviewer with: the task
+      name, the files changed, and the review checkpoint criteria from the plan.
+   3. Reviewer produces a single-pass review (spec compliance + code quality
+      combined) and sends the result to the lead-engineer.
+   4. If APPROVED: lead-engineer unblocks the next task for the engineer.
+   5. If CHANGES NEEDED: lead-engineer sends the reviewer's feedback to the
+      engineer via `SendMessage`. Engineer fixes the issues and reports
+      completion again. Lead-engineer re-triggers the reviewer. Repeat until
+      approved.
+   6. Engineer does NOT start the next task until the current task passes
+      review. The lead-engineer enforces this by only unblocking the next task
+      after reviewer approval.
+
+7. **Fragment completion review.** After all tasks in a fragment pass their
+   per-task reviews:
+   1. Lead-engineer triggers a two-stage fragment completion review by sending
+      a `SendMessage` to the fragment's paired reviewer with the full fragment
+      diff (`git diff $BASE_BRANCH...HEAD` in the fragment's worktree).
+   2. Stage 1 — Spec compliance: reviewer checks that all acceptance criteria
+      across all fragment tasks are met.
+   3. Stage 2 — Code quality: reviewer checks conventions, security, test
+      coverage, and regressions across the entire fragment diff.
+   4. Both stages must PASS before the fragment is marked merge-ready.
+   5. If either stage produces CHANGES NEEDED: lead-engineer delegates the
+      fixes to the responsible engineer and re-triggers the two-stage review
+      after fixes are applied.
+   6. Only after both stages pass does the lead-engineer report the fragment
+      as merge-ready to the top-level orchestrator.
 
 ## Phase 4: Review & Merge
 
