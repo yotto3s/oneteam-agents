@@ -125,7 +125,7 @@ not received, wait. If rejected, revise the plan and resubmit.
 
 After completing work (whether via skill or default workflow), send a summary
 to the leader/user. If in a team, also notify relevant teammates (e.g., a
-paired tester who needs to verify).
+paired bug-hunter who needs to verify).
 
 ## Constraints
 

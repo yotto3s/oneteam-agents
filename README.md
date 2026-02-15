@@ -7,9 +7,9 @@ and skills for team-based debugging workflows.
 
 | Agent | Description |
 |-------|-------------|
-| **debug-team-leader** | Orchestrates a debugging sweep. Spawns tester/implementer pairs, reviews changes, merges fixes. |
+| **debug-team-leader** | Orchestrates a debugging sweep. Spawns bug-hunter/implementer pairs, reviews changes, merges fixes. |
 | **implementer** | Generic implementation agent. Receives tasks with an optional skill directive. Falls back to a default workflow: context discovery, planning with approval gate, implementation, verification. |
-| **tester** | Finds bugs and writes reproduction tests. Uses the finding-bugs skill, then verifies tests fail before handing findings to the implementer. |
+| **bug-hunter** | Finds bugs and writes reproduction tests. Uses the bug-hunting skill, then verifies tests fail before handing findings to the implementer. |
 | **lead-engineer** | Receives specs, reviews them, creates implementation plans, delegates trivial tasks to implementer agents, and implements hard tasks itself. Uses opus model. |
 | **code-reviewer** | Reviews code changes for bugs, security issues, and spec conformance. Read-only -- does not modify code. Communicates via team-collaboration protocol. |
 
@@ -17,7 +17,7 @@ and skills for team-based debugging workflows.
 
 | Skill | Description |
 |-------|-------------|
-| **finding-bugs** | 6-phase bug discovery pipeline: scope definition, contract inventory, impact tracing, adversarial analysis, gap analysis, shallow verification. |
+| **bug-hunting** | 6-phase bug discovery pipeline: scope definition, contract inventory, impact tracing, adversarial analysis, gap analysis, shallow verification. |
 | **team-collaboration** | Communication protocol for multi-agent teams. Close the loop, never block silently, know who owns what, speak up early. |
 | **team-leadership** | Full orchestration lifecycle: work analysis, team setup with git worktrees, agent spawning, progress monitoring, code review, sequential merge, cleanup. |
 | **lead-engineering** | 5-phase workflow: spec review, implementation planning with complexity classification, mode decision, execution with delegation, integration and verification. |
@@ -26,7 +26,7 @@ and skills for team-based debugging workflows.
 
 ```
 debug-team-leader (orchestrator)
-├── tester (finds bugs with finding-bugs skill)
+├── bug-hunter (finds bugs with bug-hunting skill)
 │   └── Produces: findings with reproduction tests
 └── implementer (fixes bugs with systematic-debugging skill)
     └── Produces: fixes verified against reproduction tests

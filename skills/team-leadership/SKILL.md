@@ -30,8 +30,8 @@ slots have defaults that apply when unset.
 | `splitting_strategy` | Yes | -- | How to analyze and split work into fragments. Defines the criteria for decomposing the codebase into independent units of work. | `"Module boundaries + git changes"` |
 | `fragment_size` | Yes | -- | Target number of files per fragment. Guides the granularity of work decomposition. | `"5-15 files"` |
 | `organization.group` | Yes | -- | Naming prefix for all agents in this organization. Used to construct agent names as `{group}-{role}-{N}`. | `"debug"` |
-| `organization.roles` | Yes | -- | Array of role definitions. Each role has: `name` (string), `agent_type` (string), `starts_first` (bool), `instructions` (string). | `[{name: "tester", agent_type: "tester", starts_first: true, instructions: "Run tests and report findings"}]` |
-| `organization.flow` | Yes | -- | Describes the communication and dependency flow between roles. Human-readable description of how work moves through the team. | `"tester finds -> debugger fixes -> tester verifies"` |
+| `organization.roles` | Yes | -- | Array of role definitions. Each role has: `name` (string), `agent_type` (string), `starts_first` (bool), `instructions` (string). | `[{name: "bug-hunter", agent_type: "bug-hunter", starts_first: true, instructions: "Run tests and report findings"}]` |
+| `organization.flow` | Yes | -- | Describes the communication and dependency flow between roles. Human-readable description of how work moves through the team. | `"bug-hunter finds -> debugger fixes -> bug-hunter verifies"` |
 | `team_name` | No | `{group}-team` | Override the team name used for TeamCreate and task coordination. | `"my-debug-team"` |
 | `escalation_threshold` | No | `3` | Number of attempts an agent makes before escalating to the leader. | `5` |
 | `review_criteria` | No | General code quality | Domain-specific checklist applied during code review. Appended to the standard review process. | `"All error paths must have tests; no raw SQL queries"` |
@@ -342,31 +342,31 @@ use cases.
 
 ### Example 1: Debugging Team
 
-A two-role team where testers find bugs and debuggers fix them, operating in
+A two-role team where bug-hunters find bugs and debuggers fix them, operating in
 a tight feedback loop per fragment.
 
 ```yaml
 organization:
   group: "debug"
   roles:
-    - name: "tester"
-      agent_type: "tester"
+    - name: "bug-hunter"
+      agent_type: "bug-hunter"
       starts_first: true
-      instructions: "Run finding-bugs, write reproduction tests, send findings to debugger"
+      instructions: "Run bug-hunting, write reproduction tests, send findings to debugger"
     - name: "debugger"
       agent_type: "debugger"
       starts_first: false
-      instructions: "Receive findings, apply systematic-debugging, send fixes to tester"
-  flow: "tester finds bugs -> debugger fixes -> tester verifies -> converge"
+      instructions: "Receive findings, apply systematic-debugging, send fixes to bug-hunter"
+  flow: "bug-hunter finds bugs -> debugger fixes -> bug-hunter verifies -> converge"
   escalation_threshold: 3
 ```
 
-Agent naming for 2 fragments: `debug-tester-1`, `debug-debugger-1`,
-`debug-tester-2`, `debug-debugger-2`.
+Agent naming for 2 fragments: `debug-bug-hunter-1`, `debug-debugger-1`,
+`debug-bug-hunter-2`, `debug-debugger-2`.
 
 Task dependencies: each `debug-debugger-N` task is blocked by the corresponding
-`debug-tester-N` task. Debuggers begin work only after testers produce initial
-findings.
+`debug-bug-hunter-N` task. Debuggers begin work only after bug-hunters produce
+initial findings.
 
 ### Example 2: Feature Development Team
 

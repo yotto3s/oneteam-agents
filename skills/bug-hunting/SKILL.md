@@ -1,5 +1,5 @@
 ---
-name: finding-bugs
+name: bug-hunting
 description: >-
   Use when asked to review merged PRs for integration bugs, audit a module or
   codebase for latent issues, investigate vague suspicions about code correctness,
@@ -8,7 +8,7 @@ description: >-
   or writing new tests (use TDD).
 ---
 
-# Finding Bugs
+# Bug Hunting
 
 ## Iron Law
 

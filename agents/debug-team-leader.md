@@ -2,7 +2,7 @@
 name: debug-team-leader
 description: >-
   Use to run a full debugging sweep of a codebase or specific modules. Spawns
-  tester/implementer pairs to find and fix bugs, reviews all changes, merges fixes.
+  bug-hunter/implementer pairs to find and fix bugs, reviews all changes, merges fixes.
 tools: Read, Write, Glob, Grep, Bash
 model: inherit
 color: blue
@@ -43,29 +43,28 @@ Analyze the codebase to identify debuggable fragments:
 ```yaml
 group: "debug"
 roles:
-  - name: "tester"
-    agent_type: "tester"
+  - name: "bug-hunter"
+    agent_type: "bug-hunter"
     starts_first: true
     instructions: |
-      Run the finding-bugs skill against the fragment files. Write reproduction
+      Run the bug-hunting skill against the fragment files. Write reproduction
       tests for each finding. Build and verify tests fail (confirming bugs).
       Send the full findings report (with finding IDs, severities, confidence
       levels, descriptions, and test file paths) to the paired implementer via
-      SendMessage. After the
-      implementer reports fixes, re-run reproduction tests to verify each fix.
-      Report final status to the leader.
+      SendMessage. After the implementer reports fixes, re-run reproduction
+      tests to verify each fix. Report final status to the leader.
   - name: "implementer"
     agent_type: "implementer"
     starts_first: false
     instructions: |
       Use the systematic-debugging skill for all fixes. Wait for findings
-      from the paired tester via SendMessage. For each finding (in severity
+      from the paired bug-hunter via SendMessage. For each finding (in severity
       order, HIGH first): read the reproduction test, run it to confirm
       failure, apply the systematic-debugging skill (all 4 phases: root cause
       investigation, pattern analysis, hypothesis testing, implementation),
       run the test to confirm it passes, run the full test suite for
-      regressions. Send fixes report to both the tester and leader.
-flow: "tester finds bugs -> implementer fixes -> tester verifies -> converge"
+      regressions. Send fixes report to both the bug-hunter and leader.
+flow: "bug-hunter finds bugs -> implementer fixes -> bug-hunter verifies -> converge"
 escalation_threshold: 3
 ```
 
