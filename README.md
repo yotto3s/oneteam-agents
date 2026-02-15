@@ -7,11 +7,10 @@ and skills for team-based debugging workflows.
 
 | Agent | Description |
 |-------|-------------|
-| **debug-team-leader** | Orchestrates a debugging sweep. Spawns bug-hunter/engineer pairs (junior or senior based on severity), reviews changes, merges fixes. |
 | **junior-engineer** | Handles trivial tasks: boilerplate, CRUD, config, single-file edits. Follows detailed plans precisely. Default model: sonnet (overridable to haiku). |
 | **senior-engineer** | Handles complex tasks: multi-file changes, architectural work, novel logic. Plans own approach. Always uses opus model. |
 | **bug-hunter** | Finds bugs and writes reproduction tests. Uses the bug-hunting skill, then verifies tests fail before handing findings to the paired engineer. |
-| **lead-engineer** | Pure orchestrator. Receives specs, reviews them, creates implementation plans, delegates all work to junior and senior engineers. Uses opus model. |
+| **lead-engineer** | Orchestrates feature implementation or debugging sweeps. Infers domain from context. In feature mode: reviews specs via spec-review skill, plans, delegates. In debug mode: spawns bug-hunter/engineer pairs by severity. Uses opus model. |
 | **code-reviewer** | Reviews code changes for bugs, security issues, and spec conformance. Read-only -- does not modify code. Communicates via team-collaboration protocol. |
 | **researcher** | Searches web and codebase for information, returns structured summaries. Uses sonnet model. |
 
@@ -24,21 +23,13 @@ and skills for team-based debugging workflows.
 | **team-management** | Full orchestration lifecycle: work analysis, team setup with git worktrees, agent spawning, progress monitoring, code review, sequential merge, cleanup. |
 | **writing-plans** | 4-phase pipeline override: design analysis, strategy decision (subagent vs team), plan writing with bite-sized TDD tasks, execution handoff. |
 | **implementation** | Shared workflow for engineer agents: startup protocol, context discovery, common best practices, verification, and reporting. |
+| **spec-review** | 6-phase spec quality review: read & understand, analyze codebase, quality check (IEEE 830/INVEST/Wiegers criteria), issue identification, report generation, approval gate. |
 
 ## How It Works
 
 ```
-debug-team-leader (orchestrator)
-├── bug-hunter (finds bugs with bug-hunting skill)
-│   └── Produces: findings with reproduction tests
-└── junior-engineer / senior-engineer (fixes bugs with systematic-debugging skill)
-    └── Produces: fixes verified against reproduction tests
-
-Leader reviews all changes → merges → reports
-```
-
-```
-lead-engineer (pure orchestrator)
+lead-engineer (orchestrator — feature mode)
+├── Invokes spec-review skill
 ├── Reviews spec and creates implementation plan
 ├── Classifies tasks: [JUNIOR] vs [SENIOR]
 ├── junior-engineer (handles trivial tasks)
@@ -48,10 +39,21 @@ lead-engineer (pure orchestrator)
 └── Merges all reviewed changes → reports
 ```
 
+```
+lead-engineer (orchestrator — debug mode)
+├── Analyzes codebase for debuggable fragments
+├── bug-hunter (finds bugs with bug-hunting skill)
+│   └── Produces: findings with reproduction tests
+└── junior-engineer / senior-engineer (fixes bugs with systematic-debugging skill)
+    └── Produces: fixes verified against reproduction tests
+
+Leader reviews all changes → merges → reports
+```
+
 The **junior-engineer** and **senior-engineer** share a common `implementation`
 skill for context discovery, best practices, and verification. The junior
-follows plans precisely; the senior plans its own approach. When the
-debug-team-leader spawns them, it tells them to use `systematic-debugging`.
+follows plans precisely; the senior plans its own approach. In debug mode, the
+lead-engineer tells engineers to use `systematic-debugging`.
 
 ## Installation
 
@@ -82,10 +84,10 @@ ls -la ~/.claude/skills
 
 ## Usage
 
-To run a debugging sweep on a codebase, use the `debug-team-leader` agent:
+To use the lead engineer for feature development or debugging:
 
 ```
-/agent debug-team-leader
+/agent lead-engineer
 ```
 
 To use a junior engineer for a simple task:
@@ -98,12 +100,6 @@ To use a senior engineer for a complex task:
 
 ```
 /agent senior-engineer
-```
-
-To use the lead engineer for feature development:
-
-```
-/agent lead-engineer
 ```
 
 ## Requirements
