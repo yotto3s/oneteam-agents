@@ -144,7 +144,7 @@ git add tests/path/test.py src/path/file.py
 git commit -m "feat: add specific feature"
 ```
 
-**Step 6: Review checkpoint**
+**Step 6: Review checkpoint** *(team-driven only -- omit for subagent-driven plans)*
 
 **Review Checkpoint:**
 
@@ -154,8 +154,8 @@ git commit -m "feat: add specific feature"
 | Tests pass | Run: `<test command>` | |
 | No regressions | Full suite green | |
 
-Reviewer: `reviewer-N` reviews diff for this task.
-Action on CHANGES NEEDED: fix -> re-review before next task.
+Reviewer: `<reviewer-name>` reviews diff for this task.
+Action on CHANGES NEEDED: fix the issues, then re-review before starting the next task.
 ````
 
 ### Strategy-Adapted Sections
@@ -197,7 +197,7 @@ quality).
 
 **Fragments:** N (max 4)
 
-## Team Composition
+### Team Composition
 
 | Name | Type | Scope |
 |------|------|-------|
