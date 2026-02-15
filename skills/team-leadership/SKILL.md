@@ -187,7 +187,21 @@ communication throughout the execution phase.
    `SendMessage` asking for a status report. Do not assume failure -- the
    agent may be working on a complex problem.
 
-4. **Cross-group relay.** For multi-group organizations where groups work on
+4. **Periodic friendly check-ins.** Proactively reach out to each active
+   teammate for a status update at regular intervals -- don't wait for them
+   to report or for problems to surface. Keep the tone friendly and
+   supportive, not interrogative. Examples:
+   - "Hey, how's it going on your end? Anything I can help with?"
+   - "Just checking in -- making progress? Let me know if you hit any snags."
+   - "How are things looking? No rush, just want to stay in the loop."
+
+   Aim to check in with each active agent at least once between major
+   milestones (e.g., between fragment completions). Stagger check-ins so
+   you're not messaging everyone at the same time. If an agent recently
+   sent a substantive update, skip the check-in -- they've already
+   communicated their status.
+
+5. **Cross-group relay.** For multi-group organizations where groups work on
    related aspects:
    - If one group produces output that is relevant to another group, relay a
      summary of the findings to the other group's agents.
