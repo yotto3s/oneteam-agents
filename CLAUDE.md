@@ -46,7 +46,7 @@ YAML frontmatter with `name` and `description`, followed by phased pipeline docu
 
 | Skill | Phases |
 |-------|--------|
-| design-workflow | Modifies brainstorming: removes auto-commit, adds optional GitHub issue posting |
+| brainstorming | Collaborative design: explores intent, proposes approaches, writes design doc, optional GitHub issue posting, invokes writing-plans |
 | writing-plans | 4-phase orchestrator: dispatch analyzer → strategy decision → dispatch architect → execution handoff |
 | bug-hunting | 6-phase: scope → contract inventory → impact tracing → adversarial analysis → gap analysis → verification |
 | plan-authoring | Plan-writing methodology: task granularity, document structure, strategy-adapted sections |
@@ -59,7 +59,7 @@ YAML frontmatter with `name` and `description`, followed by phased pipeline docu
 ### Pipeline
 
 The standard development pipeline follows this flow:
-1. **brainstorming** (superpowers) + **design-workflow** (override) → produces design document, optionally posts to GitHub issue
+1. **brainstorming** → produces design document, optionally posts to GitHub issue
 2. **writing-plans** (override) → dispatches analyzer (sonnet) for triage, user picks strategy, dispatches architect to write plan
 3. **Execution** → `superpowers:subagent-driven-development` (subagent) or `team-management` (team)
 
