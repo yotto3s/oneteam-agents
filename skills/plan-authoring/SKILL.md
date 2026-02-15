@@ -143,6 +143,19 @@ Expected: PASS
 git add tests/path/test.py src/path/file.py
 git commit -m "feat: add specific feature"
 ```
+
+**Step 6: Review checkpoint**
+
+**Review Checkpoint:**
+
+| Check | Criteria | Pass/Fail |
+|-------|----------|-----------|
+| Acceptance criteria met | [from task definition] | |
+| Tests pass | Run: `<test command>` | |
+| No regressions | Full suite green | |
+
+Reviewer: `reviewer-N` reviews diff for this task.
+Action on CHANGES NEEDED: fix -> re-review before next task.
 ````
 
 ### Strategy-Adapted Sections
@@ -184,12 +197,35 @@ quality).
 
 **Fragments:** N (max 4)
 
+## Team Composition
+
+| Name | Type | Scope |
+|------|------|-------|
+| lead-1 | lead-engineer | Fragments 1-N |
+| reviewer-1 | code-reviewer | Lead group 1 |
+| junior-1 | junior-engineer | Fragment 1, Tasks ... |
+| senior-1 | senior-engineer | Fragment 1, Tasks ... |
+| ... | ... | ... |
+
+**Lead-engineer count:** `ceil(fragment_count / 3)`, min 1, each overseeing 2-3 fragments.
+**Reviewer count:** 1 per lead-engineer.
+**Engineers:** 1 per fragment, junior or senior per task classification.
+
 ### Fragment 1: [name]
 - **Tasks:** Task 1, Task 3
 - **File scope:** `path/to/area/`
 - **Agent role:** [oneteam:agent] junior-engineer / [oneteam:agent] senior-engineer
 - **Model:** (optional) haiku — for truly trivial junior tasks
 - **Inter-fragment dependencies:** none
+
+#### Fragment 1: Post-Completion Review
+
+| Stage | Reviewer | Criteria | Status |
+|-------|----------|----------|--------|
+| 1. Spec compliance | reviewer-N | All acceptance criteria across fragment tasks met | |
+| 2. Code quality | reviewer-N | Conventions, security, test coverage, no regressions | |
+
+Both stages must PASS before fragment is merge-ready.
 
 ### Fragment 2: [name]
 - **Tasks:** Task 2, Task 4
@@ -198,6 +234,16 @@ quality).
 - **Model:** (optional) haiku — for truly trivial junior tasks
 - **Inter-fragment dependencies:** Fragment 1 must complete Task 1 before
   Task 2 can start
+
+#### Fragment 2: Post-Completion Review
+
+| Stage | Reviewer | Criteria | Status |
+|-------|----------|----------|--------|
+| 1. Spec compliance | reviewer-N | All acceptance criteria across fragment tasks met | |
+| 2. Code quality | reviewer-N | Conventions, security, test coverage, no regressions | |
+
+Both stages must PASS before fragment is merge-ready.
+
 ...
 
 Fragment groupings are designed for parallel execution with worktree isolation.
