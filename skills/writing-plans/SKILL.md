@@ -201,7 +201,7 @@ quality).
 ## Execution: Team-Driven
 
 > **For Claude:** REQUIRED SUB-SKILL: Use team-leadership skill to orchestrate
-> execution starting from Phase 3 (Team Setup).
+> execution starting from Phase 2 (Team Setup).
 
 **Fragments:** N (max 4)
 
@@ -253,7 +253,7 @@ Save the plan and invoke the appropriate execution skill.
    **If team-driven:**
    - **REQUIRED SUB-SKILL:** Use `team-leadership`
    - The plan's fragment groupings are passed as input
-   - team-leadership detects the plan and starts from Phase 3 (Team Setup)
+   - team-leadership detects the plan and starts from Phase 2 (Team Setup)
 
 ## Constraints
 
