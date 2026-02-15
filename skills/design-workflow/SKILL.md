@@ -24,12 +24,16 @@ directly to writing-plans.
 
 If they accept:
 
-1. **Ask which repository.** Always ask for the target repository in
-   `owner/repo` format. NEVER assume the current working directory's repository
-   is the target — the user may want to post to an entirely different repo.
+1. **Ask which repository.** Always ask for the target repository. NEVER
+   assume the current working directory's repository is the target. The user
+   may respond with:
+   - `same` or `current` — use the current working directory's repo
+   - `owner/repo` — target that specific repo
+   - A full URL — extract the repo from it
 
 2. **Ask new issue or existing.**
-   - **New issue:** `gh issue create -R owner/repo --title "..." --body "..."`
+   - **New issue:** `gh issue create -R owner/repo --title "<topic>" --body "..."`
+     Use the design topic as the title (e.g., "Add auth flow").
    - **Existing issue:** Ask for issue number, then
      `gh issue comment NUMBER -R owner/repo --body "..."`
 
