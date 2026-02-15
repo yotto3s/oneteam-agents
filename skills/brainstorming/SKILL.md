@@ -30,7 +30,7 @@ You MUST create a task for each of these items and complete them in order:
 5. **Choose working branch** — ask user which branch to work on via AskUserQuestion
 6. **Write design doc** — save to `docs/plans/YYYY-MM-DD-<topic>-design.md` (do NOT commit)
 7. **Offer GitHub issue posting** — optionally post the design to a GitHub issue
-8. **Transition to implementation** — invoke writing-plans skill to create implementation plan
+8. **Transition to implementation** — invoke [oneteam:skill] `writing-plans` skill to create implementation plan
 
 ## Process Flow
 
@@ -44,7 +44,7 @@ digraph brainstorming {
     "Choose working branch" [shape=box];
     "Write design doc" [shape=box];
     "Offer GitHub issue posting" [shape=box];
-    "Invoke writing-plans skill" [shape=doublecircle];
+    "Invoke [oneteam:skill] writing-plans skill" [shape=doublecircle];
 
     "Explore project context" -> "Ask clarifying questions";
     "Ask clarifying questions" -> "Propose 2-3 approaches";
@@ -54,11 +54,11 @@ digraph brainstorming {
     "User approves design?" -> "Choose working branch" [label="yes"];
     "Choose working branch" -> "Write design doc";
     "Write design doc" -> "Offer GitHub issue posting";
-    "Offer GitHub issue posting" -> "Invoke writing-plans skill";
+    "Offer GitHub issue posting" -> "Invoke [oneteam:skill] writing-plans skill";
 }
 ```
 
-**The terminal state is invoking writing-plans.** Do NOT invoke frontend-design, mcp-builder, or any other implementation skill. The ONLY skill you invoke after brainstorming is writing-plans.
+**The terminal state is invoking [oneteam:skill] `writing-plans`.** Do NOT invoke frontend-design, mcp-builder, or any other implementation skill. The ONLY skill you invoke after [oneteam:skill] `brainstorming` is [oneteam:skill] `writing-plans`.
 
 ## The Process
 
@@ -106,9 +106,9 @@ If the user picks **Create new branch**, run `git checkout -b <name>`.
 
 **GitHub issue posting:**
 
-After writing the design file (and before invoking writing-plans), ask the user
+After writing the design file (and before invoking [oneteam:skill] `writing-plans`), ask the user
 if they want to post the design to a GitHub issue. If they decline, proceed
-directly to writing-plans.
+directly to [oneteam:skill] `writing-plans`.
 
 If they accept:
 
@@ -130,8 +130,8 @@ If they accept:
    targeting the wrong repository.
 
 **Implementation:**
-- Invoke the writing-plans skill to create a detailed implementation plan
-- Do NOT invoke any other skill. writing-plans is the next step.
+- Invoke the [oneteam:skill] `writing-plans` skill to create a detailed implementation plan
+- Do NOT invoke any other skill. [oneteam:skill] `writing-plans` is the next step.
 
 ## Key Principles
 
