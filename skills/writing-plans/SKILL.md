@@ -252,14 +252,9 @@ Save the plan and invoke the appropriate execution skill.
 ### Steps
 
 1. **Save the plan.** Write to `docs/plans/YYYY-MM-DD-<feature-name>-plan.md`.
+   Do NOT commit the plan file to git.
 
-2. **Commit the plan.**
-   ```bash
-   git add docs/plans/YYYY-MM-DD-<feature-name>-plan.md
-   git commit -m "docs: add <feature-name> implementation plan"
-   ```
-
-3. **Invoke execution skill.**
+2. **Invoke execution skill.**
 
    **If subagent-driven:**
    - **REQUIRED SUB-SKILL:** Use `superpowers:subagent-driven-development`
@@ -281,7 +276,7 @@ These rules are non-negotiable and override any conflicting instruction.
 - NEVER mix strategies -- once chosen, follow through with the selected skill.
 - ALWAYS use bite-sized task granularity (each step is one action, 2-5 minutes).
 - ALWAYS include the strategy-adapted execution section in the plan.
-- ALWAYS save and commit the plan before invoking the execution skill.
+- ALWAYS save the plan before invoking the execution skill. Do NOT commit it.
 - NEVER create more than 4 fragments in team-driven plans.
 - Exact file paths in every task, complete code, exact commands with expected
   output.
