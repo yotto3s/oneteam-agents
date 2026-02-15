@@ -1,7 +1,7 @@
 ---
 name: plan-authoring
 description: >-
-  Plan-writing methodology for the architect agent. Defines bite-sized task
+  Plan-writing methodology for the [oneteam:agent] architect agent. Defines bite-sized task
   granularity, plan document structure, strategy-adapted execution sections,
   and quality constraints for implementation plans.
 ---
@@ -11,8 +11,8 @@ description: >-
 ## Overview
 
 This skill defines how to write implementation plans. It is used by the
-`architect` agent, which receives a design document, an analysis blob, and a
-chosen execution strategy from the writing-plans orchestrator.
+[oneteam:agent] `architect` agent, which receives a design document, an analysis blob, and a
+chosen execution strategy from the [oneteam:skill] `writing-plans` orchestrator.
 
 Write comprehensive implementation plans assuming the engineer has zero context
 for the codebase and questionable taste. Document everything they need to know:
@@ -25,7 +25,7 @@ or problem domain. Assume they don't know good test design very well.
 
 ## Inputs
 
-The architect agent provides these when invoking this skill:
+The [oneteam:agent] `architect` agent provides these when invoking this skill:
 
 - **Design document** — full text (read from provided path)
 - **Analysis blob** — structured summary from the analyzer sub-agent, containing
@@ -58,7 +58,7 @@ with scope areas — use those as starting points for targeted reading.
 4. **Classify agent tiers.** Refine the analyzer's rough complexity
    classifications using this heuristic:
 
-   | Signal | junior-engineer | senior-engineer |
+   | Signal | [oneteam:agent] junior-engineer | [oneteam:agent] senior-engineer |
    |--------|----------------|-----------------|
    | File count | 1-2 files | 3+ files |
    | Coupling | Low — isolated change | High — touches shared interfaces |
@@ -66,7 +66,7 @@ with scope areas — use those as starting points for targeted reading.
    | Risk | Low — failure is obvious and contained | High — subtle bugs, data corruption, security |
    | Codebase knowledge | Minimal — can work from instructions alone | Deep — requires understanding architecture |
 
-   When in doubt, classify as `senior-engineer`.
+   When in doubt, classify as [oneteam:agent] `senior-engineer`.
 
 ## Phase 2: Plan Writing
 
@@ -109,8 +109,8 @@ Write the implementation plan following bite-sized task granularity.
 - Modify: `exact/path/to/existing.py:123-145`
 - Test: `exact/path/to/test.py`
 
-**Agent role:** junior-engineer / senior-engineer
-**Model:** (optional) haiku — only when a junior-engineer task is truly trivial
+**Agent role:** [oneteam:agent] junior-engineer / [oneteam:agent] senior-engineer
+**Model:** (optional) haiku — only when a [oneteam:agent] junior-engineer task is truly trivial
 
 **Step 1: Write the failing test**
 
@@ -157,7 +157,7 @@ plan:
 
 ## Execution: Subagent-Driven
 
-> **For Claude:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development
+> **For Claude:** REQUIRED SUB-SKILL: Use [superpowers:skill] `subagent-driven-development`
 > to execute this plan task-by-task.
 
 **Task Order:** Sequential, dependency-respecting order listed below.
@@ -179,7 +179,7 @@ quality).
 
 ## Execution: Team-Driven
 
-> **For Claude:** REQUIRED SUB-SKILL: Use team-management skill to orchestrate
+> **For Claude:** REQUIRED SUB-SKILL: Use [oneteam:skill] `team-management` skill to orchestrate
 > execution starting from Phase 2 (Team Setup).
 
 **Fragments:** N (max 4)
@@ -187,14 +187,14 @@ quality).
 ### Fragment 1: [name]
 - **Tasks:** Task 1, Task 3
 - **File scope:** `path/to/area/`
-- **Agent role:** junior-engineer / senior-engineer
+- **Agent role:** [oneteam:agent] junior-engineer / [oneteam:agent] senior-engineer
 - **Model:** (optional) haiku — for truly trivial junior tasks
 - **Inter-fragment dependencies:** none
 
 ### Fragment 2: [name]
 - **Tasks:** Task 2, Task 4
 - **File scope:** `path/to/other/`
-- **Agent role:** junior-engineer / senior-engineer
+- **Agent role:** [oneteam:agent] junior-engineer / [oneteam:agent] senior-engineer
 - **Model:** (optional) haiku — for truly trivial junior tasks
 - **Inter-fragment dependencies:** Fragment 1 must complete Task 1 before
   Task 2 can start
