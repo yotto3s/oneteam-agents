@@ -34,7 +34,7 @@ YAML frontmatter with `name`, `description`, `tools`, `model`, `color`, `skills`
 | senior-engineer | opus | Complex task executor, plans own approach, handles architectural work |
 | lead-engineer | opus | Pure orchestrator: reviews specs, delegates all implementation |
 | code-reviewer | inherit | Read-only review for bugs, security, spec conformance |
-| researcher | sonnet | Searches web and codebase, returns structured summaries to caller |
+| researcher | haiku | Searches web and codebase, returns structured summaries to caller |
 
 ### Skill Definitions
 

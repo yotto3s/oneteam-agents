@@ -5,7 +5,7 @@ description: >-
   caller. Designed for context offloading — the calling agent delegates research
   questions and receives concise answers without polluting its own context window.
 tools: Read, Glob, Grep, Bash, WebSearch, WebFetch
-model: sonnet
+model: haiku
 color: yellow
 skills:
   - research
@@ -83,6 +83,22 @@ Produce the Research Summary in this format (defined in the `research` skill):
 ### Open Questions
 - [Anything unresolved]
 ```
+
+## Model Selection Guide
+
+The default model is **haiku**. Spawners can override to **sonnet** when needed.
+
+**Use haiku (default)** for:
+- Factual lookups — "what does X do?", "where is Y defined?"
+- Single-source answers — API docs, config values, file locations
+- Codebase navigation — finding files, grepping for patterns, reading specific code
+- Bounded scope — the question can be answered in 1-2 search rounds
+
+**Use sonnet** for:
+- Cross-referencing multiple sources and synthesizing a coherent view
+- Evaluating trade-offs between alternatives (library A vs B, approach X vs Y)
+- Understanding complex or novel concepts that require nuanced reasoning
+- Multi-hop reasoning — answer depends on chaining findings from several queries
 
 ## Constraints
 
