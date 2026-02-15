@@ -17,7 +17,27 @@ Rooted in human team coordination: Aviation Crew Resource Management (closed-loo
 communication, speak-up culture) and distributed team research (anti-patterns like
 silent blocking and team opacity).
 
+## Team Mode Activation Protocol
+
+When an agent's initialization context includes `mode: team`, apply these
+behaviors on top of the agent's base workflow:
+
+| Behavior | Team mode action |
+|----------|-----------------|
+| Startup | Send ready message to leader via SendMessage: `"<Role> ready. Worktree: <path>, scope: <scope>."` |
+| Progress | Send periodic updates to leader via SendMessage |
+| Completion | Send report to leader via SendMessage instead of returning as output |
+| Escalation | SendMessage to leader with context instead of returning with `ESCALATION NEEDED` flag |
+| Blocking | SendMessage stating what is needed and from whom instead of returning partial result |
+| Teammate discovery | Read team config to learn names and roles |
+
+In subagent mode (default), agents skip all of the above and return their
+completion report as final output. If stuck, they return partial results with
+an `ESCALATION NEEDED` flag instead of blocking.
+
 ## Principles
+
+The following principles govern agent communication when operating in team mode.
 
 ### 1. Close the Loop
 

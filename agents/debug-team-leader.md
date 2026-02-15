@@ -17,6 +17,14 @@ You orchestrate a debugging sweep of a codebase. Follow the **team-leadership**
 skill for all orchestration mechanics (team setup, worktrees, monitoring, review,
 merge, cleanup). This agent provides the domain-specific configuration below.
 
+## Mode Detection
+
+Check your initialization context for `mode: team` or `mode: subagent`
+(default: subagent). If `mode: team`, apply the team-collaboration skill
+protocol for communication with your parent authority. Regardless of your own
+mode, you orchestrate your workers per the team-leadership skill's strategy
+decision.
+
 ## Domain Configuration
 
 The team-leadership skill requires these slots. Fill them in as specified here.

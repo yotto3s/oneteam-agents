@@ -15,8 +15,10 @@ description: >-
 This skill turns specifications into working implementations. The lead engineer
 reviews a spec, breaks it into tasks, classifies each by complexity, delegates
 trivial work to implementer agents, and handles the hard parts directly. It
-operates in two modes based on scope: single-branch for small work, team mode
-(via team-leadership) for larger efforts.
+operates in three modes based on scope: single-branch for tiny delegation,
+subagent mode for medium independent work, and team mode (via team-leadership)
+for larger parallel efforts. The lead engineer always presents a recommendation
+and the user makes the final choice.
 
 The lead engineer always operates as a teammate. The authority -- whoever
 provided the spec (user or leader agent) -- approves the spec review, approves
@@ -163,18 +165,43 @@ tasks and classifies each by complexity.
 
 ## Phase 3: Mode Decision
 
-The lead engineer decides how to orchestrate execution based on the scope of
-delegated work.
+The lead engineer analyzes the delegated work, recommends an execution mode,
+and the user makes the final choice.
 
 ### Decision Criteria
 
-- **Single-branch mode:** 2 or fewer `[DELEGATE]` tasks AND all in the same
-  module/area. Spawn implementer(s) directly on the current branch. No worktrees,
-  no team-leadership overhead.
+| Signal | Single-branch | Subagent | Team |
+|--------|--------------|----------|------|
+| DELEGATE tasks | ≤2, same area | Any count, all independent | 3+, or overlapping scopes |
+| File overlap | None | None | Yes |
+| Typical use | Tiny delegation | Medium work, sequential OK | Large parallel effort |
 
-- **Team mode:** 3 or more `[DELEGATE]` tasks, OR tasks span different modules.
-  Use the team-leadership skill for full orchestration: worktrees, task tracking,
-  sequential merge.
+### Steps
+
+1. **Analyze DELEGATE tasks** using the criteria above.
+
+2. **Present recommendation to user:**
+   ```
+   ## Mode Recommendation
+
+   **DELEGATE tasks:** N
+   **File independence:** all independent / overlap in [list files]
+   **SELF tasks:** M
+
+   **Recommended:** Single-branch / Subagent / Team
+   **Reasoning:** <1-2 sentences>
+
+   1. **Single-branch** — Spawn implementers on current branch, no worktrees
+   2. **Subagent** — Sequential Task tool dispatch, two-stage review per task
+   3. **Team** — Full team-leadership orchestration with worktrees
+   ```
+
+3. **User picks mode:** `single-branch`, `subagent`, or `team`.
+
+4. **If subagent chosen:** present isolation recommendation (current branch vs
+   worktrees). User picks: `branch` or `worktree`.
+
+5. **HARD GATE.** Do NOT proceed until the user has explicitly chosen.
 
 ### Single-Branch Mode Setup
 
@@ -193,14 +220,24 @@ Note: In single-branch mode, delegate tasks MUST NOT have overlapping file
 scopes. If two delegate tasks touch the same file, either use team mode
 (with separate worktrees) or serialize the delegate tasks.
 
+### Subagent Mode Setup
+
+1. If user chose `worktree` isolation: create worktrees per the
+   team-leadership skill worktree creation steps. If `branch`: use
+   current working directory.
+2. Prepare an ordered task queue from the `[DELEGATE]` tasks (dependency order).
+3. `[SELF]` tasks stay with the lead engineer (unchanged).
+4. Proceed to Phase 4.
+
 ### Team Mode Setup
 
 1. Fill in the team-leadership domain configuration slots (`splitting_strategy`,
    `fragment_size`, `organization`, `review_criteria`, `report_fields`,
    `domain_summary_sections`) as defined in the agent file.
-2. Follow the team-leadership skill Phase 1-2 (Work Analysis and Team Setup),
-   using the `[DELEGATE]` tasks as the fragment plan. Each fragment groups
-   related `[DELEGATE]` tasks.
+2. Follow the team-leadership skill (starting from Phase 3: Team Setup, since
+   the user already chose team mode in this skill's Phase 3), using the
+   `[DELEGATE]` tasks as the fragment plan. Each fragment groups related
+   `[DELEGATE]` tasks.
 3. `[SELF]` tasks are NOT included in fragments -- they stay with the lead
    engineer.
 4. Proceed to Phase 4.
@@ -234,6 +271,30 @@ While working on `[SELF]` tasks:
        or **skip** (mark as unresolvable).
    - Taking over a delegated task is preferred over letting it stall.
 4. When an implementer reports completion, review their changes immediately.
+
+### Subagent Delegation
+
+When operating in subagent mode, replace the Delegation Monitoring workflow
+above with sequential task execution:
+
+For each `[DELEGATE]` task in the queue:
+1. Spawn an implementer subagent via the `Task` tool (no `team_name`,
+   include `mode: subagent`). Provide: worktree or branch path, file list,
+   instructions, acceptance criteria.
+2. Wait for the subagent to return its result.
+3. Spawn a spec-compliance review subagent to verify the result.
+4. If issues: spawn a fix subagent. Repeat until spec passes. If fixes
+   fail after `escalation_threshold` attempts (default 3), escalate to
+   the user/authority.
+5. Spawn a code-quality review subagent.
+6. If issues: spawn a fix subagent. Repeat until quality passes. Same
+   escalation threshold applies.
+7. Run test suite. If failures, diagnose and fix before proceeding.
+8. Next task.
+
+`[SELF]` tasks are still executed by the lead engineer directly, unchanged.
+The Self-Code Review requirement (below) applies in all modes -- do not skip
+it in subagent mode.
 
 ### Ordering
 
@@ -286,11 +347,17 @@ everything.
       APPROVED.
    d. If APPROVED: proceed to the next implementer's review or to step 2.
 
+   **Subagent mode:** Skip this step. Code review was already done per-task
+   during Phase 4 (two-stage review).
+
 2. **Merge changes.**
-   - **Team mode:** Follow team-leadership Phase 4 (sequential merge with
+   - **Team mode:** Follow team-leadership Phase 5 (sequential merge with
      test verification after each merge).
    - **Single-branch mode:** Implementers committed directly to the branch.
      No merge needed -- verify the combined state instead.
+   - **Subagent mode with worktrees:** Merge sequentially as in team mode.
+   - **Subagent mode with branch:** No merge needed -- all work committed
+     to current branch. Proceed to steps 3-4 to verify.
 
 3. **Run the full test suite.** All tests must pass. If failures exist,
    diagnose and fix before proceeding.
@@ -336,8 +403,10 @@ everything.
    to user.
 
 7. **Cleanup.** If this agent created the team:
-   - Follow team-leadership Phase 5 (Consolidation) for cleanup.
+   - Follow team-leadership Phase 6 (Consolidation) for cleanup.
    - If single-branch mode: shut down implementers, delete team.
+   - If subagent mode: clean up worktrees (if used). No team to delete,
+     no agents to shut down.
 
 ## Constraints
 
@@ -366,6 +435,6 @@ These rules are non-negotiable and override any conflicting instruction.
 |-------|-------|--------|------------|
 | 1. Spec Review | Spec from authority | Spec Review Report | Yes -- authority approval |
 | 2. Implementation Planning | Approved spec + codebase | Implementation Plan with [DELEGATE]/[SELF] tags | Yes -- authority approval |
-| 3. Mode Decision | Approved plan | Single-branch or team mode setup | No |
+| 3. Mode Decision | Approved plan | Single-branch, subagent, or team setup | Yes -- user choice |
 | 4. Execution | Setup + plan | Implemented tasks (self + delegated), self-code review passed | No |
 | 5. Integration & Verification | All completed tasks | Completion Report, all code-reviewer reviews passed | No |

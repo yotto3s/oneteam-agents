@@ -20,6 +20,7 @@ Requires the `systematic-debugging` skill from the [superpowers](https://github.
 
 - **Skills** (`skills/{name}/SKILL.md`) contain all domain logic — phased workflows, constraints, output formats
 - **Agents** (`agents/{name}.md`) are thin wrappers that combine tools + skills + model selection
+- **Subagent is base**: Agent files describe core work without team infrastructure assumptions. Team behavior is layered on via the `team-collaboration` skill when `mode: team`.
 
 ### Agent Definitions
 
@@ -41,10 +42,14 @@ YAML frontmatter with `name` and `description`, followed by phased pipeline docu
 |-------|--------|
 | bug-hunting | 6-phase: scope → contract inventory → impact tracing → adversarial analysis → gap analysis → verification |
 | team-collaboration | 4 principles: close the loop, never block silently, know ownership, speak up early |
-| team-leadership | 5-phase orchestration: analysis → team setup (worktrees) → monitoring → review/merge → cleanup |
+| team-leadership | 6-phase orchestration: analysis → strategy decision → team setup → monitoring → review/merge → cleanup |
 | lead-engineering | 5-phase: spec review → plan with complexity classification → mode decision → execution → integration |
 
 ### Two Main Workflows
+
+Both workflows support two execution strategies chosen by the user:
+- **Team mode**: parallel agents, worktrees, task tracking, SendMessage coordination
+- **Subagent mode**: sequential Task tool dispatch, two-stage review, lighter infrastructure
 
 **Debug workflow:** `debug-team-leader` → spawns `bug-hunter` + `implementer` pairs → reviews → merges
 
