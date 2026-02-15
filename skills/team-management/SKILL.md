@@ -146,8 +146,8 @@ agents. Every sub-step must complete before the next begins.
      task ID of the `starts_first: true` role's task for the same fragment.
      This ensures dependent roles wait until their prerequisite completes.
    - Use `TaskCreate` for each task.
-   - For roles where the plan's Team Composition table specifies a reviewer
-     (e.g., `reviewer-N`), create one task per reviewer per lead group. The
+   - For reviewer roles specifically, create one task per lead group (not per
+     fragment), since a reviewer covers all fragments in their lead group. The
      reviewer task subject should be:
      `"{group}-reviewer fragment N: review tasks for <fragment description>"`.
      Set `addBlockedBy` pointing to all engineer tasks in the reviewer's lead
@@ -265,6 +265,11 @@ communication throughout the execution phase.
       as merge-ready to the top-level orchestrator.
 
 ## Phase 4: Review & Merge
+
+The Phase 3 fragment completion review is performed by the lead-engineer's
+paired reviewer within the fragment. Phase 4 is the top-level orchestrator's
+merge-gate review. Both are required — the fragment review validates correctness
+within the worktree, while the merge-gate review validates integration safety.
 
 When agents report their work complete, the leader reviews changes and merges
 them into the base branch sequentially.
