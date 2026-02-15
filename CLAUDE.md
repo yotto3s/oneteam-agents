@@ -32,6 +32,7 @@ YAML frontmatter with `name`, `description`, `tools`, `model`, `color`, `skills`
 
 | Agent | Model | Role |
 |-------|-------|------|
+| architect | inherit | Reads design docs and codebase, writes implementation plans |
 | bug-hunter | inherit | Finds bugs via bug-hunting skill, writes reproduction tests |
 | junior-engineer | sonnet | Trivial task executor, follows detailed plans precisely |
 | senior-engineer | opus | Complex task executor, plans own approach, handles architectural work |
@@ -46,8 +47,9 @@ YAML frontmatter with `name` and `description`, followed by phased pipeline docu
 | Skill | Phases |
 |-------|--------|
 | design-workflow | Modifies brainstorming: removes auto-commit, adds optional GitHub issue posting |
-| writing-plans | 4-phase: design analysis → strategy decision → plan writing → execution handoff |
+| writing-plans | 4-phase orchestrator: dispatch analyzer → strategy decision → dispatch architect → execution handoff |
 | bug-hunting | 6-phase: scope → contract inventory → impact tracing → adversarial analysis → gap analysis → verification |
+| plan-authoring | Plan-writing methodology: task granularity, document structure, strategy-adapted sections |
 | team-collaboration | 4 principles: close the loop, never block silently, know ownership, speak up early |
 | team-management | 5-phase orchestration: analysis (conditional) → team setup → monitoring → review/merge → consolidation |
 | research | 3-phase: clarify → gather → synthesize |
@@ -58,7 +60,7 @@ YAML frontmatter with `name` and `description`, followed by phased pipeline docu
 
 The standard development pipeline follows this flow:
 1. **brainstorming** (superpowers) + **design-workflow** (override) → produces design document, optionally posts to GitHub issue
-2. **writing-plans** (override) → analyzes design, asks user for strategy, writes plan
+2. **writing-plans** (override) → dispatches analyzer (sonnet) for triage, user picks strategy, dispatches architect to write plan
 3. **Execution** → `superpowers:subagent-driven-development` (subagent) or `team-management` (team)
 
 ### Two Main Workflows
