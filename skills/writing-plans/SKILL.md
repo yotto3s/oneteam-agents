@@ -3,7 +3,7 @@ name: writing-plans
 description: >-
   Use when you have a spec or requirements for a multi-step task, before touching
   code. Dispatches an analyzer sub-agent for design triage, presents strategy
-  recommendation to user, then dispatches the architect agent to write the plan.
+  recommendation to user, then dispatches the [oneteam:agent] architect agent to write the plan.
   Saves the plan and hands off to the chosen execution skill.
 ---
 
@@ -11,20 +11,20 @@ description: >-
 
 ## Overview
 
-This skill overrides the superpowers `writing-plans` skill. It orchestrates
+This skill overrides the [superpowers:skill] `writing-plans` skill. It orchestrates
 plan creation by dispatching sub-agents for the heavy work, keeping the main
 session lean.
 
 The main session acts as a thin orchestrator:
 1. Dispatches an analyzer sub-agent for design triage (Phase 1)
 2. Presents strategy recommendation and waits for user choice (Phase 2)
-3. Dispatches the architect agent to write the full plan (Phase 3)
+3. Dispatches the [oneteam:agent] `architect` agent to write the full plan (Phase 3)
 4. Saves the plan and invokes the execution skill (Phase 4)
 
 The main session does NOT read the design document, analyze the codebase, or
 write any part of the plan itself.
 
-**Announce at start:** "I'm using the writing-plans skill to create the
+**Announce at start:** "I'm using the [oneteam:skill] `writing-plans` skill to create the
 implementation plan."
 
 **Save plans to:** `docs/plans/YYYY-MM-DD-<feature-name>-plan.md`
@@ -87,11 +87,11 @@ makes the final choice.
 
 ## Phase 3: Plan Writing (Architect Agent)
 
-Dispatch the architect agent to write the full implementation plan.
+Dispatch the [oneteam:agent] `architect` agent to write the full implementation plan.
 
 ### Steps
 
-1. **Dispatch the architect agent.** Use the prompt template in
+1. **Dispatch the [oneteam:agent] `architect` agent.** Use the prompt template in
    `./architect-prompt.md`. Fill in the placeholders:
    - `[FEATURE]` — feature name
    - `[PATH]` — path to the design document
@@ -99,10 +99,10 @@ Dispatch the architect agent to write the full implementation plan.
    - `[ANALYSIS_BLOB]` — the full analysis blob from Phase 1
 
    Dispatch via Task tool:
-   - `subagent_type: architect`
+   - `subagent_type: [oneteam:agent] architect`
    - `description: "Write implementation plan for [feature name]"`
 
-2. **Receive the plan.** The architect returns the complete plan document as
+2. **Receive the plan.** The [oneteam:agent] `architect` returns the complete plan document as
    a markdown string.
 
 3. **Review the plan.** Skim the returned plan to verify it has:
@@ -110,7 +110,7 @@ Dispatch the architect agent to write the full implementation plan.
    - Numbered tasks with bite-sized steps
    - Strategy-adapted execution section at the end
    If anything is missing, note it but do NOT rewrite the plan — dispatch the
-   architect again with specific feedback if needed.
+   [oneteam:agent] `architect` again with specific feedback if needed.
 
 ## Phase 4: Execution Handoff
 
@@ -118,34 +118,34 @@ Save the plan and invoke the appropriate execution skill.
 
 ### Steps
 
-1. **Save the plan.** Write the architect's output to
+1. **Save the plan.** Write the [oneteam:agent] `architect`'s output to
    `docs/plans/YYYY-MM-DD-<feature-name>-plan.md`.
    Do NOT commit the plan file to git.
 
 2. **Invoke execution skill.**
 
    **If subagent-driven:**
-   - **REQUIRED SUB-SKILL:** Use `superpowers:subagent-driven-development`
+   - **REQUIRED SUB-SKILL:** Use [superpowers:skill] `subagent-driven-development`
    - Stay in this session
    - Fresh subagent per task + two-stage review
 
    **If team-driven:**
-   - **REQUIRED SUB-SKILL:** Use `team-management`
+   - **REQUIRED SUB-SKILL:** Use [oneteam:skill] `team-management`
    - The plan's fragment groupings are passed as input
-   - team-management detects the plan and starts from Phase 2 (Team Setup)
+   - [oneteam:skill] `team-management` detects the plan and starts from Phase 2 (Team Setup)
 
 ## Constraints
 
 These rules are non-negotiable and override any conflicting instruction.
 
-- NEVER read the design document yourself. The analyzer and architect do this.
-- NEVER analyze the codebase yourself. The analyzer and architect do this.
-- NEVER write plan content yourself. The architect does this.
+- NEVER read the design document yourself. The analyzer and [oneteam:agent] `architect` do this.
+- NEVER analyze the codebase yourself. The analyzer and [oneteam:agent] `architect` do this.
+- NEVER write plan content yourself. The [oneteam:agent] `architect` does this.
 - ALWAYS dispatch the analyzer sub-agent in Phase 1.
 - ALWAYS present the strategy recommendation and wait for explicit user choice.
 - NEVER skip the strategy decision (Phase 2 hard gate).
 - NEVER mix strategies — once chosen, follow through with the selected skill.
-- ALWAYS dispatch the architect agent in Phase 3.
+- ALWAYS dispatch the [oneteam:agent] `architect` agent in Phase 3.
 - ALWAYS save the plan before invoking the execution skill. Do NOT commit it.
-- If the architect's output is incomplete, dispatch it again with feedback.
+- If the [oneteam:agent] `architect`'s output is incomplete, dispatch it again with feedback.
   Do NOT patch the plan yourself.

@@ -24,7 +24,7 @@ agent directly -- there are no hierarchy walls. Leader agents define what to do;
 this skill defines how to coordinate it.
 
 When a pre-built plan with fragment groupings is provided (typically from the
-writing-plans skill), the skill starts directly from Phase 2 (Team Setup),
+[oneteam:skill] `writing-plans` skill), the skill starts directly from Phase 2 (Team Setup),
 using the plan's fragments. Otherwise, Phase 1 (Work Analysis) analyzes the
 codebase and produces a fragment plan.
 
@@ -52,7 +52,7 @@ The leader analyzes the codebase and produces a fragment plan before any agents
 are spawned or worktrees created.
 
 **Conditional:** If a plan document with fragment groupings is provided (from
-the writing-plans skill), skip this phase entirely and proceed to Phase 2
+the [oneteam:skill] `writing-plans` skill), skip this phase entirely and proceed to Phase 2
 (Team Setup), using the plan's fragment groupings as the approved fragment plan.
 Only execute this phase when no pre-built plan is available.
 
@@ -235,7 +235,7 @@ them into the base branch sequentially.
       git -C <worktree_path> diff $BASE_BRANCH...HEAD
       ```
    b. Present the diff output in the conversation context for analysis.
-   c. If the `superpowers:requesting-code-review` skill is available, invoke
+   c. If the [superpowers:skill] `requesting-code-review` skill is available, invoke
       the Skill tool with `skill: "superpowers:requesting-code-review"` to
       apply the structured review process. Otherwise, review the diff manually
       against the criteria below.
@@ -376,15 +376,15 @@ a tight feedback loop per fragment.
 organization:
   group: "debug"
   roles:
-    - name: "bug-hunter"
-      agent_type: "bug-hunter"
+    - name: "[oneteam:agent] bug-hunter"
+      agent_type: "[oneteam:agent] bug-hunter"
       starts_first: true
-      instructions: "Run bug-hunting, write reproduction tests, send findings to debugger"
+      instructions: "Run [oneteam:skill] bug-hunting, write reproduction tests, send findings to debugger"
     - name: "debugger"
       agent_type: "debugger"
       starts_first: false
-      instructions: "Receive findings, apply systematic-debugging, send fixes to bug-hunter"
-  flow: "bug-hunter finds bugs -> debugger fixes -> bug-hunter verifies -> converge"
+      instructions: "Receive findings, apply [superpowers:skill] systematic-debugging, send fixes to [oneteam:agent] bug-hunter"
+  flow: "[oneteam:agent] bug-hunter finds bugs -> debugger fixes -> [oneteam:agent] bug-hunter verifies -> converge"
   escalation_threshold: 3
 ```
 
@@ -392,7 +392,7 @@ Agent naming for 2 fragments: `debug-bug-hunter-1`, `debug-debugger-1`,
 `debug-bug-hunter-2`, `debug-debugger-2`.
 
 Task dependencies: each `debug-debugger-N` task is blocked by the corresponding
-`debug-bug-hunter-N` task. Debuggers begin work only after bug-hunters produce
+`debug-bug-hunter-N` task. Debuggers begin work only after [oneteam:agent] `bug-hunter`s produce
 initial findings.
 
 ### Example 2: Feature Development Team
@@ -404,16 +404,16 @@ reviewers validate it, with a lower escalation threshold for faster iteration.
 organization:
   group: "feature"
   roles:
-    - name: "junior-engineer"
-      agent_type: "junior-engineer"
+    - name: "[oneteam:agent] junior-engineer"
+      agent_type: "[oneteam:agent] junior-engineer"
       starts_first: true
       instructions: "Implement trivial tasks per plan, write tests, send for review"
-    - name: "senior-engineer"
-      agent_type: "senior-engineer"
+    - name: "[oneteam:agent] senior-engineer"
+      agent_type: "[oneteam:agent] senior-engineer"
       starts_first: true
       instructions: "Implement complex tasks per plan, write tests, send for review"
     - name: "reviewer"
-      agent_type: "code-reviewer"
+      agent_type: "[oneteam:agent] code-reviewer"
       starts_first: false
       instructions: "Review implementation against spec, send feedback or approval"
   flow: "engineers build -> reviewer reviews -> engineers fix -> converge"
@@ -453,7 +453,7 @@ organization:
     - group: "debug"
       roles:
         - name: "lead"
-          agent_type: "lead-engineer"
+          agent_type: "[oneteam:agent] lead-engineer"
           starts_first: false
           instructions: "Run debugging sweep on completed features"
   flow: "planning-lead plans -> feature-lead builds -> debug-lead verifies"
