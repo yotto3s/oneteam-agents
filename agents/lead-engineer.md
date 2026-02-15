@@ -151,7 +151,17 @@ Delegate all tasks and monitor progress.
    (default 3), review the problem and choose: **guide** (send advice),
    **reassign** (escalate junior task to [oneteam:agent] `senior-engineer`), or **skip**
    (mark unresolvable).
-3. When an agent reports completion, review their changes immediately.
+3. When an agent reports completion, review their changes immediately
+   (or trigger the paired reviewer if per-task review coordination is active).
+4. **Per-task review coordination:** After delegating a task, monitor for
+   the engineer's completion report. On task completion, trigger the
+   fragment's paired reviewer via `SendMessage` with the task diff and
+   review checkpoint criteria. Wait for the reviewer's result before
+   unblocking the next task for the engineer.
+5. **Fragment completion review:** After all tasks in a fragment pass
+   per-task review, trigger the paired reviewer for a two-stage fragment
+   review (spec compliance, then code quality). Only report the fragment
+   as merge-ready after both stages pass.
 
 ### Phase 4: Integration and Verification
 
@@ -211,31 +221,38 @@ Analyze the implementation plan to identify delegatable fragments:
 ```yaml
 group: "feature"
 roles:
+  - name: "[oneteam:agent] lead-engineer"
+    agent_type: "[oneteam:agent] lead-engineer"
+    starts_first: true
+    instructions: |
+      Oversee your assigned fragments. For each task an engineer completes,
+      trigger the reviewer to review it before the engineer proceeds to the
+      next task. After all tasks in a fragment complete, trigger the two-stage
+      fragment review (spec compliance + code quality). Report fragment
+      completion to the top-level orchestrator.
   - name: "[oneteam:agent] junior-engineer"
     agent_type: "[oneteam:agent] junior-engineer"
     starts_first: true
     instructions: |
-      Implement the delegated [JUNIOR] tasks per the provided plan. Each
-      task has exact file paths, step-by-step instructions, and acceptance
-      criteria. Follow your default workflow (context discovery, execute
-      plan, then verification). Report completion to the lead engineer.
+      Implement delegated [JUNIOR] tasks. After each task, wait for reviewer
+      approval before starting the next task. Follow TDD workflow.
   - name: "[oneteam:agent] senior-engineer"
     agent_type: "[oneteam:agent] senior-engineer"
     starts_first: true
     instructions: |
-      Implement the delegated [SENIOR] tasks per the provided plan. Each
-      task has file paths and acceptance criteria. Plan your approach,
-      get approval, implement, then verify. Report completion to the
-      lead engineer.
+      Implement delegated [SENIOR] tasks. After each task, wait for reviewer
+      approval before starting the next task. Plan approach, implement, verify.
   - name: "reviewer"
     agent_type: "[oneteam:agent] code-reviewer"
     starts_first: false
     instructions: |
-      Review code changes against the implementation plan and project
-      conventions. Check for bugs, security issues, spec conformance, and
-      test coverage. Send findings to the lead engineer.
-flow: "[oneteam:agent] lead-engineer plans -> [oneteam:agent] junior-engineer/[oneteam:agent] senior-engineer builds -> [oneteam:agent] code-reviewer reviews -> converge"
-escalation_threshold: 3
+      Per-task: single-pass review (spec + quality) after each engineer task.
+      Per-fragment: two-stage review (1. spec compliance, 2. code quality)
+      after all tasks complete. Send findings to the lead-engineer.
+flow: "lead delegates -> engineers build task -> reviewer reviews task ->
+       repeat until all tasks done -> reviewer does two-stage fragment review ->
+       lead reports completion"
+escalation_threshold: 2
 ```
 
 #### review_criteria
