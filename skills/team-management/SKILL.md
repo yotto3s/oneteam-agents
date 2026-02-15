@@ -453,7 +453,7 @@ organization:
     - group: "debug"
       roles:
         - name: "lead"
-          agent_type: "debug-team-leader"
+          agent_type: "lead-engineer"
           starts_first: false
           instructions: "Run debugging sweep on completed features"
   flow: "planning-lead plans -> feature-lead builds -> debug-lead verifies"
