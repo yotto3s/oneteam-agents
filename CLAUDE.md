@@ -31,7 +31,7 @@ YAML frontmatter with `name`, `description`, `tools`, `model`, `color`, `skills`
 | debug-team-leader | inherit | Orchestrates debugging sweeps, spawns bug-hunter/implementer pairs |
 | bug-hunter | inherit | Finds bugs via bug-hunting skill, writes reproduction tests |
 | implementer | sonnet | Generic task executor, accepts skill directives |
-| lead-engineer | opus | Spec-driven development: reviews, plans, delegates, implements |
+| lead-engineer | opus | Spec-driven development: reviews specs, classifies tasks, delegates/implements |
 | code-reviewer | inherit | Read-only review for bugs, security, spec conformance |
 
 ### Skill Definitions
@@ -40,20 +40,23 @@ YAML frontmatter with `name` and `description`, followed by phased pipeline docu
 
 | Skill | Phases |
 |-------|--------|
+| writing-plans | 4-phase: design analysis → strategy decision → plan writing → execution handoff |
 | bug-hunting | 6-phase: scope → contract inventory → impact tracing → adversarial analysis → gap analysis → verification |
 | team-collaboration | 4 principles: close the loop, never block silently, know ownership, speak up early |
-| team-leadership | 6-phase orchestration: analysis → strategy decision → team setup → monitoring → review/merge → cleanup |
-| lead-engineering | 5-phase: spec review → plan with complexity classification → mode decision → execution → integration |
+| team-leadership | 5-phase orchestration: analysis (conditional) → team setup → monitoring → review/merge → consolidation |
+
+### Pipeline
+
+The standard development pipeline follows this flow:
+1. **brainstorming** (superpowers) → produces design document
+2. **writing-plans** (override) → analyzes design, asks user for strategy, writes plan
+3. **Execution** → `superpowers:subagent-driven-development` (subagent) or `team-leadership` (team)
 
 ### Two Main Workflows
 
-Both workflows support two execution strategies chosen by the user:
-- **Team mode**: parallel agents, worktrees, task tracking, SendMessage coordination
-- **Subagent mode**: sequential Task tool dispatch, two-stage review, lighter infrastructure
-
 **Debug workflow:** `debug-team-leader` → spawns `bug-hunter` + `implementer` pairs → reviews → merges
 
-**Lead-engineer workflow:** `lead-engineer` → reviews spec → classifies tasks as [DELEGATE] or [SELF] → spawns `implementer` + `code-reviewer` → merges
+**Lead-engineer workflow:** `lead-engineer` → reviews spec → classifies tasks as [DELEGATE] or [SELF] → delegates to implementers, implements hard parts → reviews → merges
 
 ## Conventions for Writing Agents and Skills
 

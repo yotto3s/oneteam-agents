@@ -2,10 +2,10 @@
 name: team-leadership
 description: >-
   Use when orchestrating a team of agents to work on a project. Provides the
-  complete lifecycle: work analysis, team setup with git worktrees, agent
-  spawning with logical group naming, progress monitoring, escalation handling,
-  code review gates, sequential merge protocol, and cleanup. Leader agents load
-  this skill and fill in domain-specific configuration slots.
+  complete lifecycle for team mode: work analysis, team setup with git worktrees,
+  agent spawning with logical group naming, progress monitoring, escalation
+  handling, code review gates, sequential merge protocol, and cleanup. Leader
+  agents load this skill and fill in domain-specific configuration slots.
 ---
 
 # Team Leadership
@@ -13,22 +13,20 @@ description: >-
 ## Overview
 
 This skill provides the complete orchestration mechanics for leading a team of
-agents through a workflow. It supports two execution strategies:
+agents through a workflow using parallel agents with worktrees, task tracking,
+and SendMessage coordination.
 
-- **Team mode**: parallel agents with worktrees, task tracking, SendMessage
-  coordination. Best for 2+ fragments or overlapping scopes.
-- **Subagent mode**: sequential task execution via Task tool, two-stage review,
-  lighter infrastructure. Best for 1 fragment or fully independent tasks.
-
-The core architecture for team mode is one flat team with logical groups via
-naming (`{group}-{role}-{N}`). The design follows a thick skill + thin agent
-pattern: this skill contains all orchestration logic while leader agents provide
+The core architecture is one flat team with logical groups via naming
+(`{group}-{role}-{N}`). The design follows a thick skill + thin agent pattern:
+this skill contains all orchestration logic while leader agents provide
 domain-specific configuration through "slots." Any agent can message any other
 agent directly -- there are no hierarchy walls. Leader agents define what to do;
 this skill defines how to coordinate it.
 
-The leader always presents a strategy recommendation to the user, who makes the
-final decision.
+When a pre-built plan with fragment groupings is provided (typically from the
+writing-plans skill), the skill starts directly from Phase 2 (Team Setup),
+using the plan's fragments. Otherwise, Phase 1 (Work Analysis) analyzes the
+codebase and produces a fragment plan.
 
 ## Slot Reference Table
 
@@ -52,6 +50,11 @@ slots have defaults that apply when unset.
 
 The leader analyzes the codebase and produces a fragment plan before any agents
 are spawned or worktrees created.
+
+**Conditional:** If a plan document with fragment groupings is provided (from
+the writing-plans skill), skip this phase entirely and proceed to Phase 2
+(Team Setup), using the plan's fragment groupings as the approved fragment plan.
+Only execute this phase when no pre-built plan is available.
 
 ### Steps
 
@@ -103,56 +106,9 @@ are spawned or worktrees created.
 6. **Wait for confirmation.** STOP and wait for the user to confirm the plan.
    If the user requests changes (different grouping, different scope, fewer
    fragments), adjust the plan and re-present it. Do NOT proceed to Phase 2
-   until the user explicitly approves.
+   (Team Setup) until the user explicitly approves.
 
-## Phase 2: Strategy Decision
-
-After the user approves the fragment plan, the leader analyzes the work and
-recommends an execution strategy. The user makes the final decision.
-
-### Steps
-
-1. **Analyze decision signals.**
-   - Fragment count: 1 fragment leans subagent, 2+ fragments lean team.
-   - Task independence: check if any fragments share files. Overlapping scopes
-     lean team (worktree isolation needed for safe parallel work).
-
-2. **Present strategy recommendation.** Display to the user:
-   ```
-   ## Strategy Recommendation
-
-   **Fragments:** N
-   **Task independence:** all independent / overlap in [list files]
-
-   **Recommended:** Team mode / Subagent mode
-   **Reasoning:** <1-2 sentences>
-
-   1. **Team mode** — Parallel agents with worktrees, task tracking, SendMessage
-   2. **Subagent mode** — Sequential task execution via Task tool, two-stage review
-   ```
-
-3. **User picks strategy:** `team` or `subagent`.
-
-4. **If subagent chosen, recommend isolation strategy.** Check if any tasks
-   in the queue modify the same files. If overlap exists, recommend `worktree`.
-   If all tasks touch independent files, recommend `branch`. Present:
-   ```
-   ## Isolation Strategy
-
-   **Recommended:** Current branch / Worktrees
-   **Reasoning:** <1-2 sentences>
-
-   1. **Current branch** — Subagents work directly here (simpler, faster)
-   2. **Worktrees** — Isolated branches per fragment (safer)
-   ```
-
-5. **User picks isolation:** `branch` or `worktree`.
-
-6. **HARD GATE.** Do NOT proceed until the user has explicitly chosen both
-   strategy and (if applicable) isolation. Store the decisions for use in all
-   subsequent phases.
-
-## Phase 3: Team Setup
+## Phase 2: Team Setup
 
 With an approved fragment plan, the leader sets up infrastructure and spawns
 agents. Every sub-step must complete before the next begins.
@@ -212,7 +168,7 @@ agents. Every sub-step must complete before the next begins.
    tasks assigned immediately. Roles with `starts_first: false` have their
    tasks assigned but blocked -- agents will be notified when unblocked.
 
-## Phase 4: Monitoring
+## Phase 3: Monitoring
 
 The leader monitors progress, handles escalations, and facilitates cross-group
 communication throughout the execution phase.
@@ -266,7 +222,7 @@ communication throughout the execution phase.
      the leader should facilitate when agents do not know about each other's
      work or when coordination is needed.
 
-## Phase 5: Review & Merge
+## Phase 4: Review & Merge
 
 When agents report their work complete, the leader reviews changes and merges
 them into the base branch sequentially.
@@ -319,7 +275,7 @@ them into the base branch sequentially.
      instruct them to rebase their branch onto the updated base branch. Retry
      the merge after the agent completes the rebase.
 
-## Phase 6: Consolidation
+## Phase 5: Consolidation
 
 After all fragments are merged, the leader produces a final report and cleans
 up all infrastructure.
@@ -405,62 +361,6 @@ These rules are non-negotiable and override any conflicting instruction.
 - NEVER spawn agents before their worktrees are created and verified.
 - If already operating as a teammate in an existing team, do NOT create a new
   team. Work within the existing team structure.
-- ALWAYS present the strategy recommendation in Phase 2 and wait for user
-  choice before proceeding.
-- In subagent mode, ALWAYS run two-stage review (spec-compliance then
-  code-quality) for each task before proceeding to the next.
-
-## Subagent Mode Overrides
-
-When the user chooses subagent strategy in Phase 2, the following overrides
-apply. Everything not listed here follows the standard (team mode) phases.
-
-### Phase 3 (Team Setup) overrides
-
-- Skip TeamCreate, TaskCreate, TaskUpdate, and agent spawning.
-- If user chose `branch` isolation: skip worktree creation too.
-- If user chose `worktree` isolation: create worktrees as normal but no team
-  infrastructure.
-- Prepare an ordered task queue from the fragment plan (dependency order).
-
-### Phase 4 (Monitoring) overrides
-
-Replace the polling/check-in loop with sequential task execution. The per-task
-review loop below fulfills the code review requirement, so Phase 5's review
-gate is skipped in subagent mode (see Phase 5 overrides).
-
-For each task in the queue:
-1. Spawn an implementer subagent via the `Task` tool (no `team_name`,
-   include `mode: subagent` in the prompt). Provide: worktree or branch path,
-   file list, step-by-step instructions, acceptance criteria.
-2. Wait for the subagent to return its result.
-3. Spawn a spec-compliance review subagent to verify the result matches
-   the plan and requirements.
-4. If issues found: spawn a fix subagent with the review findings. Repeat
-   steps 3-4 until the spec-compliance review passes. If fixes fail after
-   `escalation_threshold` attempts (default 3), escalate to the user.
-5. Spawn a code-quality review subagent to check conventions, security,
-   and code quality.
-6. If issues found: spawn a fix subagent with the review findings. Repeat
-   steps 5-6 until the code-quality review passes. Same escalation threshold
-   applies.
-7. Run the project's test suite to verify no regressions.
-8. Proceed to the next task.
-
-### Phase 5 (Review & Merge) overrides
-
-- Skip the code review gate (already done per-task in Phase 4).
-- If user chose `branch` isolation: skip merge entirely. Run the full test
-  suite as final verification.
-- If user chose `worktree` isolation: merge sequentially as normal.
-
-### Phase 6 (Consolidation) overrides
-
-- Skip agent shutdown (subagents already terminated after each task).
-- Skip TeamDelete (no team was created).
-- If user chose `branch` isolation: skip worktree and branch cleanup.
-- Adapt the report template: replace "Agents" field with "Subagent tasks
-  executed" and list tasks instead of agent names.
 
 ## Organization Structure Examples
 
@@ -566,9 +466,8 @@ parallelism within each group.
 
 | Phase | Input | Output | Key Question |
 |-------|-------|--------|--------------|
-| 1. Work Analysis | User request + codebase | Fragment plan (approved) | How should we split this work? |
-| 2. Strategy Decision | Approved plan | Strategy + isolation choice | Team or subagent? Branch or worktree? |
-| 3. Team Setup | Strategy choice | Infrastructure (worktrees, tasks, agents OR task queue) | Is infrastructure ready? |
-| 4. Monitoring / Execution | Running agents OR task queue | Progress updates, completed tasks | Are tasks making progress? |
-| 5. Review & Merge | Completed work | Reviewed and merged code | Do changes meet quality standards? |
-| 6. Consolidation | Merged code | Final report, cleaned infrastructure | Is everything documented and cleaned up? |
+| 1. Work Analysis | User request + codebase (or skip if plan provided) | Fragment plan (approved) | How should we split this work? |
+| 2. Team Setup | Approved fragment plan | Infrastructure (worktrees, tasks, agents) | Is infrastructure ready? |
+| 3. Monitoring | Running agents | Progress updates, completed tasks | Are tasks making progress? |
+| 4. Review & Merge | Completed work | Reviewed and merged code | Do changes meet quality standards? |
+| 5. Consolidation | Merged code | Final report, cleaned infrastructure | Is everything documented and cleaned up? |

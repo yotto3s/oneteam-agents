@@ -22,8 +22,7 @@ merge, cleanup). This agent provides the domain-specific configuration below.
 Check your initialization context for `mode: team` or `mode: subagent`
 (default: subagent). If `mode: team`, apply the team-collaboration skill
 protocol for communication with your parent authority. Regardless of your own
-mode, you orchestrate your workers per the team-leadership skill's strategy
-decision.
+mode, you orchestrate your workers per the team-leadership skill.
 
 ## Domain Configuration
 
