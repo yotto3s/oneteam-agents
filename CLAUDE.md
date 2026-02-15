@@ -6,13 +6,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 A library of reusable Claude Code **agents** and **skills** for team-based debugging and feature development workflows. This is a metaprogramming project — it defines agent behaviors and skill workflows as YAML+markdown files, not traditional application code.
 
-Installed via symlinks:
+Installed via the install script:
 ```
-ln -s ~/oneteam-agents/agents ~/.claude/agents
-ln -s ~/oneteam-agents/skills ~/.claude/skills
+./install.sh
 ```
 
-Requires the `systematic-debugging` skill from the [superpowers](https://github.com/anthropics/claude-plugins-official) plugin for the debug workflow.
+Or with flags for non-interactive use:
+```
+./install.sh --target ~/.claude --with-superpowers
+```
+
+[Superpowers](https://github.com/obra/superpowers.git) is included as a git submodule at `external/superpowers/`. The install script automatically skips superpowers agents/skills that oneteam-agents overrides. Superpowers can also be installed separately as a Claude Code plugin.
 
 ## Architecture
 
