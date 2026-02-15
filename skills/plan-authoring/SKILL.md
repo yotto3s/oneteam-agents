@@ -32,6 +32,9 @@ The architect agent provides these when invoking this skill:
   task sketch, independence level, and strategy recommendation
 - **Chosen strategy** — `subagent` or `team` (decided by user in orchestrator)
 
+If any input is missing, return immediately with an error describing what is
+needed. Do not proceed without all three inputs.
+
 ## Phase 1: Codebase Reading
 
 Read the codebase to understand existing patterns, conventions, and the specific

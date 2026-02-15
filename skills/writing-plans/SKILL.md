@@ -91,13 +91,16 @@ Dispatch the architect agent to write the full implementation plan.
 
 ### Steps
 
-1. **Dispatch the architect agent.** Use the Task tool:
+1. **Dispatch the architect agent.** Use the prompt template in
+   `./architect-prompt.md`. Fill in the placeholders:
+   - `[FEATURE]` — feature name
+   - `[PATH]` — path to the design document
+   - `[STRATEGY]` — chosen strategy (`subagent` or `team`)
+   - `[ANALYSIS_BLOB]` — the full analysis blob from Phase 1
+
+   Dispatch via Task tool:
    - `subagent_type: architect`
    - `description: "Write implementation plan for [feature name]"`
-   - Include in the prompt:
-     - Path to the design document
-     - The full analysis blob from Phase 1
-     - The chosen strategy (`subagent` or `team`)
 
 2. **Receive the plan.** The architect returns the complete plan document as
    a markdown string.
