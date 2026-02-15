@@ -397,31 +397,37 @@ initial findings.
 
 ### Example 2: Feature Development Team
 
-A build-and-review team where implementers write code and reviewers validate it,
-with a lower escalation threshold for faster iteration.
+A build-and-review team where junior and senior engineers write code and
+reviewers validate it, with a lower escalation threshold for faster iteration.
 
 ```yaml
 organization:
   group: "feature"
   roles:
-    - name: "implementer"
-      agent_type: "general-purpose"
+    - name: "junior-engineer"
+      agent_type: "junior-engineer"
       starts_first: true
-      instructions: "Implement the feature per spec, write tests, send for review"
+      instructions: "Implement trivial tasks per plan, write tests, send for review"
+    - name: "senior-engineer"
+      agent_type: "senior-engineer"
+      starts_first: true
+      instructions: "Implement complex tasks per plan, write tests, send for review"
     - name: "reviewer"
       agent_type: "code-reviewer"
       starts_first: false
       instructions: "Review implementation against spec, send feedback or approval"
-  flow: "implementer builds -> reviewer reviews -> implementer fixes -> converge"
+  flow: "engineers build -> reviewer reviews -> engineers fix -> converge"
   escalation_threshold: 2
 ```
 
-Agent naming for 3 fragments: `feature-implementer-1`, `feature-reviewer-1`,
-`feature-implementer-2`, `feature-reviewer-2`, `feature-implementer-3`,
-`feature-reviewer-3`.
+Agent naming for 2 fragments: `feature-junior-engineer-1`,
+`feature-senior-engineer-1`, `feature-reviewer-1`,
+`feature-junior-engineer-2`, `feature-senior-engineer-2`,
+`feature-reviewer-2`.
 
-The reviewer role uses `starts_first: false` so each reviewer waits until the
-implementer in their fragment has completed initial work before beginning review.
+The reviewer role uses `starts_first: false` so each reviewer waits until
+both engineers in their fragment have completed initial work before beginning
+review.
 
 ### Example 3: Multi-Group Project
 
@@ -455,7 +461,7 @@ organization:
 
 Agent naming: `planning-lead-1`, `feature-lead-1`, `debug-lead-1`. Each group
 leader can spawn their own sub-agents within the same flat team, using their
-group prefix (e.g., `feature-implementer-1`, `feature-reviewer-1`).
+group prefix (e.g., `feature-junior-engineer-1`, `feature-senior-engineer-1`).
 
 Task dependencies chain across groups: `feature-lead-1` is blocked by
 `planning-lead-1`, and `debug-lead-1` is blocked by `feature-lead-1`. This

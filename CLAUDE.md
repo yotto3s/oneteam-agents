@@ -28,10 +28,11 @@ YAML frontmatter with `name`, `description`, `tools`, `model`, `color`, `skills`
 
 | Agent | Model | Role |
 |-------|-------|------|
-| debug-team-leader | inherit | Orchestrates debugging sweeps, spawns bug-hunter/implementer pairs |
+| debug-team-leader | inherit | Orchestrates debugging sweeps, spawns bug-hunter/engineer pairs |
 | bug-hunter | inherit | Finds bugs via bug-hunting skill, writes reproduction tests |
-| implementer | sonnet | Generic task executor, accepts skill directives |
-| lead-engineer | opus | Spec-driven development: reviews specs, classifies tasks, delegates/implements |
+| junior-engineer | sonnet | Trivial task executor, follows detailed plans precisely |
+| senior-engineer | opus | Complex task executor, plans own approach, handles architectural work |
+| lead-engineer | opus | Pure orchestrator: reviews specs, delegates all implementation |
 | code-reviewer | inherit | Read-only review for bugs, security, spec conformance |
 | researcher | sonnet | Searches web and codebase, returns structured summaries to caller |
 
@@ -46,6 +47,7 @@ YAML frontmatter with `name` and `description`, followed by phased pipeline docu
 | team-collaboration | 4 principles: close the loop, never block silently, know ownership, speak up early |
 | team-leadership | 5-phase orchestration: analysis (conditional) → team setup → monitoring → review/merge → consolidation |
 | research | 3-phase: clarify → gather → synthesize |
+| implementation | 2-phase: context discovery → verification + common best practices |
 
 ### Pipeline
 
@@ -56,9 +58,9 @@ The standard development pipeline follows this flow:
 
 ### Two Main Workflows
 
-**Debug workflow:** `debug-team-leader` → spawns `bug-hunter` + `implementer` pairs → reviews → merges
+**Debug workflow:** `debug-team-leader` → spawns `bug-hunter` + `junior-engineer`/`senior-engineer` pairs (by severity) → reviews → merges
 
-**Lead-engineer workflow:** `lead-engineer` → reviews spec → classifies tasks as [DELEGATE] or [SELF] → delegates to implementers, implements hard parts → reviews → merges
+**Lead-engineer workflow:** `lead-engineer` → reviews spec → classifies tasks as [JUNIOR] or [SENIOR] → delegates to junior/senior engineers → reviews → merges
 
 ## Conventions for Writing Agents and Skills
 

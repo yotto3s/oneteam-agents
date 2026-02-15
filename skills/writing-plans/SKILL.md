@@ -50,6 +50,17 @@ the user). No user interaction in this phase -- purely analytical.
    - File touch areas per task
    - Dependencies between tasks (which must come before which)
    - Complexity of each task (isolated vs. coupled, boilerplate vs. novel)
+   - Agent tier classification per task using this heuristic:
+
+     | Signal | junior-engineer | senior-engineer |
+     |--------|----------------|-----------------|
+     | File count | 1-2 files | 3+ files |
+     | Coupling | Low — isolated change | High — touches shared interfaces |
+     | Pattern | Well-understood (boilerplate, CRUD, config) | Novel or complex logic |
+     | Risk | Low — failure is obvious and contained | High — subtle bugs, data corruption, security |
+     | Codebase knowledge | Minimal — can work from instructions alone | Deep — requires understanding architecture |
+
+     When in doubt, classify as `senior-engineer`.
 
 4. **Record analysis.** Keep the extracted signals for use in Phase 2. Do not
    present them to the user yet -- they will be incorporated into the strategy
@@ -134,6 +145,9 @@ format adapts based on the chosen strategy.
 - Modify: `exact/path/to/existing.py:123-145`
 - Test: `exact/path/to/test.py`
 
+**Agent role:** junior-engineer / senior-engineer
+**Model:** (optional) haiku — only when a junior-engineer task is truly trivial
+
 **Step 1: Write the failing test**
 
 ```python
@@ -208,13 +222,15 @@ quality).
 ### Fragment 1: [name]
 - **Tasks:** Task 1, Task 3
 - **File scope:** `path/to/area/`
-- **Agent role:** implementer
+- **Agent role:** junior-engineer / senior-engineer
+- **Model:** (optional) haiku — for truly trivial junior tasks
 - **Inter-fragment dependencies:** none
 
 ### Fragment 2: [name]
 - **Tasks:** Task 2, Task 4
 - **File scope:** `path/to/other/`
-- **Agent role:** implementer
+- **Agent role:** junior-engineer / senior-engineer
+- **Model:** (optional) haiku — for truly trivial junior tasks
 - **Inter-fragment dependencies:** Fragment 1 must complete Task 1 before
   Task 2 can start
 ...

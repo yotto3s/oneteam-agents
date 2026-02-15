@@ -7,11 +7,13 @@ and skills for team-based debugging workflows.
 
 | Agent | Description |
 |-------|-------------|
-| **debug-team-leader** | Orchestrates a debugging sweep. Spawns bug-hunter/implementer pairs, reviews changes, merges fixes. |
-| **implementer** | Generic implementation agent. Receives tasks with an optional skill directive. Falls back to a default workflow: context discovery, planning with approval gate, implementation, verification. |
-| **bug-hunter** | Finds bugs and writes reproduction tests. Uses the bug-hunting skill, then verifies tests fail before handing findings to the implementer. |
-| **lead-engineer** | Receives specs, reviews them, creates implementation plans, delegates trivial tasks to implementer agents, and implements hard tasks itself. Uses opus model. |
+| **debug-team-leader** | Orchestrates a debugging sweep. Spawns bug-hunter/engineer pairs (junior or senior based on severity), reviews changes, merges fixes. |
+| **junior-engineer** | Handles trivial tasks: boilerplate, CRUD, config, single-file edits. Follows detailed plans precisely. Default model: sonnet (overridable to haiku). |
+| **senior-engineer** | Handles complex tasks: multi-file changes, architectural work, novel logic. Plans own approach. Always uses opus model. |
+| **bug-hunter** | Finds bugs and writes reproduction tests. Uses the bug-hunting skill, then verifies tests fail before handing findings to the paired engineer. |
+| **lead-engineer** | Pure orchestrator. Receives specs, reviews them, creates implementation plans, delegates all work to junior and senior engineers. Uses opus model. |
 | **code-reviewer** | Reviews code changes for bugs, security issues, and spec conformance. Read-only -- does not modify code. Communicates via team-collaboration protocol. |
+| **researcher** | Searches web and codebase for information, returns structured summaries. Uses sonnet model. |
 
 ## Skills
 
@@ -21,6 +23,7 @@ and skills for team-based debugging workflows.
 | **team-collaboration** | Communication protocol for multi-agent teams. Close the loop, never block silently, know who owns what, speak up early. |
 | **team-leadership** | Full orchestration lifecycle: work analysis, team setup with git worktrees, agent spawning, progress monitoring, code review, sequential merge, cleanup. |
 | **writing-plans** | 4-phase pipeline override: design analysis, strategy decision (subagent vs team), plan writing with bite-sized TDD tasks, execution handoff. |
+| **implementation** | Shared workflow for engineer agents: startup protocol, context discovery, common best practices, verification, and reporting. |
 
 ## How It Works
 
@@ -28,27 +31,27 @@ and skills for team-based debugging workflows.
 debug-team-leader (orchestrator)
 ├── bug-hunter (finds bugs with bug-hunting skill)
 │   └── Produces: findings with reproduction tests
-└── implementer (fixes bugs with systematic-debugging skill)
+└── junior-engineer / senior-engineer (fixes bugs with systematic-debugging skill)
     └── Produces: fixes verified against reproduction tests
 
 Leader reviews all changes → merges → reports
 ```
 
 ```
-lead-engineer (spec-driven development)
+lead-engineer (pure orchestrator)
 ├── Reviews spec and creates implementation plan
-├── Classifies tasks: [DELEGATE] vs [SELF]
-├── implementer (handles trivial delegated tasks)
-│   └── code-reviewer reviews implementer's code
-├── lead-engineer implements hard tasks directly
-│   └── code-reviewer reviews lead-engineer's own code
+├── Classifies tasks: [JUNIOR] vs [SENIOR]
+├── junior-engineer (handles trivial tasks)
+│   └── code-reviewer reviews junior-engineer's code
+├── senior-engineer (handles complex tasks)
+│   └── code-reviewer reviews senior-engineer's code
 └── Merges all reviewed changes → reports
 ```
 
-The **implementer** is generic — it can be directed to use any skill. When the
-debug-team-leader spawns it, it tells the implementer to use
-`systematic-debugging`. In other contexts, you could tell it to use a different
-skill (e.g., `implement-feature`).
+The **junior-engineer** and **senior-engineer** share a common `implementation`
+skill for context discovery, best practices, and verification. The junior
+follows plans precisely; the senior plans its own approach. When the
+debug-team-leader spawns them, it tells them to use `systematic-debugging`.
 
 ## Installation
 
@@ -85,10 +88,16 @@ To run a debugging sweep on a codebase, use the `debug-team-leader` agent:
 /agent debug-team-leader
 ```
 
-To use the implementer standalone for a task:
+To use a junior engineer for a simple task:
 
 ```
-/agent implementer
+/agent junior-engineer
+```
+
+To use a senior engineer for a complex task:
+
+```
+/agent senior-engineer
 ```
 
 To use the lead engineer for feature development:
