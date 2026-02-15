@@ -4,7 +4,7 @@ description: >-
   Use when asked to review merged PRs for integration bugs, audit a module or
   codebase for latent issues, investigate vague suspicions about code correctness,
   or perform any proactive bug discovery where no specific error message or test
-  failure exists yet. Not for known bugs with symptoms (use systematic-debugging)
+  failure exists yet. Not for known bugs with symptoms (use [superpowers:skill] systematic-debugging)
   or writing new tests (use TDD).
 ---
 
@@ -31,7 +31,7 @@ The agent activates this skill when any of these conditions hold:
 
 The agent does NOT use this skill when:
 
-- A specific error message or test failure exists (use systematic-debugging).
+- A specific error message or test failure exists (use [superpowers:skill] `systematic-debugging`).
 - The goal is to write or improve tests (use TDD workflow).
 
 ## Phase Pipeline
