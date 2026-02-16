@@ -24,6 +24,7 @@ and skills for team-based debugging workflows.
 | **writing-plans** | 4-phase pipeline override: design analysis, strategy decision (subagent vs team), plan writing with bite-sized TDD tasks, execution handoff. |
 | **implementation** | Shared workflow for engineer agents: startup protocol, context discovery, common best practices, verification, and reporting. |
 | **spec-review** | 6-phase spec quality review: read & understand, analyze codebase, quality check (IEEE 830/INVEST/Wiegers criteria), issue identification, report generation, approval gate. |
+| **self-review** | 5-phase pre-merge quality gate: spec compliance, code quality, test comprehensiveness, bug hunting, comprehensive review. Each phase spawns reviewer/bug-hunter subagents and engineers for fixes. Produces a PASS/FAIL Self-Review Report. |
 
 ## How It Works
 
@@ -34,6 +35,7 @@ lead-engineer (orchestrator — feature mode)
 ├── Classifies tasks: [JUNIOR] vs [SENIOR]
 ├── junior-engineer (handles trivial tasks)
 ├── senior-engineer (handles complex tasks)
+├── Invokes self-review skill (5-phase quality gate)
 └── Reviews all changes (via code-reviewer) → merges → reports
 ```
 
@@ -122,6 +124,9 @@ What do you want to do?
 |               +-- Small (few tasks)  --> subagent-driven-development*
 |               +-- Large (many tasks) --> team-management
 |
++-- Review changes before merge
+|   +-- self-review
+|
 +-- Fix or investigate bugs
 |   +-- Have a specific error/failure?
 |      +-- Yes --> systematic-debugging*
@@ -146,6 +151,7 @@ What do you want to do?
 | "I have a spec but I'm not sure it's complete" | spec-review | Reviews against IEEE 830/INVEST criteria, identifies gaps, produces quality report |
 | "Plan is ready, 3 independent tasks" | subagent-driven-development\* | Spawns fresh subagent per task, two-stage review after each |
 | "Plan is ready, 10+ tasks, needs coordination" | team-management | Sets up team with worktrees, spawns engineers, monitors progress, reviews, merges |
+| "Implementation is done, review before merge" | self-review | Runs 5-phase pipeline: spec compliance, code quality, test comprehensiveness, bug hunting, comprehensive review. Spawns fixers for issues found. Produces PASS/FAIL report. |
 
 **Tip:** Even when you have a concrete plan, consider starting with
 `brainstorming` -- it often surfaces missing requirements and edge cases before

@@ -52,6 +52,7 @@ YAML frontmatter with `name` and `description`, followed by phased pipeline docu
 | [oneteam:skill] team-collaboration | 4 principles: close the loop, never block silently, know ownership, speak up early |
 | [oneteam:skill] team-management | 5-phase orchestration: analysis (conditional) → team setup → monitoring → review/merge → consolidation |
 | [oneteam:skill] research | 3-phase: clarify → gather → synthesize |
+| [oneteam:skill] self-review | 5-phase sequential pipeline: spec compliance → code quality → test comprehensiveness → bug hunting → comprehensive review, each with review-fix-re-review cycle |
 | [oneteam:skill] spec-review | 6-phase: read spec → analyze codebase → quality check → issue identification → report → approval gate |
 | [oneteam:skill] implementation | 2-phase: context discovery → verification + common best practices |
 
@@ -61,10 +62,11 @@ The standard development pipeline follows this flow:
 1. [oneteam:skill] **`brainstorming`** → produces design document, optionally posts to GitHub issue
 2. [oneteam:skill] **`writing-plans`** (override) → dispatches analyzer (sonnet) for triage, user picks strategy, dispatches [oneteam:agent] `architect` to write plan
 3. **Execution** → [superpowers:skill] `subagent-driven-development` (subagent) or [oneteam:skill] `team-management` (team)
+4. [oneteam:skill] **`self-review`** → pre-merge quality gate (spec compliance, code quality, tests, bugs, comprehensive review)
 
 ### Two Main Workflows
 
-**Feature workflow:** [oneteam:agent] `lead-engineer` (feature mode) → invokes [oneteam:skill] `spec-review` skill → classifies tasks as [JUNIOR] or [SENIOR] → delegates to [oneteam:agent] `junior-engineer`/[oneteam:agent] `senior-engineer` → reviews → merges
+**Feature workflow:** [oneteam:agent] `lead-engineer` (feature mode) → invokes [oneteam:skill] `spec-review` skill → classifies tasks as [JUNIOR] or [SENIOR] → delegates to [oneteam:agent] `junior-engineer`/[oneteam:agent] `senior-engineer` → invokes [oneteam:skill] `self-review` → reviews → merges
 
 **Debug workflow:** [oneteam:agent] `lead-engineer` (debug mode) → spawns [oneteam:agent] `bug-hunter` + [oneteam:agent] `junior-engineer`/[oneteam:agent] `senior-engineer` pairs (by severity) → reviews → merges
 
