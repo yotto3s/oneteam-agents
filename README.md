@@ -35,6 +35,7 @@ lead-engineer (orchestrator — feature mode)
 ├── Classifies tasks: [JUNIOR] vs [SENIOR]
 ├── junior-engineer (handles trivial tasks)
 ├── senior-engineer (handles complex tasks)
+├── Invokes self-review skill (5-phase quality gate)
 └── Reviews all changes (via code-reviewer) → merges → reports
 ```
 

@@ -206,6 +206,12 @@ Each phase follows the same pattern:
      the full 6-phase bug-hunting pipeline). Record which tests now pass and
      which still fail.
 
+   **Findings without reproduction tests:** If the bug-hunter produced
+   findings that lack reproduction tests (e.g., "Untested Findings"), record
+   them as unresolved findings in the phase results. These findings still
+   count toward the verdict — HIGH or MEDIUM severity untested findings
+   trigger FAIL the same as tested findings that remain unresolved.
+
 3. **Record phase results:** number of findings, number fixed (reproduction
    test now passes), number unresolved, engineer tier, phase status.
 
@@ -262,7 +268,7 @@ is mandatory. Do not omit any section.
 ## Summary
 - **Scope:** <diff range>
 - **Spec:** <spec reference or "inferred from context">
-- **Verdict:** PASS | FAIL (FAIL if any unresolved Critical/Important issues remain)
+- **Verdict:** PASS | FAIL (FAIL if any unresolved Critical/Important/HIGH/MEDIUM issues remain)
 
 ## Phase 1: Spec Compliance
 - Findings: N (X fixed, Y unresolved)
