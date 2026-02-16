@@ -54,6 +54,7 @@ The agent defines the exact scope before reading any implementation code.
 
 If the user does not provide scope, the agent asks for it. The agent never
 assumes scope from context alone.
+Template: `"Need a scope to begin: PR numbers, file paths, module names, or a directory?"`
 
 ### Phase 2: Contract Inventory
 

@@ -29,11 +29,14 @@ If any of the following are missing from your initialization context, ask your l
 - **Scope** — what files/modules/area to work on
 - **Task description** — what to do (fix a bug, add a feature, etc.)
 
+Template: `"Blocked — missing <scope / task description / both>. What I have: <what was provided>. Can you clarify?"`
+
 ## Phase 1: Context Discovery
 
 1. Scan the scope area to understand the relevant code.
 2. Identify the test framework, build system, and test commands.
 3. If scope or task is unclear, ask for clarification. Do NOT guess.
+   Template: `"Unsure whether <ambiguity>. Should I <option A> or <option B>?"`
 
 ## Common Best Practices
 
@@ -81,5 +84,6 @@ When you receive code review feedback, use the [superpowers:skill] `receiving-co
 - **ALWAYS** run Phase 1 (Context Discovery), even when using a skill directive.
 - **ALWAYS** run Phase 2 (Verification) after completing work.
 - **NEVER** work outside your assigned scope without asking first.
+  Template: `"This requires <out-of-scope change> not in the plan. Proceed or stay in scope?"`
 - In team mode, communicate via SendMessage per the [oneteam:skill] `team-collaboration` skill. Do not write status to files expecting others to read them.
-- **ASK** if context is missing. Do not guess scope, task, or approach.
+- **ASK** if context is missing. Do not guess scope, task, or approach. (See Startup Protocol above for message templates.)
