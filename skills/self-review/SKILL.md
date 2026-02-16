@@ -2,8 +2,9 @@
 name: self-review
 description: >-
   Use before creating a PR or merging to run a thorough 5-phase sequential
-  review pipeline. Spawns specialized reviewer and bug-hunter subagents for each
-  phase and, if issues are found, spawns junior or senior engineers to fix them.
+  review pipeline. Spawns specialized reviewer and [oneteam:agent] bug-hunter
+  subagents for each phase and, if issues are found, spawns [oneteam:agent]
+  junior-engineer or [oneteam:agent] senior-engineer to fix them.
   Each phase follows a review-fix-re-review cycle. Produces a Self-Review Report
   with a PASS/FAIL verdict. This is a pre-review quality pass; external code
   review is still required before merge.
@@ -15,7 +16,8 @@ description: >-
 
 A 5-phase sequential review pipeline that thoroughly validates code changes
 before merge. Each phase spawns specialized reviewer subagents and, if issues
-are found, spawns junior or senior engineers to fix them.
+are found, spawns [oneteam:agent] `junior-engineer` or [oneteam:agent]
+`senior-engineer` to fix them.
 
 **When to use:**
 - Before creating a PR or merging (quality gate)
@@ -84,10 +86,12 @@ Each phase follows the same pattern:
    ```
 
 2. **If findings exist, enter the fix loop:**
-   - Critical or Important findings present: spawn a **senior-engineer**
-     subagent with the findings and instruct it to fix all issues.
-   - Only Minor findings present: spawn a **junior-engineer** subagent with
-     the findings and instruct it to fix all issues.
+   - Critical or Important findings present: spawn a **[oneteam:agent]
+     `senior-engineer`** subagent with the findings and instruct it to fix all
+     issues.
+   - Only Minor findings present: spawn a **[oneteam:agent]
+     `junior-engineer`** subagent with the findings and instruct it to fix all
+     issues.
    - After the engineer completes fixes: spawn the code-reviewer subagent
      again (re-review once) with the updated diff. Record the re-review
      results.
@@ -129,8 +133,8 @@ Each phase follows the same pattern:
    ```
 
 2. **Fix loop** (same pattern as Phase 1):
-   - Critical/Important: spawn **senior-engineer**
-   - Minor only: spawn **junior-engineer**
+   - Critical/Important: spawn **[oneteam:agent] `senior-engineer`**
+   - Minor only: spawn **[oneteam:agent] `junior-engineer`**
    - After fix: re-review once with updated diff
 
 3. **Record phase results** and proceed to Phase 3.
@@ -166,8 +170,8 @@ Each phase follows the same pattern:
    ```
 
 2. **Fix loop** (same pattern as Phase 1):
-   - Critical/Important: spawn **senior-engineer** to write missing tests
-   - Minor only: spawn **junior-engineer** to write missing tests
+   - Critical/Important: spawn **[oneteam:agent] `senior-engineer`** to write missing tests
+   - Minor only: spawn **[oneteam:agent] `junior-engineer`** to write missing tests
    - After fix: re-review once with updated diff
 
 3. **Record phase results** and proceed to Phase 4.
@@ -178,7 +182,7 @@ Each phase follows the same pattern:
 
 #### Steps
 
-1. **Spawn a bug-hunter subagent.** The bug-hunter runs the [oneteam:skill]
+1. **Spawn a [oneteam:agent] `bug-hunter` subagent.** The bug-hunter runs the [oneteam:skill]
    `bug-hunting` skill against the changed files in the diff scope.
    Provide:
    - The list of changed files from the diff
@@ -188,16 +192,19 @@ Each phase follows the same pattern:
      F2, ...) and reproduction tests
 
 2. **If findings with reproduction tests exist, enter the fix loop:**
-   - HIGH or MEDIUM severity findings present: spawn a **senior-engineer**
-     subagent with the findings report and reproduction test paths.
-   - Only LOW severity findings present: spawn a **junior-engineer** subagent
-     with the findings report and reproduction test paths.
+   - HIGH or MEDIUM severity findings present: spawn a **[oneteam:agent]
+     `senior-engineer`** subagent with the findings report and reproduction
+     test paths.
+   - Only LOW severity findings present: spawn a **[oneteam:agent]
+     `junior-engineer`** subagent with the findings report and reproduction
+     test paths.
    - The engineer receives: all findings, reproduction tests, and
      instructions to fix the bugs and verify the reproduction tests pass
      after fixing.
-   - After the engineer completes fixes: spawn the bug-hunter subagent again
-     to re-verify reproduction tests. Record which tests now pass and which
-     still fail.
+   - After the engineer completes fixes: spawn the [oneteam:agent]
+     `bug-hunter` subagent again to re-run the reproduction tests only (not
+     the full 6-phase bug-hunting pipeline). Record which tests now pass and
+     which still fail.
 
 3. **Record phase results:** number of findings, number fixed (reproduction
    test now passes), number unresolved, engineer tier, phase status.
@@ -238,8 +245,8 @@ cross-cutting concerns.
    ```
 
 2. **Fix loop** (same pattern as Phase 1):
-   - Critical/Important: spawn **senior-engineer**
-   - Minor only: spawn **junior-engineer**
+   - Critical/Important: spawn **[oneteam:agent] `senior-engineer`**
+   - Minor only: spawn **[oneteam:agent] `junior-engineer`**
    - After fix: re-review once with updated diff
 
 3. **Record phase results.**
@@ -287,10 +294,11 @@ is mandatory. Do not omit any section.
 ```
 
 **Verdict logic:**
-- **PASS:** All phases have status PASS, or all remaining issues are Minor/LOW
-  severity only.
-- **FAIL:** Any unresolved Critical or Important (Phases 1-3, 5) or HIGH/MEDIUM
-  (Phase 4) issues remain.
+- **PASS:** All phases have status PASS, or all remaining issues are Minor
+  (Phases 1-3, 5) or LOW (Phase 4) severity only.
+- **FAIL:** Any unresolved Critical or Important (Phases 1-3, 5) or HIGH or
+  MEDIUM (Phase 4) issues remain. Unresolved MEDIUM severity issues from
+  Phase 4 trigger FAIL, not PASS.
 
 ## Constraints
 
