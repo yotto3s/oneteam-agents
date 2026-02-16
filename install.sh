@@ -137,6 +137,7 @@ copy_skill() {
 
 do_install() {
   local agent_count=0 skill_count=0 override_count=0
+  local -a manifest=()
 
   mkdir -p "$TARGET/agents" "$TARGET/skills"
 
@@ -167,6 +168,7 @@ do_install() {
     fi
     if copy_agent "$f" "$TARGET/agents" "oneteam-agents" "$note"; then
       (( agent_count++ )) || true
+      manifest+=("agents/$name")
     fi
   done
 
@@ -182,6 +184,7 @@ do_install() {
     fi
     if copy_skill "$d" "$TARGET/skills" "oneteam-agents" "$note"; then
       (( skill_count++ )) || true
+      manifest+=("skills/$name")
     fi
   done
 
@@ -205,6 +208,7 @@ do_install() {
         fi
         if copy_agent "$f" "$TARGET/agents" "superpowers"; then
           (( agent_count++ )) || true
+          manifest+=("agents/$name")
         fi
       done
     fi
@@ -221,10 +225,14 @@ do_install() {
         fi
         if copy_skill "$d" "$TARGET/skills" "superpowers"; then
           (( skill_count++ )) || true
+          manifest+=("skills/$name")
         fi
       done
     fi
   fi
+
+  # Write manifest for uninstall
+  printf '%s\n' "${manifest[@]}" > "$TARGET/.oneteam-manifest"
 
   # Summary ------------------------------------------------------------------
   local summary="Installed: $agent_count agents, $skill_count skills"
@@ -238,25 +246,44 @@ do_install() {
 
 do_uninstall() {
   local removed=0
+  local manifest_file="$TARGET/.oneteam-manifest"
 
-  echo "Uninstalling symlinks pointing into $SCRIPT_DIR ..."
-
-  for subdir in agents skills; do
-    local dir="$TARGET/$subdir"
-    [[ -d "$dir" ]] || continue
-    for entry in "$dir"/*; do
-      [[ -L "$entry" ]] || continue
-      local link_target
-      link_target="$(realpath "$entry" 2>/dev/null || true)"
-      if [[ "$link_target" == "$SCRIPT_DIR"/* ]]; then
-        echo "  - $(basename "$entry") ($subdir)"
-        rm "$entry"
+  if [[ -f "$manifest_file" ]]; then
+    echo "Uninstalling using manifest..."
+    while IFS= read -r entry; do
+      [[ -z "$entry" ]] && continue
+      local target_path="$TARGET/$entry"
+      if [[ -d "$target_path" ]]; then
+        echo "  - $entry"
+        rm -rf "$target_path"
+        (( removed++ )) || true
+      elif [[ -f "$target_path" ]]; then
+        echo "  - $entry"
+        rm "$target_path"
         (( removed++ )) || true
       fi
+    done < "$manifest_file"
+    rm "$manifest_file"
+  else
+    # Fallback: legacy symlink-based detection
+    echo "No manifest found. Falling back to symlink detection..."
+    for subdir in agents skills; do
+      local dir="$TARGET/$subdir"
+      [[ -d "$dir" ]] || continue
+      for entry in "$dir"/*; do
+        [[ -L "$entry" ]] || continue
+        local link_target
+        link_target="$(realpath "$entry" 2>/dev/null || true)"
+        if [[ "$link_target" == "$SCRIPT_DIR"/* ]]; then
+          echo "  - $(basename "$entry") ($subdir)"
+          rm "$entry"
+          (( removed++ )) || true
+        fi
+      done
     done
-  done
+  fi
 
-  echo "Removed: $removed symlinks"
+  echo "Removed: $removed items"
 }
 
 # ── Main dispatch ──────────────────────────────────────────────────────────
