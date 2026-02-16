@@ -66,6 +66,20 @@ describe('functionName', () => {
 
 For classes with multiple methods, nest by method first, then by category.
 
+**For gtest (C++):**
+
+```cpp
+// Organize by behavior category
+TEST(FunctionName, HandlesValidInput) { ... }
+TEST(FunctionName, HandlesEdgeCase_EmptyString) { ... }
+TEST(FunctionName, RejectsInvalidInput) { ... }
+
+// For parameterized tests, group related cases
+INSTANTIATE_TEST_SUITE_P(ValidInputs, FunctionTest, ...);
+INSTANTIATE_TEST_SUITE_P(EdgeCases, FunctionTest, ...);
+INSTANTIATE_TEST_SUITE_P(InvalidInputs, FunctionTest, ...);
+```
+
 ### Phase 4: Write Tests
 
 Write each test following the best practices below.
@@ -94,6 +108,21 @@ it('rejects empty email', () => {
   // Assert
   expect(result.error).toBe('Email required');
 });
+```
+
+**For gtest (C++):**
+
+```cpp
+TEST(ValidatorTest, RejectsEmptyEmail) {
+  // Arrange
+  Input input{.email = ""};
+
+  // Act
+  auto result = validate(input);
+
+  // Assert
+  EXPECT_EQ(result.error, "Email required");
+}
 ```
 
 ### One Behavior Per Test
@@ -147,11 +176,100 @@ For ranges with two boundaries, test both edges:
 // Test: 9, 10, 11, 49, 50, 51
 ```
 
+**With gtest parameterized tests**, boundary testing becomes concise and data-driven:
+
+```cpp
+// Code: if (seats >= 10) discount = 0.15;
+struct BoundaryCase { int seats; double expectedDiscount; };
+class DiscountTest : public testing::TestWithParam<BoundaryCase> {};
+
+TEST_P(DiscountTest, AppliesCorrectDiscount) {
+  auto [seats, expected] = GetParam();
+  EXPECT_EQ(calculateDiscount(seats), expected);
+}
+
+INSTANTIATE_TEST_SUITE_P(
+  VolumeBoundary,
+  DiscountTest,
+  testing::Values(
+    BoundaryCase{9, 0.0},   // below
+    BoundaryCase{10, 0.15}, // at
+    BoundaryCase{11, 0.15}  // above
+  )
+);
+```
+
 Apply boundary analysis to:
 - Numeric thresholds (`>=`, `>`, `<=`, `<`)
 - Time windows (rate limits, TTLs, timeouts) — test at exact expiry, not just "after"
 - String lengths (min/max length checks)
 - Array sizes (empty, one, boundary count)
+
+### Parameterized Tests (gtest)
+
+When testing C++ code with gtest, use parameterized tests (TEST_P) when you have multiple inputs that exercise the same behavior. This reduces duplication and makes test intent clearer.
+
+**When to parameterize:**
+- Testing boundary values (below/at/above threshold)
+- Testing multiple valid inputs with different expected outputs
+- Testing error cases with different invalid inputs
+- Testing the same logic across different data types or configurations
+
+**When NOT to parameterize:**
+- Each test case requires significantly different setup/teardown
+- The test logic differs between cases (use separate tests)
+- Only 1-2 cases exist (not worth the complexity)
+
+```cpp
+// BAD — repetitive, hard to extend
+TEST(PricingTest, NoDiscountAt9Seats) {
+  auto result = calculatePrice(9);
+  EXPECT_EQ(result.discount, 0.0);
+}
+TEST(PricingTest, Apply15PercentDiscountAt10Seats) {
+  auto result = calculatePrice(10);
+  EXPECT_EQ(result.discount, 0.15);
+}
+TEST(PricingTest, Apply15PercentDiscountAt11Seats) {
+  auto result = calculatePrice(11);
+  EXPECT_EQ(result.discount, 0.15);
+}
+
+// GOOD — parameterized, clear data-driven approach
+struct PricingTestCase {
+  int seats;
+  double expectedDiscount;
+  std::string description;
+};
+
+class PricingTest : public testing::TestWithParam<PricingTestCase> {};
+
+TEST_P(PricingTest, AppliesCorrectVolumeDiscount) {
+  auto [seats, expectedDiscount, description] = GetParam();
+  auto result = calculatePrice(seats);
+  EXPECT_EQ(result.discount, expectedDiscount) << description;
+}
+
+INSTANTIATE_TEST_SUITE_P(
+  VolumeDiscountBoundaries,
+  PricingTest,
+  testing::Values(
+    PricingTestCase{9, 0.0, "below threshold"},
+    PricingTestCase{10, 0.15, "at threshold"},
+    PricingTestCase{11, 0.15, "above threshold"}
+  )
+);
+```
+
+**Structure:**
+1. Define a test case struct with input parameters and expected outputs
+2. Create a test fixture inheriting from `testing::TestWithParam<YourStruct>`
+3. Write TEST_P that uses `GetParam()` to access parameters
+4. Use INSTANTIATE_TEST_SUITE_P to provide test data with descriptive names
+
+**Naming conventions:**
+- Test suite name (first arg to INSTANTIATE_TEST_SUITE_P) should describe what varies: `VolumeDiscountBoundaries`, `InvalidEmailFormats`, `EdgeCases`
+- Include a description field in your struct for better failure messages
 
 ### Exact Expected Values
 
@@ -167,6 +285,19 @@ expect(result.savings).toBe(28.55);
 ```
 
 Use `toBeCloseTo` only when floating-point imprecision is inherent (e.g., `0.1 + 0.2`), not as a shortcut for "I didn't calculate this."
+
+For gtest C++ tests:
+
+```cpp
+// BAD — vague tolerance
+EXPECT_NEAR(result.savings, 26.9, 0.1);
+
+// GOOD — exact calculation, precise expected value
+// Calculated: (100 * 0.075) + 100 - 73.44 - 5.51 = 28.55
+EXPECT_DOUBLE_EQ(result.savings, 28.55);
+```
+
+Use `EXPECT_NEAR` only for inherent floating-point precision issues, not as a shortcut.
 
 ### Test Isolation
 
@@ -268,3 +399,5 @@ Use this when reading implementation (Phase 2) to make sure you don't miss paths
 | Giant test with 10 assertions | Can't tell which behavior broke | One behavior per test |
 | Copy-paste test blocks | Hard to maintain, easy to miss updates | Extract test helpers for shared setup |
 | Not testing after writing | Assumes tests are correct | Always run and verify tests pass |
+| Over-parameterizing gtest tests | Obscures test logic, hard to debug failures | Only parameterize when testing same behavior with different data |
+| Under-parameterizing boundary tests | Repetitive code, missed test cases | Use TEST_P for boundary value sets (below/at/above) |
