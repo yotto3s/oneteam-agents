@@ -103,13 +103,6 @@ To use a senior engineer for a complex task:
 /agent senior-engineer
 ```
 
-## Requirements
-
-- [Claude Code](https://docs.anthropic.com/en/docs/claude-code) CLI
-- The `systematic-debugging` skill (from the
-  [superpowers](https://github.com/anthropics/claude-plugins-official) plugin) is
-  required for the debug workflow
-
 ## When to Use Which Skill
 
 Use this guide to pick the right skill for your situation. Skills are invoked
@@ -129,16 +122,16 @@ What do you want to do?
 |         +-- Yes --> Is the spec solid?
 |            +-- Unsure --> spec-review
 |            +-- Yes   --> How complex?
-|               +-- Small (few tasks)  --> subagent-driven-development
+|               +-- Small (few tasks)  --> subagent-driven-development*
 |               +-- Large (many tasks) --> team-management
 |
 +-- Fix or investigate bugs
 |   +-- Have a specific error/failure?
-|      +-- Yes --> systematic-debugging
+|      +-- Yes --> systematic-debugging*
 |      +-- No  --> Proactive bug hunting?
 |         +-- Yes --> bug-hunting
 |         +-- No  --> Full debug sweep?
-|            +-- Small scope --> subagent-driven-development
+|            +-- Small scope --> subagent-driven-development*
 |            +-- Large scope --> team-management
 |
 +-- Research something
@@ -154,7 +147,7 @@ What do you want to do?
 | "I have a vague idea for a new auth system" | brainstorming | Asks clarifying questions, proposes approaches, writes design doc, hands off to writing-plans |
 | "I have requirements, need a plan" | writing-plans | Analyzes complexity, picks strategy (subagent vs team), dispatches architect to write plan |
 | "I have a spec but I'm not sure it's complete" | spec-review | Reviews against IEEE 830/INVEST criteria, identifies gaps, produces quality report |
-| "Plan is ready, 3 independent tasks" | subagent-driven-development | Spawns fresh subagent per task, two-stage review after each |
+| "Plan is ready, 3 independent tasks" | subagent-driven-development\* | Spawns fresh subagent per task, two-stage review after each |
 | "Plan is ready, 10+ tasks, needs coordination" | team-management | Sets up team with worktrees, spawns engineers, monitors progress, reviews, merges |
 
 **Tip:** Even when you have a concrete plan, consider starting with
@@ -165,7 +158,7 @@ you commit to implementation.
 
 | Scenario | Skill | What happens |
 |----------|-------|--------------|
-| "Tests are failing with this error message" | systematic-debugging | Structured debugging: reproduce, hypothesize, isolate, fix, verify |
+| "Tests are failing with this error message" | systematic-debugging\* | Structured debugging: reproduce, hypothesize, isolate, fix, verify |
 | "I suspect there are bugs in the auth module but nothing is failing yet" | bug-hunting | 6-phase audit: scope, contracts, impact tracing, adversarial analysis, gap analysis |
 | "Full codebase debug sweep after a big refactor" | team-management | Spawns bug-hunter + engineer pairs, coordinates fixes |
 
@@ -175,3 +168,14 @@ you commit to implementation.
 |----------|-------|--------------|
 | "How does the caching layer work in this codebase?" | research | Searches codebase and web, returns structured summary |
 | "Find best practices for WebSocket auth" | research | Web search + synthesis, returns actionable summary |
+
+Skills marked with \* (`subagent-driven-development`, `systematic-debugging`)
+come from the [superpowers](https://github.com/anthropics/claude-plugins-official)
+plugin and require it to be installed.
+
+## Requirements
+
+- [Claude Code](https://docs.anthropic.com/en/docs/claude-code) CLI
+- The `systematic-debugging` skill (from the
+  [superpowers](https://github.com/anthropics/claude-plugins-official) plugin) is
+  required for the debug workflow
