@@ -29,6 +29,7 @@ and skills for team-based debugging and feature development workflows.
 | **team-collaboration** | Communication protocol for multi-agent teams. Close the loop, never block silently, know who owns what, speak up early. |
 | **team-management** | Full orchestration lifecycle: work analysis, team setup with git worktrees, agent spawning, progress monitoring, code review, sequential merge, cleanup. |
 | **writing-plans** | 4-phase pipeline override: design analysis, strategy decision (subagent vs team), plan writing with bite-sized TDD tasks, execution handoff. |
+| **writing-tests** | 5-phase test-writing workflow: read spec, read implementation (every line, every branch), merge and organize test cases, write tests with best practices (boundary analysis, dead code detection, truthy/falsy checks), verify. For existing code, not test-first. |
 
 ## How It Works
 
@@ -129,6 +130,9 @@ What do you want to do?
 |               +-- Small (few tasks)  --> subagent-driven-development*
 |               +-- Large (many tasks) --> team-management
 |
++-- Add tests to existing code
+|   +-- writing-tests
+|
 +-- Review changes before merge
 |   +-- self-review
 |
@@ -156,6 +160,7 @@ What do you want to do?
 | "I have a spec but I'm not sure it's complete" | spec-review | Reviews against IEEE 830/INVEST criteria, identifies gaps, produces quality report |
 | "Plan is ready, 3 independent tasks" | subagent-driven-development\* | Spawns fresh subagent per task, two-stage review after each |
 | "Plan is ready, 10+ tasks, needs coordination" | team-management | Sets up team with worktrees, spawns engineers, monitors progress, reviews, merges |
+| "This module has no tests, need to add coverage" | writing-tests | Reads spec and implementation, derives tests from both sources, applies boundary analysis and dead code detection |
 | "Implementation is done, review before merge" | self-review | Runs 5-phase pipeline: spec compliance, code quality, test comprehensiveness, bug hunting, comprehensive review. Spawns fixers for issues found. Produces PASS/FAIL report. |
 
 **Tip:** Even when you have a concrete plan, consider starting with
