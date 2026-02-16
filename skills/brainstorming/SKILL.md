@@ -35,7 +35,7 @@ Do NOT invoke any implementation skill, write any code, scaffold any project, or
    After each section: `"Look right, or any changes?"`
    After final section: `"Full design above. Approve to continue?"`
 5. **Choose working branch** -- via AskUserQuestion (see below).
-6. **Present full design doc** -- pretty-print as rendered markdown; approve via AskUserQuestion.
+6. **Present full design doc** -- pretty-print as rendered markdown (NOT in a code block); approve via AskUserQuestion.
 7. **Write design doc** -- `plans/YYYY-MM-DD-<topic>-design.md` (do NOT commit).
 8. **Offer GitHub issue posting** -- optionally post design to a GitHub issue.
 9. **Invoke [oneteam:skill] `writing-plans`** -- no other skill.
