@@ -1,17 +1,18 @@
 # oneteam-agents
 
 Reusable [Claude Code](https://docs.anthropic.com/en/docs/claude-code) agents
-and skills for team-based debugging workflows.
+and skills for team-based debugging and feature development workflows.
 
 ## Agents
 
-| Agent | Description |
-|-------|-------------|
-| **junior-engineer** | Handles trivial tasks: boilerplate, CRUD, config, single-file edits. Follows detailed plans precisely. Default model: sonnet (overridable to haiku). |
-| **senior-engineer** | Handles complex tasks: multi-file changes, architectural work, novel logic. Plans own approach. Always uses opus model. |
-| **bug-hunter** | Finds bugs and writes reproduction tests. Uses the bug-hunting skill, then verifies tests fail before handing findings to the paired engineer. |
-| **lead-engineer** | Orchestrates feature implementation or debugging sweeps. Infers domain from context. In feature mode: reviews specs via spec-review skill, plans, delegates. In debug mode: spawns bug-hunter/engineer pairs by severity. Uses opus model. |
-| **researcher** | Searches web and codebase for information, returns structured summaries. Uses sonnet model. |
+| Agent | Model | Description |
+|-------|-------|-------------|
+| **architect** | inherit | Reads design docs and codebase, writes implementation plans. Read-only codebase access. |
+| **junior-engineer** | sonnet | Handles trivial tasks: boilerplate, CRUD, config, single-file edits. Follows detailed plans precisely. |
+| **senior-engineer** | opus | Handles complex tasks: multi-file changes, architectural work, novel logic. Plans own approach. |
+| **bug-hunter** | inherit | Finds bugs and writes reproduction tests. Uses the bug-hunting skill, then verifies tests fail before handing findings to the paired engineer. |
+| **lead-engineer** | opus | Orchestrates feature implementation or debugging sweeps. In feature mode: reviews specs via spec-review skill, plans, delegates. In debug mode: spawns bug-hunter/engineer pairs by severity. |
+| **researcher** | haiku | Searches web and codebase for information, returns structured summaries. |
 
 ## Skills
 
@@ -19,12 +20,15 @@ and skills for team-based debugging workflows.
 |-------|-------------|
 | **brainstorming** | Collaborative design exploration: understand project context, ask clarifying questions one at a time, propose 2-3 approaches with trade-offs, present design for approval, write design doc, optionally post to GitHub issue, then hand off to writing-plans. |
 | **bug-hunting** | 6-phase bug discovery pipeline: scope definition, contract inventory, impact tracing, adversarial analysis, gap analysis, shallow verification. |
+| **implementation** | Shared workflow for engineer agents: startup protocol, context discovery, common best practices, verification, and reporting. |
+| **plan-authoring** | Plan-writing methodology for the architect agent. Defines bite-sized task granularity, plan document structure, strategy-adapted execution sections, and quality constraints. |
+| **research** | 3-phase pipeline: clarify question, gather from web and codebase, synthesize structured summary. |
+| **review-pr** | 5-phase parallel PR review pipeline: spec compliance, code quality, test comprehensiveness, bug hunting, comprehensive review with deduplication, user validation gate, and gh-pr-review posting. |
+| **self-review** | 5-phase pre-merge quality gate: spec compliance, code quality, test comprehensiveness, bug hunting, comprehensive review. Each phase spawns reviewer/bug-hunter subagents and engineers for fixes. Produces a PASS/FAIL Self-Review Report. |
+| **spec-review** | 6-phase spec quality review: read & understand, analyze codebase, quality check (IEEE 830/INVEST/Wiegers criteria), issue identification, report generation, approval gate. |
 | **team-collaboration** | Communication protocol for multi-agent teams. Close the loop, never block silently, know who owns what, speak up early. |
 | **team-management** | Full orchestration lifecycle: work analysis, team setup with git worktrees, agent spawning, progress monitoring, code review, sequential merge, cleanup. |
 | **writing-plans** | 4-phase pipeline override: design analysis, strategy decision (subagent vs team), plan writing with bite-sized TDD tasks, execution handoff. |
-| **implementation** | Shared workflow for engineer agents: startup protocol, context discovery, common best practices, verification, and reporting. |
-| **spec-review** | 6-phase spec quality review: read & understand, analyze codebase, quality check (IEEE 830/INVEST/Wiegers criteria), issue identification, report generation, approval gate. |
-| **self-review** | 5-phase pre-merge quality gate: spec compliance, code quality, test comprehensiveness, bug hunting, comprehensive review. Each phase spawns reviewer/bug-hunter subagents and engineers for fixes. Produces a PASS/FAIL Self-Review Report. |
 
 ## How It Works
 
@@ -61,25 +65,26 @@ Clone the repository:
 
 ```bash
 git clone <repo-url> ~/oneteam-agents
+cd ~/oneteam-agents
+git submodule update --init
 ```
 
-Symlink agents and skills into your Claude Code config:
+Run the install script:
 
 ```bash
-# Back up existing directories if needed
-mv ~/.claude/agents ~/.claude/agents.bak
-mv ~/.claude/skills ~/.claude/skills.bak
-
-# Create symlinks
-ln -s ~/oneteam-agents/agents ~/.claude/agents
-ln -s ~/oneteam-agents/skills ~/.claude/skills
+./install.sh
 ```
 
-Verify the symlinks:
+Or with flags for non-interactive use:
 
 ```bash
-ls -la ~/.claude/agents
-ls -la ~/.claude/skills
+./install.sh --target ~/.claude --with-superpowers
+```
+
+To uninstall:
+
+```bash
+./install.sh --uninstall
 ```
 
 ## Usage
@@ -173,12 +178,13 @@ you commit to implementation.
 | "Find best practices for WebSocket auth" | research | Web search + synthesis, returns actionable summary |
 
 Skills marked with \* (`subagent-driven-development`, `systematic-debugging`)
-come from the [superpowers](https://github.com/anthropics/claude-plugins-official)
-plugin and require it to be installed.
+come from [superpowers](https://github.com/obra/superpowers.git), included as a
+git submodule at `external/superpowers/`. The install script automatically skips
+superpowers agents/skills that oneteam-agents overrides.
 
 ## Requirements
 
 - [Claude Code](https://docs.anthropic.com/en/docs/claude-code) CLI
-- The `systematic-debugging` skill (from the
-  [superpowers](https://github.com/anthropics/claude-plugins-official) plugin) is
-  required for the debug workflow
+- [Superpowers](https://github.com/obra/superpowers.git) (included as a git
+  submodule) — provides `systematic-debugging`, `subagent-driven-development`,
+  and other foundational skills
