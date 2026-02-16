@@ -91,7 +91,7 @@ The standard development pipeline follows this flow:
 - **Escalation threshold:** Default 3 attempts before escalating
 - **Agent naming:** `{group}-{role}-{N}` (e.g., `debug-bug-hunter-1`)
 - **Max 4 fragments** per orchestration run
-- **Code review mandatory** before any merge (via superpowers code-reviewer) — includes leader's own code
+- **Code review mandatory** before any merge (via code-reviewer) — includes leader's own code
 
 ## Git Conventions
 
