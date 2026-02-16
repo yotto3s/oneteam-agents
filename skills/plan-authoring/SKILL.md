@@ -56,17 +56,8 @@ with scope areas — use those as starting points for targeted reading.
    - Configuration and build files relevant to the changes
 
 4. **Classify agent tiers.** Refine the analyzer's rough complexity
-   classifications using this heuristic:
-
-   | Signal | [oneteam:agent] junior-engineer | [oneteam:agent] senior-engineer |
-   |--------|----------------|-----------------|
-   | File count | 1-2 files | 3+ files |
-   | Coupling | Low — isolated change | High — touches shared interfaces |
-   | Pattern | Well-understood (boilerplate, CRUD, config) | Novel or complex logic |
-   | Risk | Low — failure is obvious and contained | High — subtle bugs, data corruption, security |
-   | Codebase knowledge | Minimal — can work from instructions alone | Deep — requires understanding architecture |
-
-   When in doubt, classify as [oneteam:agent] `senior-engineer`.
+   classifications using the JUNIOR/SENIOR heuristic table in [oneteam:agent] `lead-engineer`
+   (Phase 2, step 3). When in doubt, classify as [oneteam:agent] `senior-engineer`.
 
 ## Phase 2: Plan Writing
 
@@ -249,13 +240,6 @@ Both stages must PASS before fragment is merge-ready.
 
 Fragment groupings are designed for parallel execution with worktree isolation.
 ~~~
-
-### Remember
-
-- Exact file paths always
-- Complete code in plan (not "add validation")
-- Exact commands with expected output
-- DRY, YAGNI, TDD, frequent commits
 
 ## Output
 
