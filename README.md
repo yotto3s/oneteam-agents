@@ -159,7 +159,7 @@ you commit to implementation.
 | Scenario | Skill | What happens |
 |----------|-------|--------------|
 | "Tests are failing with this error message" | systematic-debugging\* | Structured debugging: reproduce, hypothesize, isolate, fix, verify |
-| "I suspect there are bugs in the auth module but nothing is failing yet" | bug-hunting | 6-phase audit: scope, contracts, impact tracing, adversarial analysis, gap analysis |
+| "I suspect there are bugs in the auth module but nothing is failing yet" | bug-hunting | 6-phase audit: scope, contracts, impact tracing, adversarial analysis, gap analysis, shallow verification & report |
 | "Full codebase debug sweep after a big refactor" | team-management | Spawns bug-hunter + engineer pairs, coordinates fixes |
 
 **Research & Planning**
