@@ -172,7 +172,7 @@ across spec compliance, code quality, test comprehensiveness, bug hunting, and
 a comprehensive final review.
 
 1. **Invoke the self-review skill.** Provide:
-   - Diff scope: `git diff $BASE_BRANCH...HEAD` (or the relevant worktree diff)
+   - Diff scope: `git diff <base-branch>...HEAD` (or the relevant worktree diff)
    - Spec reference: the spec from Phase 1
 2. **Review the Self-Review Report.** If the verdict is FAIL, review unresolved
    issues and decide whether to address them before proceeding.
