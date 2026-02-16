@@ -180,21 +180,21 @@ For ranges with two boundaries, test both edges:
 
 ```cpp
 // Code: if (seats >= 10) discount = 0.15;
-struct BoundaryCase { int seats; double expectedDiscount; };
-class DiscountTest : public testing::TestWithParam<BoundaryCase> {};
+struct DiscountBoundaryCase { int seats; double expectedDiscount; };
+class DiscountTest : public testing::TestWithParam<DiscountBoundaryCase> {};
 
 TEST_P(DiscountTest, AppliesCorrectDiscount) {
-  auto [seats, expected] = GetParam();
-  EXPECT_EQ(calculateDiscount(seats), expected);
+  auto [seats, expectedDiscount] = GetParam();
+  EXPECT_EQ(calculatePrice(seats).discount, expectedDiscount);
 }
 
 INSTANTIATE_TEST_SUITE_P(
   VolumeBoundary,
   DiscountTest,
   testing::Values(
-    BoundaryCase{9, 0.0},   // below
-    BoundaryCase{10, 0.15}, // at
-    BoundaryCase{11, 0.15}  // above
+    DiscountBoundaryCase{9, 0.0},   // below
+    DiscountBoundaryCase{10, 0.15}, // at
+    DiscountBoundaryCase{11, 0.15}  // above
   )
 );
 ```
