@@ -1,9 +1,8 @@
 ---
 name: senior-engineer
 description: >-
-  Handles complex implementation tasks: multi-file changes, architectural work,
-  novel logic, high-risk changes. Plans its own approach, gets approval, then
-  implements. Works standalone or as a teammate in a team.
+  Use when implementing complex tasks: multi-file changes, architectural work,
+  novel logic, or high-risk changes that need approach planning.
 tools: Read, Write, Edit, Glob, Grep, Bash, WebSearch, WebFetch
 model: opus
 color: blue

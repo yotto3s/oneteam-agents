@@ -1,15 +1,26 @@
 ---
 name: implementation
 description: >-
-  Shared workflow phases and best practices for implementation agents
-  ([oneteam:agent] junior-engineer, [oneteam:agent] senior-engineer). Provides startup protocol, context
-  discovery, common best practices, verification, and reporting. Agents
-  layer tier-specific behavior on top.
+  Use when implementing tasks as a junior-engineer or senior-engineer agent. Provides shared startup protocol, context discovery, best practices, verification, and reporting that agents layer tier-specific behavior on top of.
 ---
 
 # Implementation
 
-This skill provides shared workflow phases for implementation agents. Agents use it via their `skills` list. It covers startup, context discovery, common best practices, verification, and reporting. Tier-specific behavior (planning, best practices) lives in each agent file.
+## Overview
+
+Shared workflow phases for implementation agents (junior-engineer, senior-engineer). Covers startup, context discovery, best practices, verification, and reporting. Tier-specific behavior lives in each agent file.
+
+## When to Use
+
+- Spawned as implementation agent (junior or senior engineer)
+- Received a task to implement (feature, fix, config change)
+- Need shared startup/verification workflow
+
+## When NOT to Use
+
+- For orchestration work -- use [oneteam:skill] `team-management`
+- For bug finding without fixing -- use [oneteam:skill] `bug-hunting`
+- For research/read-only work -- use [oneteam:skill] `research`
 
 ## Startup Protocol
 
@@ -78,6 +89,23 @@ When you receive code review feedback, use the [superpowers:skill] `receiving-co
 - Tests: PASS / FAIL (details if fail)
 - Plan coverage: all items completed / <list missing items>
 ```
+
+## Quick Reference
+
+| Phase | Key Action | Output |
+|-------|-----------|--------|
+| Startup | Read CLAUDE.md, verify worktree, check for missing context | Ready to work or blocked message |
+| Phase 1: Context Discovery | Scan scope, identify test framework | Understanding of relevant code |
+| Phase 2: Verification | Run tests, verify plan coverage | Implementation Report |
+
+## Common Mistakes
+
+| Mistake | Fix |
+|---------|-----|
+| Skipping Context Discovery when using a skill directive | ALWAYS run Phase 1 even with skill directives |
+| Guessing scope when context is missing | ASK with the provided template |
+| Working outside assigned scope | Ask before making out-of-scope changes |
+| Writing status to files for team communication | Use SendMessage per team-collaboration skill |
 
 ## Constraints
 

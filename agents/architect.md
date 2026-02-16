@@ -1,9 +1,8 @@
 ---
 name: architect
 description: >-
-  Reads design docs and codebase, writes implementation plans. Read-only
-  codebase access. Always dispatched as a sub-agent by the [oneteam:skill]
-  writing-plans orchestrator.
+  Use when you have a design doc and need an implementation plan. Read-only
+  codebase access.
 tools: Read, Glob, Grep, Bash, WebSearch, WebFetch
 model: inherit
 color: yellow

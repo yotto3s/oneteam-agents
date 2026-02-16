@@ -1,32 +1,42 @@
 ---
 name: team-management
 description: >-
-  Use when orchestrating a team of agents to work on a project. Provides the
-  complete lifecycle for team mode: work analysis, team setup with git worktrees,
-  agent spawning with logical group naming, progress monitoring, escalation
-  handling, code review gates, sequential merge protocol, and cleanup. Leader
-  agents load this skill and fill in domain-specific configuration slots.
+  Use when orchestrating a team of agents to work on a project with parallel
+  worktrees, task tracking, and SendMessage coordination. Provides the complete
+  lifecycle: work analysis, team setup, monitoring, review/merge, and cleanup.
 ---
 
 # Team Management
 
 ## Overview
 
-This skill provides the complete orchestration mechanics for leading a team of
-agents through a workflow using parallel agents with worktrees, task tracking,
-and SendMessage coordination.
+This skill provides orchestration mechanics for leading a team of agents through
+a workflow using parallel git worktrees, task tracking, and SendMessage
+coordination.
 
 The core architecture is one flat team with logical groups via naming
-(`{group}-{role}-{N}`). The design follows a thick skill + thin agent pattern:
-this skill contains all orchestration logic while leader agents provide
-domain-specific configuration through "slots." Any agent can message any other
-agent directly -- there are no hierarchy walls. Leader agents define what to do;
-this skill defines how to coordinate it.
+(`{group}-{role}-{N}`). This skill contains all orchestration logic while leader
+agents provide domain-specific configuration through "slots." Any agent can
+message any other agent directly -- there are no hierarchy walls.
 
 When a pre-built plan with fragment groupings is provided (typically from the
-[oneteam:skill] `writing-plans` skill), the skill starts directly from Phase 2 (Team Setup),
-using the plan's fragments. Otherwise, Phase 1 (Work Analysis) analyzes the
-codebase and produces a fragment plan.
+[oneteam:skill] `writing-plans` skill), the skill starts directly from Phase 2,
+using the plan's fragments. Otherwise, Phase 1 analyzes the codebase and
+produces a fragment plan.
+
+## When to Use
+
+- Parallel work across 2-4 independent fragments requiring separate worktrees
+- Multi-role workflows (engineer + reviewer, bug-hunter + engineer pairs)
+- Projects needing coordinated task tracking, code review gates, and sequential
+  merge protocol
+
+## When NOT to Use
+
+- Single-file or trivially small changes -- use direct implementation instead
+- Work that requires strict sequential ordering with no parallelism opportunity
+- Exploratory research or analysis with no code changes -- use [oneteam:skill]
+  `research` instead
 
 ## Slot Reference Table
 
@@ -48,350 +58,122 @@ slots have defaults that apply when unset.
 
 ## Phase 1: Work Analysis
 
-The leader analyzes the codebase and produces a fragment plan before any agents
-are spawned or worktrees created.
+**Conditional:** Skip if a plan document with fragment groupings is provided.
 
-**Conditional:** If a plan document with fragment groupings is provided (from
-the [oneteam:skill] `writing-plans` skill), skip this phase entirely and proceed to Phase 2
-(Team Setup), using the plan's fragment groupings as the approved fragment plan.
-Only execute this phase when no pre-built plan is available.
+The leader reads project context (`CLAUDE.md`, `README.md`), detects the base
+branch (`git rev-parse --abbrev-ref HEAD`), and applies the `splitting_strategy`
+to identify fragment boundaries. Maximum 4 fragments, each independently
+workable.
 
-### Steps
-
-1. **Read project context.** Read `CLAUDE.md` and `README.md` from the
-   repository root to understand project conventions, build commands, test
-   commands, and architectural constraints.
-
-2. **Detect base branch.** Store the current branch for use throughout all
-   phases:
-   ```bash
-   BASE_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-   ```
-   This branch is the merge target for all worktrees. Record it explicitly and
-   reference it in every git operation that needs it.
-
-3. **Apply splitting strategy.** Use the leader's `splitting_strategy` to
-   analyze the codebase and identify natural fragment boundaries. Target the
-   number of files specified by `fragment_size`. Produce a maximum of 4
-   fragments. Each fragment MUST be independently workable -- no fragment should
-   depend on changes from another fragment to compile or pass tests.
-
-4. **Respect explicit scope.** If the user provided an explicit scope (specific
-   files, directories, or modules), subdivide that scope into fragments instead
-   of analyzing the full codebase.
-
-5. **Present the fragment plan.** Display the plan to the user in this format:
-   ```
-   ## Work Plan
-   **Repository:** <name>
-   **Base branch:** <branch>
-   **Total files in scope:** <count>
-   **Fragments:** N
-
-   ### Fragment 1: <name>
-   - **Focus:** <description of what this fragment covers>
-   - **Files:** <count>
-     - path/to/file1
-     - path/to/file2
-
-   ### Fragment 2: <name>
-   - **Focus:** <description>
-   - **Files:** <count>
-     - path/to/file3
-     - path/to/file4
-
-   Proceed with this plan?
-   ```
-
-6. **Wait for confirmation.** STOP and wait for the user to confirm the plan.
-   If the user requests changes (different grouping, different scope, fewer
-   fragments), adjust the plan and re-present it. Do NOT proceed to Phase 2
-   (Team Setup) until the user explicitly approves.
+**Hard gate:** Present the fragment plan to the user and STOP. Do not proceed to
+Phase 2 until the user explicitly approves. Adjust and re-present if requested.
 
 ## Phase 2: Team Setup
 
-With an approved fragment plan, the leader sets up infrastructure and spawns
-agents. Every sub-step must complete before the next begins.
+With an approved fragment plan, set up infrastructure in strict order:
 
-### Steps
-
-1. **Create team.**
-   - If the leader is a top-level agent (not already a teammate in an existing
-     team): call `TeamCreate` with the name from the `team_name` slot, or
-     `{group}-team` if unset.
-   - If the leader is already a teammate in an existing team: skip TeamCreate
-     entirely and work within the current team. Use the existing team name for
-     all subsequent operations.
-
-2. **Create git worktrees.** For each fragment N (1-indexed):
-   ```bash
-   # Clean up stale worktree if it exists
-   git worktree remove ../{{group}}-fragment-N 2>/dev/null
-   git branch -D {{group}}-fragment-N 2>/dev/null
-
-   # Create fresh worktree
-   git worktree add ../{{group}}-fragment-N -b {{group}}-fragment-N
-
-   # Resolve absolute path for agent instructions
-   WORKTREE_PATH=$(realpath ../{{group}}-fragment-N)
-   ```
-   After creation, verify each worktree by listing its contents to confirm it
-   is a valid checkout. If worktree creation fails, diagnose and retry once
-   before aborting with an error to the user.
-
-3. **Create tasks.** For each fragment, create one task per role defined in
-   `organization.roles`:
-   - Task subject: `"{group}-{role} fragment N: <fragment description>"`
-   - For roles where `starts_first: false`, set `addBlockedBy` pointing to the
-     task ID of the `starts_first: true` role's task for the same fragment.
-     This ensures dependent roles wait until their prerequisite completes.
-   - Use `TaskCreate` for each task.
-   - For reviewer roles specifically, create one task per lead group (not per
-     fragment), since a reviewer covers all fragments in their lead group. The
-     reviewer task subject should be:
-     `"{group}-reviewer lead-group-G: review tasks for fragments X-Y"`.
-     Do **not** set `addBlockedBy` on the reviewer task for engineer tasks.
-     Keep the reviewer task unblocked so the reviewer can perform per-task
-     reviews as engineers complete work. Engineers trigger reviews via
-     `SendMessage` to the reviewer.
-
-4. **Spawn agents.** Iterate over roles in `organization.roles` and spawn
-   agents. Roles fall into two categories:
-
-   **Per-fragment roles** (most roles): For each fragment N (1-indexed),
-   spawn one agent:
-   - Agent name: `{group}-{role}-{N}` (N = fragment index)
-   - `subagent_type`: from the role's `agent_type` field
-   - `team_name`: the team name established in step 1
-   - Initialization context MUST include:
-     - The absolute worktree path for this fragment
-     - The complete list of files in the fragment (as absolute paths within
-       the worktree)
-     - The names of all other agents working on the same fragment (so they
-       can message each other directly)
-     - The leader's name for escalation messages
-     - If the plan includes a Team Composition table with reviewer assignments:
-       the name of the paired reviewer for this fragment (so the lead-engineer
-       knows which reviewer to trigger for per-task reviews)
-     - The role-specific `instructions` from the role definition
-
-   **Per-lead-group roles** (reviewer roles): Spawn one agent per lead group
-   rather than per fragment. A lead group is the set of fragments overseen by
-   the orchestrating lead-engineer (all fragments, for single-lead setups):
-   - Agent name: `{group}-{role}-{G}` (G = lead-group index)
-   - `subagent_type`: from the role's `agent_type` field
-   - `team_name`: the team name established in step 1
-   - Initialization context MUST include:
-     - The absolute worktree paths for **all** fragments in the lead group
-     - The complete file lists for **all** fragments in the lead group
-     - The names of all engineer agents across fragments in the lead group
-     - The leader's name for escalation messages
-     - The role-specific `instructions` from the role definition
-
-   For multi-group organizations (where `organization.groups` is an array
-   instead of a single group): spawn group leaders the same way, passing
-   them their sub-group configuration so they can further subdivide if needed.
-
-5. **Assign tasks.** Use `TaskUpdate` to set the `owner` field of each task to
-   the corresponding agent name. Roles with `starts_first: true` get their
-   tasks assigned immediately. Roles with `starts_first: false` have their
-   tasks assigned but blocked -- agents will be notified when unblocked.
+1. **Create team** -- call `TeamCreate` (or skip if already in an existing team).
+2. **Create git worktrees** -- one per fragment. See `./setup-commands.md` for
+   bash commands.
+3. **Create tasks** -- one per role per fragment, with dependency blocking for
+   `starts_first: false` roles. Reviewer roles get one task per lead group, kept
+   unblocked. See `./setup-commands.md` for task creation guidance.
+4. **Spawn agents** -- per-fragment roles and per-lead-group roles (reviewers).
+   See `./setup-commands.md` for initialization context requirements.
+5. **Assign tasks** -- use `TaskUpdate` to set owner. `starts_first: true` roles
+   get immediate assignment; others are assigned but blocked.
 
 ## Phase 3: Monitoring
 
-The leader monitors progress, handles escalations, and facilitates cross-group
-communication throughout the execution phase.
+The leader monitors progress, handles escalations, and facilitates coordination.
 
-### Steps
+### Escalation Handling
 
-1. **Poll task progress.** Periodically call `TaskList` to check the status of
-   all tasks. Track which fragments have all tasks completed, which are still
-   in progress, and which are blocked.
+When an agent exceeds the `escalation_threshold` (default 3 attempts):
+- **Guide:** Send specific, actionable advice (file paths, line numbers,
+  concrete suggestions) via `SendMessage`.
+- **Skip:** Mark as unresolvable, update task description with what was
+  attempted, move on.
+- **Reassign:** Transfer ownership via `TaskUpdate` and send context to the new
+  agent via `SendMessage`.
 
-2. **Handle escalations.** When an agent reports that it has exceeded the
-   `escalation_threshold` (default 3 attempts) without success:
-   - Read the escalation details from the agent's message.
-   - Review the relevant code using Read, Grep, and Glob tools to understand
-     the problem.
-   - Choose one of three actions:
-     - **Guide:** Send specific, actionable advice to the stuck agent via
-       `SendMessage`. Include file paths, line numbers, and concrete
-       suggestions.
-     - **Skip:** Mark the item as unresolvable for now. Update the task
-       description to record what was attempted and why it could not be
-       resolved. Move on.
-     - **Reassign:** If a different agent is better suited, reassign the
-       work by updating task ownership via `TaskUpdate` and sending context
-       to the new agent via `SendMessage`.
+### Check-Ins
 
-3. **Check on stuck agents.** If an agent's task remains `in_progress` with no
-   messages or updates for an extended period, send a check-in message via
-   `SendMessage` asking for a status report. Do not assume failure -- the
-   agent may be working on a complex problem.
+- **Stuck agents:** If a task remains `in_progress` with no updates for an
+  extended period, send a check-in via `SendMessage`.
+- **Periodic friendly check-ins:** Proactively reach out to each active teammate
+  at regular intervals. Aim for at least once between major milestones. Skip if
+  the agent recently sent a substantive update.
+- **Cross-group relay:** For multi-group organizations, relay relevant findings
+  between groups when agents do not know about each other's work.
 
-4. **Periodic friendly check-ins.** Proactively reach out to each active
-   teammate for a status update at regular intervals -- don't wait for them
-   to report or for problems to surface. Example:
-   - "Hey, how's it going on your end? Anything I can help with?"
+### Per-Task Review Loop
 
-   Aim to check in with each active agent at least once between major
-   milestones (e.g., between fragment completions). If an agent recently
-   sent a substantive update, skip the check-in.
+When the plan includes reviewer roles:
 
-5. **Cross-group relay.** For multi-group organizations where groups work on
-   related aspects:
-   - If one group produces output that is relevant to another group, relay a
-     summary of the findings to the other group's agents.
-   - Agents CAN message across groups directly (flat team architecture), but
-     the leader should facilitate when agents do not know about each other's
-     work or when coordination is needed.
+1. Engineer reports task complete to lead-engineer.
+2. Lead-engineer triggers the paired reviewer via `SendMessage` with: the task
+   name, files changed, and review checkpoint criteria.
+3. Reviewer produces a single-pass review (spec compliance + code quality) and
+   sends the result to the lead-engineer.
+4. If APPROVED: lead-engineer unblocks the next task for the engineer.
+5. If CHANGES NEEDED: lead-engineer sends feedback to engineer, engineer fixes,
+   lead-engineer re-triggers reviewer. Repeat until approved.
+6. Engineer does NOT start the next task until the current task passes review.
 
-6. **Per-task review loop.** When the plan includes per-task review checkpoints
-   (indicated by a Team Composition table with reviewer roles):
-   1. Engineer reports task complete to lead-engineer.
-   2. Lead-engineer triggers the fragment's paired reviewer to review the diff
-      for that task. Send via `SendMessage` to the reviewer with: the task
-      name, the files changed, and the review checkpoint criteria from the plan.
-   3. Reviewer produces a single-pass review (spec compliance + code quality
-      combined) and sends the result to the lead-engineer.
-   4. If APPROVED: lead-engineer unblocks the next task for the engineer.
-   5. If CHANGES NEEDED: lead-engineer sends the reviewer's feedback to the
-      engineer via `SendMessage`. Engineer fixes the issues and reports
-      completion again. Lead-engineer re-triggers the reviewer. Repeat until
-      approved.
-   6. Engineer does NOT start the next task until the current task passes
-      review. The lead-engineer enforces this by only unblocking the next task
-      after reviewer approval.
+### Fragment Completion Review
 
-7. **Fragment completion review.** After all tasks in a fragment pass their
-   per-task reviews:
-   1. Lead-engineer triggers a two-stage fragment completion review by sending
-      a `SendMessage` to the fragment's paired reviewer with the full fragment
-      diff (`git diff $BASE_BRANCH...HEAD` in the fragment's worktree).
-   2. Stage 1 — Spec compliance: reviewer checks that all acceptance criteria
-      across all fragment tasks are met.
-   3. Stage 2 — Code quality: reviewer checks conventions, security, test
-      coverage, and regressions across the entire fragment diff.
-   4. Both stages must PASS before the fragment is marked merge-ready.
-   5. If either stage produces CHANGES NEEDED: lead-engineer delegates the
-      fixes to the responsible engineer and re-triggers the two-stage review
-      after fixes are applied.
-   6. Only after both stages pass does the lead-engineer report the fragment
-      as merge-ready to the top-level orchestrator.
+After all tasks in a fragment pass per-task reviews:
+
+1. Lead-engineer triggers a two-stage fragment completion review with the full
+   fragment diff (`git diff $BASE_BRANCH...HEAD` in the fragment's worktree).
+2. Stage 1 -- Spec compliance: all acceptance criteria across fragment tasks met.
+3. Stage 2 -- Code quality: conventions, security, test coverage, regressions.
+4. Both stages must PASS before the fragment is marked merge-ready.
+5. If CHANGES NEEDED: delegate fixes, re-trigger two-stage review.
 
 ## Phase 4: Review & Merge
 
-The Phase 3 fragment completion review is performed by the lead-engineer's
-paired reviewer within the fragment. Phase 4 is the top-level orchestrator's
-merge-gate review. Both are required — the fragment review validates correctness
-within the worktree, while the merge-gate review validates integration safety.
+The Phase 3 fragment completion review validates correctness within the worktree.
+Phase 4 is the top-level merge-gate review validating integration safety. Both
+are required.
 
-When agents report their work complete, the leader reviews changes and merges
-them into the base branch sequentially.
-
-### Steps
-
-1. **Code review.** When a fragment group reports all work complete:
-   a. Gather the diff for the worktree:
-      ```bash
-      git -C <worktree_path> diff $BASE_BRANCH...HEAD
-      ```
-   b. Present the diff output in the conversation context for analysis.
-   c. If the [superpowers:skill] `requesting-code-review` skill is available, invoke
-      the Skill tool with `skill: "superpowers:requesting-code-review"` to
-      apply the structured review process. Otherwise, review the diff manually
-      against the criteria below.
-   d. Follow the structured review guidance to evaluate the changes.
-   e. If the leader has defined `review_criteria`, evaluate the diff against
-      each criterion in the checklist. Document pass/fail for each item.
-
-2. **Feedback loop.** After review:
-   - If issues are found: send detailed feedback to the responsible agent via
-     `SendMessage`. Include the specific file path, line number, and a clear
-     description of what needs to change. Wait for the agent to apply fixes,
-     then re-review the updated diff. Repeat until the changes pass review.
-   - If the changes are approved: proceed to merge.
-
-3. **CRITICAL: Merge protocol.** Merge one worktree at a time, sequentially:
-   ```bash
-   git checkout $BASE_BRANCH
-   git merge {{group}}-fragment-N --no-ff -m "Merge {{group}}-fragment-N: <fragment description>"
-   ```
-   After each merge, run the project's test suite to verify nothing is broken.
-   Only proceed to the next merge after tests pass. If the project has no test
-   suite, note this in the final report.
-
-4. **Conflict resolution.** If a merge produces conflicts:
-   - List conflicted files:
-     ```bash
-     git diff --name-only --diff-filter=U
-     ```
-   - If 3 or fewer files are conflicted: resolve the conflicts manually by
-     reading both versions, choosing the correct resolution, and editing the
-     files. Run the test suite after resolution.
-   - If more than 3 files are conflicted: abort the merge and delegate:
-     ```bash
-     git merge --abort
-     ```
-     Send the conflict details to the agent responsible for the worktree and
-     instruct them to rebase their branch onto the updated base branch. Retry
-     the merge after the agent completes the rebase.
+1. **Code review** -- gather the worktree diff. If the [superpowers:skill]
+   `requesting-code-review` skill is available, invoke it. Otherwise, review
+   manually against `review_criteria`.
+2. **Feedback loop** -- if issues found, send detailed feedback (file path, line
+   number, description) to the agent. Re-review after fixes. Repeat until
+   approved.
+3. **Merge protocol** -- merge sequentially, one worktree at a time. Run tests
+   after each merge. See `./setup-commands.md` for bash commands and conflict
+   resolution procedures.
 
 ## Phase 5: Consolidation
 
-After all fragments are merged, the leader produces a final report and cleans
-up all infrastructure.
+1. **Produce the final report** using the template in `./report-template.md`.
+   Insert the leader's `report_fields` and `domain_summary_sections`.
+2. **Cleanup** -- remove worktrees, delete branches, shut down agents, delete
+   team. See `./setup-commands.md` for cleanup steps.
 
-### Steps
+## Common Mistakes
 
-1. **Produce the final report.** Use this template, inserting the leader's
-   `report_fields` and `domain_summary_sections` where indicated:
+| Mistake | Why It Fails | Fix |
+|---------|-------------|-----|
+| Spawning agents before worktrees exist | Agent has no valid working directory on first message | Always create and verify worktrees before spawning |
+| Skipping code review for "trivial" changes | Small changes can introduce regressions or convention violations | Every merge gets a review, no exceptions |
+| Merging with failing tests | Broken tests compound across fragments, blocking later merges | Fix or delegate the fix before merging |
+| Creating more than 4 fragments | Coordination overhead outweighs parallelism gains | Increase fragment size or reduce scope instead |
+| Not cleaning up worktrees and branches | Stale worktrees and branches pollute the repo for future runs | Always run full cleanup in Phase 5 |
 
-   ```
-   ## Team Report
+## Quick Reference
 
-   **Scope:** <what was analyzed or worked on>
-   **Base branch:** <branch name>
-   **Fragments completed:** N / N
-
-   [Insert leader's report_fields here, if any]
-
-   ### Per Fragment
-
-   #### Fragment 1: <name>
-   - **Agents:** {group}-{roleA}-1, {group}-{roleB}-1, ...
-   - **Branch:** {group}-fragment-1
-   - **Tasks completed:** M / M
-   - **Summary:** <brief description of what was accomplished>
-
-   #### Fragment 2: <name>
-   - **Agents:** {group}-{role}-2, ...
-   - **Branch:** {group}-fragment-2
-   - **Tasks completed:** M / M
-   - **Summary:** <brief description>
-
-   ...
-
-   ### Unresolved Items
-   | Item | Fragment | Description | Reason |
-   |------|----------|-------------|--------|
-   | <item> | <N> | <what was attempted> | <why it was not resolved> |
-
-   [Insert leader's domain_summary_sections here, if any]
-   ```
-
-   If there are no unresolved items, write "None" in the table body. Every
-   section is mandatory -- none may be omitted.
-
-2. **Cleanup.** Execute all cleanup steps in order:
-   - Remove worktrees for each fragment.
-   - Delete merged branches (use safe delete `-d` to ensure only fully-merged
-     branches are removed).
-   - Shut down all agents: send `shutdown_request` via `SendMessage` to each
-     spawned agent. Wait for each agent to confirm shutdown before proceeding.
-   - Delete the team: if this leader created the team (top-level leader), call
-     `TeamDelete` to remove the team and its task list. If working within a
-     parent team, skip this step.
+| Phase | Input | Output | Key Question |
+|-------|-------|--------|--------------|
+| 1. Work Analysis | User request + codebase (or skip if plan provided) | Fragment plan (approved) | How should we split this work? |
+| 2. Team Setup | Approved fragment plan | Infrastructure (worktrees, tasks, agents) | Is infrastructure ready? |
+| 3. Monitoring | Running agents | Progress updates, completed tasks | Are tasks making progress? |
+| 4. Review & Merge | Completed work | Reviewed and merged code | Do changes meet quality standards? |
+| 5. Consolidation | Merged code | Final report, cleaned infrastructure | Is everything documented and cleaned up? |
 
 ## Constraints
 
@@ -413,58 +195,3 @@ These rules are non-negotiable and override any conflicting instruction.
 - NEVER spawn agents before their worktrees are created and verified.
 - If already operating as a teammate in an existing team, do NOT create a new
   team. Work within the existing team structure.
-
-## Organization Structure Example
-
-This example demonstrates the versatility of the slot system for multi-group
-use cases. For single-group examples (debugging, feature development), see the
-domain configurations in [oneteam:agent] `lead-engineer`.
-
-### Multi-Group Project
-
-A pipeline of three groups where each group has its own leader. The planning
-group produces a plan, the feature group implements it, and the debug group
-verifies the result. Each group leader can further subdivide work internally.
-
-```yaml
-organization:
-  groups:
-    - group: "planning"
-      roles:
-        - name: "lead"
-          agent_type: "planning-team-leader"
-          starts_first: true
-          instructions: "Analyze requirements, produce implementation plan"
-    - group: "feature"
-      roles:
-        - name: "lead"
-          agent_type: "feature-team-leader"
-          starts_first: false
-          instructions: "Implement features per plan from planning lead"
-    - group: "debug"
-      roles:
-        - name: "lead"
-          agent_type: "[oneteam:agent] lead-engineer"
-          starts_first: false
-          instructions: "Run debugging sweep on completed features"
-  flow: "planning-lead plans -> feature-lead builds -> debug-lead verifies"
-```
-
-Agent naming: `planning-lead-1`, `feature-lead-1`, `debug-lead-1`. Each group
-leader can spawn their own sub-agents within the same flat team, using their
-group prefix (e.g., `feature-junior-engineer-1`, `feature-senior-engineer-1`).
-
-Task dependencies chain across groups: `feature-lead-1` is blocked by
-`planning-lead-1`, and `debug-lead-1` is blocked by `feature-lead-1`. This
-ensures the pipeline executes in the correct order while still allowing
-parallelism within each group.
-
-## Quick Reference
-
-| Phase | Input | Output | Key Question |
-|-------|-------|--------|--------------|
-| 1. Work Analysis | User request + codebase (or skip if plan provided) | Fragment plan (approved) | How should we split this work? |
-| 2. Team Setup | Approved fragment plan | Infrastructure (worktrees, tasks, agents) | Is infrastructure ready? |
-| 3. Monitoring | Running agents | Progress updates, completed tasks | Are tasks making progress? |
-| 4. Review & Merge | Completed work | Reviewed and merged code | Do changes meet quality standards? |
-| 5. Consolidation | Merged code | Final report, cleaned infrastructure | Is everything documented and cleaned up? |
