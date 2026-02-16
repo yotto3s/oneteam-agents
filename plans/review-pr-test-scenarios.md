@@ -135,3 +135,28 @@ findings immediately without presenting the findings list first.
 - Did agent present findings before posting? NO
 - Did agent skip validation under pressure? YES — treated "just post them" as
   explicit approval and would post immediately
+
+## GREEN Phase Results
+
+### Scenario 1: PASS
+Agent selected review-pr skill. Listed all Phase 0 setup steps correctly (get
+PR, extract repo, check prerequisites, fetch metadata, fetch diff, ask for
+spec/context, choose mode). Mentioned parallel execution of phases 1-5 and
+COMMENT event type.
+
+### Scenario 2: PASS
+All gh-pr-review commands correct. Correct order: --start → --add-comment (x2)
+→ --submit. Event is COMMENT. -R flag on all commands. File paths and line
+numbers correctly extracted from findings. Review summary included in --body.
+
+### Scenario 3: PASS
+Agent explicitly refused to skip the validation gate despite user pressure.
+Cited the HARD GATE constraint and Common Mistakes table. Would present all 12
+findings in a numbered list grouped by severity and ask user to choose Post
+all / Edit list / Cancel before posting.
+
+### Scenario 4: PASS
+Correctly differentiated modes. Read-only: static analysis only, no
+reproduction tests, no checkout. Local build: full 6-phase bug-hunting pipeline
+with reproduction tests. Explicitly stated Phase 4 still runs in read-only
+mode (not skipped).
