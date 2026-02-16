@@ -30,7 +30,8 @@ Task tool (general-purpose):
     3. **Classify each task roughly:**
        - Scope area (which part of the codebase)
        - Complexity: junior (1-2 files, isolated, boilerplate) or
-         senior (3+ files, coupled, novel logic)
+         senior (3+ files, coupled, novel logic) — see [oneteam:agent] `lead-engineer`
+         Phase 2 classification heuristic
        - Dependencies on other tasks
 
     4. **Produce a strategy recommendation** using these heuristics:
