@@ -1,19 +1,16 @@
 ---
 name: research
 description: >-
-  Use when asked to find information from web or codebase and return a structured
-  summary to the caller. Handles any research question: API docs, library usage,
-  best practices, error solutions, codebase conventions, or general knowledge.
+  Use when you need information from web or codebase and want a structured
+  summary. Handles API docs, library usage, best practices, error solutions,
+  codebase conventions, or general knowledge questions.
 ---
 
 # Research
 
 ## Overview
 
-A 3-phase workflow for answering research questions by searching the web and/or
-codebase, then synthesizing findings into a structured summary. Designed for
-context offloading — the caller delegates information gathering to keep its own
-context window clean.
+A 3-phase workflow for answering research questions by searching the web and/or codebase, then synthesizing findings into a structured summary.
 
 ## When to Use
 
@@ -28,9 +25,6 @@ context window clean.
 - The question can be answered from a single known file (just Read it directly)
 
 ## Phase Pipeline
-
-Execute these three phases in strict order. Each phase produces written output
-before the next begins.
 
 ### Phase 1: Clarify
 
@@ -53,22 +47,11 @@ Before searching anything, understand what is being asked.
 
 Execute searches iteratively. Maximum 3 rounds — then report what you have.
 
-**Web searches:**
-- Start narrow with specific terms, broaden only if results are poor
-- Try different phrasings if first query underperforms
-- Prefer primary sources: official docs > authoritative blogs > AI-generated content
-- Triangulate important claims against 2+ independent sources
+**Search strategies:**
+- **Web:** Start narrow with specific terms, broaden only if results are poor. Try different phrasings if first query underperforms. Prefer primary sources: official docs > authoritative blogs > AI-generated content. Triangulate important claims against 2+ independent sources.
+- **Codebase:** Use Glob-then-Read (find files by pattern first, read only relevant ones). Use Grep for specific function names, patterns, or error strings. Start specific, broaden only if needed.
 
-**Codebase searches:**
-- Use Glob-then-Read: find files by pattern first, then read only the relevant ones
-- Use Grep for specific function names, patterns, or error strings
-- Start with the most specific search term available, broaden only if needed
-
-**After each round:**
-- Check: did this round answer part of the original question?
-- Re-anchor to the original question (prevent drift into tangential topics)
-- Identify remaining gaps — target those in the next round
-- Track all sources as you go (URLs, file paths with line numbers)
+After each round, check: did this answer part of the question? Re-anchor to the original question to prevent drift. Identify remaining gaps to target in the next round. Track all sources (URLs, file paths with line numbers).
 
 **Stop gathering when:**
 - The question is fully answered, OR
@@ -104,6 +87,25 @@ Produce the Research Summary in exactly this format:
 - **MEDIUM:** Found in 1-2 sources, or sources partially conflict
 - **LOW:** Limited sources, outdated information, or could not fully verify
 
+## Quick Reference
+
+| Phase | Input | Output | Key Rule |
+|-------|-------|--------|----------|
+| 1. Clarify | Research question | Restated question + sub-queries | State interpretation if ambiguous |
+| 2. Gather | Sub-queries | Raw findings with sources | Max 3 rounds, re-anchor each round |
+| 3. Synthesize | Findings | Research Summary | Always include sources + confidence |
+
+## Common Mistakes
+
+| Mistake | Fix |
+|---|---|
+| Returning raw search results | Synthesize into Key Findings with your own words |
+| Searching endlessly without synthesizing | Stop after 3 rounds. Partial answer > no answer. |
+| Drifting to related but unasked topics | Re-read the original question after each round |
+| Using only one source for important claims | Triangulate against 2+ sources |
+| Broad search terms returning noise | Start narrow: specific function names, error strings, exact phrases |
+| Reading entire files when a section suffices | Glob-then-Read: find first, read only what matters |
+
 ## Constraints
 
 - **Never modify files or create artifacts.** Research is read-only.
@@ -114,14 +116,3 @@ Produce the Research Summary in exactly this format:
 - **Re-anchor after each search round.** Compare findings against the original question.
 - **State ambiguity upfront.** If the question is unclear, state your interpretation in Phase 1 before searching.
 - In team mode, send the Research Summary via SendMessage to the requester.
-
-## Anti-Patterns
-
-| Anti-Pattern | Correction |
-|---|---|
-| Returning raw search results | Synthesize into Key Findings with your own words |
-| Searching endlessly without synthesizing | Stop after 3 rounds. Partial answer > no answer. |
-| Drifting to related but unasked topics | Re-read the original question after each round |
-| Using only one source for important claims | Triangulate against 2+ sources |
-| Broad search terms returning noise | Start narrow: specific function names, error strings, exact phrases |
-| Reading entire files when a section suffices | Glob-then-Read: find first, read only what matters |
