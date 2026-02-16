@@ -8,6 +8,11 @@ description: >-
 
 # Plan Authoring
 
+## Overview
+
+Plan-writing methodology for the [oneteam:agent] `architect` agent. Defines task
+granularity, document structure, and strategy-adapted execution sections.
+
 ## When to Use
 
 - Dispatched as [oneteam:agent] `architect` agent to write an implementation plan.

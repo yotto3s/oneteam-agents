@@ -8,6 +8,13 @@ description: >-
 
 # Self-Review
 
+## Overview
+
+A 5-phase sequential review pipeline that spawns specialized reviewer and
+engineer subagents. Each phase follows a review-fix-re-review cycle. Produces a
+Self-Review Report with a PASS/FAIL verdict. This is a pre-review quality pass;
+external code review is still required before merge.
+
 ## When to Use
 
 - Before creating a PR or merging (quality gate)
@@ -102,6 +109,17 @@ Non-negotiable rules that override any conflicting instruction.
    nothing.
 7. **No fixing during review** — Reviewers identify issues only. Engineers fix
    issues only. Roles do not overlap.
+
+## Quick Reference
+
+| Phase | Focus | Reviewer | Key Question |
+|-------|-------|----------|--------------|
+| 0 | Setup | -- | What is the diff scope and spec reference? |
+| 1 | Spec Compliance | code-reviewer | Does the implementation match the spec? |
+| 2 | Code Quality | code-reviewer | Does the code follow conventions and best practices? |
+| 3 | Test Comprehensiveness | code-reviewer | Are there missing test cases or edge cases? |
+| 4 | Bug Hunting | bug-hunter | Are there latent bugs in the changed code? |
+| 5 | Comprehensive Review | code-reviewer | Are there cross-cutting or integration issues? |
 
 ## Common Mistakes
 

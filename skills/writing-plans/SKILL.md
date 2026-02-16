@@ -26,7 +26,7 @@ Overrides the [superpowers:skill] `writing-plans` skill. Orchestrates plan creat
 
 Dispatch a sub-agent to read the design document and triage the work. No user interaction.
 
-1. **Locate the design document.** Find in `docs/plans/` or user context. Note the path -- do NOT read the file yourself.
+1. **Locate the design document.** Find in `plans/` or user context. Note the path -- do NOT read the file yourself.
 
 2. **Dispatch the analyzer.** Use `./analyzer-prompt.md`, fill in `[PATH]` and `[ROOT]`. Dispatch via Task tool: `subagent_type: general-purpose`, `model: sonnet`, `description: "Analyze design for planning"`.
 
@@ -70,7 +70,7 @@ Dispatch a sub-agent to read the design document and triage the work. No user in
 
 ## Phase 4: Execution Handoff
 
-1. **Save the plan.** Write to `docs/plans/YYYY-MM-DD-<feature-name>-plan.md`. Do NOT commit.
+1. **Save the plan.** Write to `plans/YYYY-MM-DD-<feature-name>-plan.md`. Do NOT commit.
 
 2. **Invoke execution skill.** Subagent-driven: use [superpowers:skill] `subagent-driven-development`, stay in this session, fresh subagent per task + two-stage review. Team-driven: use [oneteam:skill] `team-management`, pass fragment groupings, starts from Phase 2 (Team Setup).
 

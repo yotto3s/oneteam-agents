@@ -35,7 +35,7 @@ Do NOT invoke any implementation skill, write any code, scaffold any project, or
    After each section: `"Look right, or any changes?"`
    After final section: `"Full design above. Approve to continue?"`
 5. **Choose working branch** -- via AskUserQuestion (see below).
-6. **Write design doc** -- `docs/plans/YYYY-MM-DD-<topic>-design.md` (do NOT commit).
+6. **Write design doc** -- `plans/YYYY-MM-DD-<topic>-design.md` (do NOT commit).
 7. **Offer GitHub issue posting** -- optionally post design to a GitHub issue.
 8. **Invoke [oneteam:skill] `writing-plans`** -- no other skill.
 
@@ -81,7 +81,7 @@ Run `git branch --show-current`, then `AskUserQuestion` (header: "Branch"):
 
 ### Step 6: Write Design Doc
 
-Save to `docs/plans/YYYY-MM-DD-<topic>-design.md`. Use elements-of-style:writing-clearly-and-concisely if available. Do NOT `git add` or `git commit`.
+Save to `plans/YYYY-MM-DD-<topic>-design.md`. Use elements-of-style:writing-clearly-and-concisely if available. Do NOT `git add` or `git commit`.
 
 ### Step 7: GitHub Issue Posting
 
@@ -119,7 +119,7 @@ If accepted:
 | 3 | Propose 2-3 approaches with trade-offs | -- |
 | 4 | Present design sections | User approves each section |
 | 5 | Choose working branch | User selects via AskUserQuestion |
-| 6 | Write design doc to `docs/plans/` | -- |
+| 6 | Write design doc to `plans/` | -- |
 | 7 | Offer GitHub issue posting | User opts in/out |
 | 8 | Invoke [oneteam:skill] `writing-plans` | Terminal state |
 

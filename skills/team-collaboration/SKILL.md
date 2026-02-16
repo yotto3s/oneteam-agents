@@ -1,6 +1,8 @@
 ---
 name: team-collaboration
-description: Use when working in a multi-agent team (mode: team) and need to coordinate communication, hand off work, escalate blockers, or discover teammates.
+description: >-
+  Use when working in a multi-agent team (mode: team) and need to coordinate
+  communication, hand off work, escalate blockers, or discover teammates.
 ---
 
 # Team Collaboration
