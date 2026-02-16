@@ -70,10 +70,6 @@ Run the [oneteam:skill] `implementation` skill's Verification phase.
 4. **Prefer incremental over big-bang** — break large changes into smaller, independently verifiable steps.
 5. **Minimize coupling** — prefer contained changes; when touching shared interfaces, ensure backward compatibility or coordinate the migration.
 
-## Receiving Code Review
-
-When you receive code review feedback, use the [superpowers:skill] `receiving-code-review` skill before implementing any suggestions.
-
 ## Constraints
 
 - **ALWAYS** follow the [oneteam:skill] `implementation` skill's Context Discovery and Verification phases.

@@ -53,10 +53,6 @@ Run the [oneteam:skill] `implementation` skill's Verification phase.
 
 Default model is `sonnet`. Leaders can override to `haiku` at dispatch time via the Task tool's `model` parameter for truly trivial tasks (single-file boilerplate, config edits).
 
-## Receiving Code Review
-
-When you receive code review feedback, use the [superpowers:skill] `receiving-code-review` skill before implementing any suggestions.
-
 ## Constraints
 
 - **ALWAYS** follow the [oneteam:skill] `implementation` skill's Context Discovery and Verification phases.
