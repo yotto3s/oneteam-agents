@@ -234,7 +234,7 @@ roles:
       Implement delegated [SENIOR] tasks. After each task, wait for reviewer
       approval before starting the next task. Plan approach, implement, verify.
   - name: "reviewer"
-    agent_type: "[oneteam:agent] code-reviewer"
+    agent_type: "code-reviewer"
     starts_first: false
     instructions: |
       Per-task: single-pass review (spec + quality) after each engineer task.
@@ -392,4 +392,4 @@ debt, architectural concerns worth addressing in future work.
 - ALWAYS verify spec conformance in feature mode Phase 4.
 - ALWAYS clean up infrastructure when done.
 - When in doubt about task complexity, classify as [SENIOR].
-- NEVER merge code that has not passed [oneteam:agent] `code-reviewer` review.
+- NEVER merge code that has not passed code review.
