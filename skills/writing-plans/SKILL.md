@@ -102,6 +102,7 @@ Dispatch a sub-agent to read the design document and triage the work. No user in
 | Writing plan content yourself | Dispatch the architect agent -- never patch the plan |
 | Skipping the strategy decision | Phase 2 is a hard gate -- present options and wait for explicit choice |
 | Mixing strategies mid-execution | Once chosen, follow through with the selected execution skill |
+| Saving the plan without user approval | Phase 4 is an approval gate -- present the plan and wait for explicit approval |
 
 ## Constraints
 
@@ -113,4 +114,5 @@ These rules are non-negotiable and override any conflicting instruction.
 - ALWAYS present the strategy recommendation and wait for explicit user choice.
 - NEVER skip the strategy decision (Phase 2 hard gate).
 - NEVER mix strategies -- once chosen, follow through with the selected skill.
+- NEVER save the plan to file without presenting it to the user and receiving explicit approval (Phase 4 approval gate).
 - If the [oneteam:agent] `architect`'s output is incomplete, dispatch it again with feedback. Do NOT patch the plan yourself.
