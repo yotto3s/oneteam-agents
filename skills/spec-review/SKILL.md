@@ -1,52 +1,43 @@
 ---
 name: spec-review
 description: >-
-  Use when reviewing a specification or design document before implementation.
-  Provides a structured quality check against industry best practices (IEEE 830,
-  INVEST, Wiegers), identifies issues, and produces a Spec Review Report with
-  hard gate for authority approval.
+  Use when reviewing a specification or design document before implementation to
+  identify ambiguities, missing requirements, risks, and quality issues against
+  industry best practices (IEEE 830, INVEST, Wiegers).
 ---
 
 # Spec Review
 
 ## Overview
 
-This skill provides a structured process for reviewing specifications before
-implementation begins. It applies industry-standard quality criteria to every
-requirement, identifies issues, and produces a report for authority approval.
+A 6-phase workflow for reviewing specifications before implementation. Applies industry-standard quality criteria, identifies issues, and produces a Spec Review Report with a hard gate for authority approval.
 
-Invoked by leader agents (e.g., lead-engineer) when a spec or design document
-is provided. The output is a Spec Review Report that must be approved before
-any implementation planning begins.
+## When to Use
+
+- A spec or design document has been provided for review
+- Before implementation planning begins
+- Leader agent needs quality validation of requirements
+
+## When NOT to Use
+
+- Code is already implemented and you need to review it -- use code review
+- You need to create the spec -- use [oneteam:skill] `brainstorming`
 
 ## Phase 1: Read & Understand
 
-1. **Obtain the spec.** Read the specification from the initialization context,
-   authority message, or user prompt. If no spec is available, ask the authority
-   for it before proceeding. Do NOT guess or start without a spec.
+1. **Obtain the spec.** Read from initialization context, authority message, or user prompt. If unavailable, ask before proceeding.
    Template: `"Need the spec to begin review. Please provide it or point me to the design doc."`
-
-2. **Read it end-to-end.** Read the entire spec thoroughly before analyzing.
-   Do not start identifying issues mid-read — complete the full read first to
-   understand the overall intent and scope.
+2. **Read end-to-end.** Complete the full read before analyzing -- understand overall intent and scope first.
 
 ## Phase 2: Analyze Target Codebase
 
-1. **Map the scope.** Use Glob and Grep to identify the files and modules that
-   fall within the spec's scope. List the key files that will need to change.
-
-2. **Understand current architecture.** Read existing code in the scope area to
-   understand patterns, conventions, data flow, and dependencies. Note anything
-   that the spec may conflict with or depend on.
-
-3. **Identify test coverage.** Check for existing tests in the scope area. Note
-   which areas have coverage and which do not.
+1. **Map the scope.** Use Glob and Grep to identify files and modules in the spec's scope.
+2. **Understand current architecture.** Read existing code to understand patterns, data flow, and dependencies. Note conflicts or dependencies with the spec.
+3. **Identify test coverage.** Check for existing tests; note covered and uncovered areas.
 
 ## Phase 3: Quality Check
 
-Apply these checks to every requirement in the spec. These criteria are drawn
-from IEEE 830, the INVEST framework, and Karl Wiegers' requirements engineering
-best practices.
+Apply to every requirement. Criteria drawn from IEEE 830, INVEST, and Wiegers.
 
 | Criterion | What to check | Red-flag words |
 |-----------|--------------|----------------|
@@ -59,21 +50,17 @@ best practices.
 | **Independent** | Requirements are self-contained with minimal overlap. Can be implemented and tested separately. | -- |
 | **Scoped correctly** | Specifies *what*, not *how*. Does not mix requirements with design decisions or implementation details. | -- |
 
-For each criterion, mark Pass or Fail and note specific issues.
+Mark Pass or Fail per criterion with specific issues noted.
 
 ## Phase 4: Issue Identification
 
 Beyond the quality checklist, identify:
 
-1. **Ambiguities** — statements that could be interpreted multiple ways.
-2. **Missing edge cases** — what happens with empty input, errors, concurrent
-   access, boundary values, unexpected types?
-3. **Unstated assumptions** — does the spec assume certain infrastructure, data
-   formats, API contracts, or environmental conditions that are not documented?
-4. **Risks** — what could go wrong? What has the highest blast radius? What
-   failure modes are not addressed?
-5. **Contradictions** — does any part of the spec conflict with another part
-   or with existing code behavior discovered in Phase 2?
+- **Ambiguities** -- statements interpretable multiple ways
+- **Missing edge cases** -- empty input, errors, concurrency, boundaries, unexpected types
+- **Unstated assumptions** -- assumed infrastructure, data formats, API contracts, environment
+- **Risks** -- highest blast radius failures, unaddressed failure modes
+- **Contradictions** -- conflicts within the spec or with existing code from Phase 2
 
 ## Phase 5: Produce Spec Review Report
 
@@ -121,12 +108,30 @@ Template: `"Spec review complete. Blocked on answers to <Q1, Q2, ...>. Please co
 
 **STOP.** Do NOT proceed until the authority has reviewed the report, answered questions from the Questions and Gaps section, and explicitly confirmed the spec. If the authority provides an updated spec, return to Phase 1 and re-review; if they answer questions without changing the spec, incorporate answers into Confirmed Requirements and proceed.
 
+## Quick Reference
+
+| Phase | Key Action | Output |
+|-------|-----------|--------|
+| 1. Read | Read spec end-to-end | Understanding of intent and scope |
+| 2. Analyze | Map scope in codebase | File list, architecture understanding |
+| 3. Quality Check | Apply 8 criteria | Pass/Fail per criterion |
+| 4. Issues | Identify ambiguities, gaps, risks | Issue list |
+| 5. Report | Produce Spec Review Report | Spec Review Report for authority |
+| 6. Hard Gate | STOP -- wait for approval | Authority confirmation |
+
+## Common Mistakes
+
+| Mistake | Fix |
+|---------|-----|
+| Starting issue identification while still reading the spec | Complete the full read first (Phase 1 before Phase 3) |
+| Skipping codebase analysis | Phase 2 is required -- feasibility/consistency needs code context |
+| Proceeding without authority approval | Phase 6 is a hard gate -- STOP until explicit confirmation |
+
 ## Constraints
 
 - ALWAYS complete all 6 phases in order. Do not skip any phase.
 - ALWAYS read the full spec before identifying issues (Phase 1 before Phase 3).
-- ALWAYS analyze the target codebase (Phase 2) before the quality check — you
-  need codebase context to assess feasibility and consistency.
+- ALWAYS analyze the target codebase (Phase 2) before the quality check -- you need codebase context to assess feasibility and consistency.
 - ALWAYS produce the full Spec Review Report template. Do not omit sections.
 - NEVER proceed past the Phase 6 hard gate without explicit authority approval.
 - NEVER begin implementation planning or coding during spec review.
