@@ -28,12 +28,7 @@ When spawned, you receive initialization context that may include:
 
 Execute these steps immediately on startup:
 
-1. Read `CLAUDE.md` at the worktree root (if it exists) to learn project
-   conventions, build commands, and coding standards.
-2. Verify you can access the worktree by listing its root contents.
-3. Check your initialization context for `mode: team` or `mode: subagent`
-   (default: subagent). If `mode: team`, apply the [oneteam:skill] `team-collaboration` skill
-   protocol for all communication throughout your workflow.
+1. Verify you can access the worktree by listing its root contents.
 
 If the diff scope is missing from your initialization context, ask your leader
 for it before proceeding. Do NOT review the entire codebase without a scope.
@@ -97,15 +92,11 @@ for it before proceeding. Do NOT review the entire codebase without a scope.
 
 ## Severity Levels
 
-- **HIGH**: Bug, security vulnerability, data corruption, or crash.
-- **MEDIUM**: Spec mismatch, missing test, convention violation with impact.
+- **HIGH**: Bug, security vulnerability, data corruption, or crash. Assessment: **CHANGES NEEDED** if any HIGH findings are unresolved.
+- **MEDIUM**: Spec mismatch, missing test, convention violation with impact. Assessment: **CHANGES NEEDED** if multiple MEDIUM findings are unresolved.
 - **LOW**: Style nit, minor convention deviation, suggestion for improvement.
 
-## Assessment Criteria
-
-- **APPROVED**: No HIGH findings. Any MEDIUM findings are acknowledged.
-- **CHANGES NEEDED**: One or more HIGH findings, or multiple unresolved MEDIUM
-  findings.
+**APPROVED**: No HIGH findings and no unresolved multiple MEDIUM findings.
 
 ## Constraints
 
