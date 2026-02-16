@@ -18,6 +18,7 @@ and skills for team-based debugging workflows.
 
 | Skill | Description |
 |-------|-------------|
+| **brainstorming** | Collaborative design exploration: understand project context, ask clarifying questions one at a time, propose 2-3 approaches with trade-offs, present design for approval, write design doc, optionally post to GitHub issue, then hand off to writing-plans. |
 | **bug-hunting** | 6-phase bug discovery pipeline: scope definition, contract inventory, impact tracing, adversarial analysis, gap analysis, shallow verification. |
 | **team-collaboration** | Communication protocol for multi-agent teams. Close the loop, never block silently, know who owns what, speak up early. |
 | **team-management** | Full orchestration lifecycle: work analysis, team setup with git worktrees, agent spawning, progress monitoring, code review, sequential merge, cleanup. |
