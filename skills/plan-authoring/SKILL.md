@@ -93,7 +93,7 @@ Frequent commits.
 
 ### Task and Execution Section Templates
 
-Use the full templates in [./task-template.md](./task-template.md) for:
+Use the full templates in `./task-template.md` for:
 - **Task Structure** -- the `### Task N: [Component Name]` block with all steps
   including the review checkpoint (team-driven only).
 - **Subagent-Driven execution section** -- task order and subagent instructions.

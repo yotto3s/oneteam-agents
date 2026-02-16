@@ -73,13 +73,13 @@ Phase 2 until the user explicitly approves. Adjust and re-present if requested.
 With an approved fragment plan, set up infrastructure in strict order:
 
 1. **Create team** -- call `TeamCreate` (or skip if already in an existing team).
-2. **Create git worktrees** -- one per fragment. See `setup-commands.md` for
+2. **Create git worktrees** -- one per fragment. See `./setup-commands.md` for
    bash commands.
 3. **Create tasks** -- one per role per fragment, with dependency blocking for
    `starts_first: false` roles. Reviewer roles get one task per lead group, kept
-   unblocked. See `setup-commands.md` for task creation guidance.
+   unblocked. See `./setup-commands.md` for task creation guidance.
 4. **Spawn agents** -- per-fragment roles and per-lead-group roles (reviewers).
-   See `setup-commands.md` for initialization context requirements.
+   See `./setup-commands.md` for initialization context requirements.
 5. **Assign tasks** -- use `TaskUpdate` to set owner. `starts_first: true` roles
    get immediate assignment; others are assigned but blocked.
 
@@ -145,15 +145,15 @@ are required.
    number, description) to the agent. Re-review after fixes. Repeat until
    approved.
 3. **Merge protocol** -- merge sequentially, one worktree at a time. Run tests
-   after each merge. See `setup-commands.md` for bash commands and conflict
+   after each merge. See `./setup-commands.md` for bash commands and conflict
    resolution procedures.
 
 ## Phase 5: Consolidation
 
-1. **Produce the final report** using the template in `report-template.md`.
+1. **Produce the final report** using the template in `./report-template.md`.
    Insert the leader's `report_fields` and `domain_summary_sections`.
 2. **Cleanup** -- remove worktrees, delete branches, shut down agents, delete
-   team. See `setup-commands.md` for cleanup steps.
+   team. See `./setup-commands.md` for cleanup steps.
 
 ## Common Mistakes
 
