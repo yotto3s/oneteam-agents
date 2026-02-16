@@ -154,7 +154,7 @@ git commit -m "feat: add specific feature"
 | Tests pass | Run: `<test command>` | |
 | No regressions | Full suite green | |
 
-Reviewer: `<reviewer-name>` reviews diff for this task.
+Reviewer: `<reviewer from Team Composition>` (e.g., `{group}-reviewer-1`) reviews diff for this task.
 Action on CHANGES NEEDED: fix the issues, then re-review before starting the next task.
 ````
 
@@ -201,14 +201,15 @@ quality).
 
 | Name | Type | Scope |
 |------|------|-------|
-| lead-1 | lead-engineer | Fragments 1-N |
-| reviewer-1 | code-reviewer | Lead group 1 |
-| junior-1 | junior-engineer | Fragment 1, Tasks ... |
-| senior-1 | senior-engineer | Fragment 1, Tasks ... |
+| {group}-reviewer-1 | code-reviewer | All fragments |
+| {group}-junior-engineer-1 | junior-engineer | Fragment 1, Tasks ... |
+| {group}-senior-engineer-1 | senior-engineer | Fragment 1, Tasks ... |
 | ... | ... | ... |
 
-**Lead-engineer count:** `ceil(fragment_count / 3)`, min 1, each overseeing 2-3 fragments.
-**Reviewer count:** 1 per lead-engineer.
+Names use the `{group}-{role}-{N}` convention from the `team-management` skill.
+These names are used as agent names when spawning and as `SendMessage` recipients.
+
+**Reviewer count:** 1 per lead group.
 **Engineers:** 1 per fragment, junior or senior per task classification.
 
 ### Fragment 1: [name]
@@ -222,8 +223,8 @@ quality).
 
 | Stage | Reviewer | Criteria | Status |
 |-------|----------|----------|--------|
-| 1. Spec compliance | reviewer-N | All acceptance criteria across fragment tasks met | |
-| 2. Code quality | reviewer-N | Conventions, security, test coverage, no regressions | |
+| 1. Spec compliance | {group}-reviewer-{G} | All acceptance criteria across fragment tasks met | |
+| 2. Code quality | {group}-reviewer-{G} | Conventions, security, test coverage, no regressions | |
 
 Both stages must PASS before fragment is merge-ready.
 
@@ -239,8 +240,8 @@ Both stages must PASS before fragment is merge-ready.
 
 | Stage | Reviewer | Criteria | Status |
 |-------|----------|----------|--------|
-| 1. Spec compliance | reviewer-N | All acceptance criteria across fragment tasks met | |
-| 2. Code quality | reviewer-N | Conventions, security, test coverage, no regressions | |
+| 1. Spec compliance | {group}-reviewer-{G} | All acceptance criteria across fragment tasks met | |
+| 2. Code quality | {group}-reviewer-{G} | Conventions, security, test coverage, no regressions | |
 
 Both stages must PASS before fragment is merge-ready.
 

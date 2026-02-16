@@ -149,16 +149,21 @@ agents. Every sub-step must complete before the next begins.
    - For reviewer roles specifically, create one task per lead group (not per
      fragment), since a reviewer covers all fragments in their lead group. The
      reviewer task subject should be:
-     `"{group}-reviewer lead-group-N: review tasks for fragments X-Y"`.
-     Set `addBlockedBy` pointing to all engineer tasks in the reviewer's lead
-     group, so the reviewer is notified as each engineer task completes.
+     `"{group}-reviewer lead-group-G: review tasks for fragments X-Y"`.
+     Do **not** set `addBlockedBy` on the reviewer task for engineer tasks.
+     Keep the reviewer task unblocked so the reviewer can perform per-task
+     reviews as engineers complete work. Engineers trigger reviews via
+     `SendMessage` to the reviewer.
 
-4. **Spawn agents.** For each fragment N, for each role in `organization.roles`
-   (for reviewer roles, spawn one agent per lead group rather than per fragment):
-   - Agent name: `{group}-{role}-{N}`
+4. **Spawn agents.** Iterate over roles in `organization.roles` and spawn
+   agents. Roles fall into two categories:
+
+   **Per-fragment roles** (most roles): For each fragment N (1-indexed),
+   spawn one agent:
+   - Agent name: `{group}-{role}-{N}` (N = fragment index)
    - `subagent_type`: from the role's `agent_type` field
    - `team_name`: the team name established in step 1
-   - The initialization message sent to each agent MUST include:
+   - Initialization context MUST include:
      - The absolute worktree path for this fragment
      - The complete list of files in the fragment (as absolute paths within
        the worktree)
@@ -169,9 +174,23 @@ agents. Every sub-step must complete before the next begins.
        the name of the paired reviewer for this fragment (so the lead-engineer
        knows which reviewer to trigger for per-task reviews)
      - The role-specific `instructions` from the role definition
-   - For multi-group organizations (where `organization.groups` is an array
-     instead of a single group): spawn group leaders the same way, passing
-     them their sub-group configuration so they can further subdivide if needed.
+
+   **Per-lead-group roles** (reviewer roles): Spawn one agent per lead group
+   rather than per fragment. A lead group is the set of fragments overseen by
+   the orchestrating lead-engineer (all fragments, for single-lead setups):
+   - Agent name: `{group}-{role}-{G}` (G = lead-group index)
+   - `subagent_type`: from the role's `agent_type` field
+   - `team_name`: the team name established in step 1
+   - Initialization context MUST include:
+     - The absolute worktree paths for **all** fragments in the lead group
+     - The complete file lists for **all** fragments in the lead group
+     - The names of all engineer agents across fragments in the lead group
+     - The leader's name for escalation messages
+     - The role-specific `instructions` from the role definition
+
+   For multi-group organizations (where `organization.groups` is an array
+   instead of a single group): spawn group leaders the same way, passing
+   them their sub-group configuration so they can further subdivide if needed.
 
 5. **Assign tasks.** Use `TaskUpdate` to set the `owner` field of each task to
    the corresponding agent name. Roles with `starts_first: true` get their
@@ -445,17 +464,15 @@ initial findings.
 
 ### Example 2: Feature Development Team
 
-A four-role team where a lead-engineer coordinates engineers and a reviewer,
-with per-task review checkpoints and a two-stage fragment completion review.
+A three-role team where the lead-engineer itself orchestrates engineers and a
+reviewer, with per-task review checkpoints and a two-stage fragment completion
+review. The lead-engineer is the orchestrator running `team-management` — it
+does not appear in `organization.roles` to avoid recursive spawning.
 
 ```yaml
 organization:
   group: "feature"
   roles:
-    - name: "[oneteam:agent] lead-engineer"
-      agent_type: "[oneteam:agent] lead-engineer"
-      starts_first: true
-      instructions: "Oversee fragments, coordinate per-task reviews, trigger fragment completion review"
     - name: "[oneteam:agent] junior-engineer"
       agent_type: "[oneteam:agent] junior-engineer"
       starts_first: true
@@ -468,20 +485,20 @@ organization:
       agent_type: "[oneteam:agent] code-reviewer"
       starts_first: false
       instructions: "Per-task single-pass review, per-fragment two-stage review (spec + quality)"
-  flow: "lead delegates -> engineers build task -> reviewer reviews task ->
+  flow: "engineers build task -> reviewer reviews task ->
          repeat until all tasks done -> reviewer does two-stage fragment review ->
          lead reports completion"
   escalation_threshold: 2
 ```
 
-Agent naming for 2 fragments with 1 lead group: `feature-lead-engineer-1`,
-`feature-junior-engineer-1`, `feature-senior-engineer-1`,
-`feature-reviewer-1`, `feature-junior-engineer-2`,
-`feature-senior-engineer-2`.
+Agent naming for 2 fragments: `feature-junior-engineer-1`,
+`feature-senior-engineer-1`, `feature-junior-engineer-2`,
+`feature-senior-engineer-2`, `feature-reviewer-1`.
 
-The lead-engineer oversees 2-3 fragments per lead group. The reviewer covers
-all fragments in the lead group and uses `starts_first: false` so it waits
-until engineers produce initial work before beginning per-task reviews.
+The lead-engineer itself coordinates per-task reviews and fragment completion
+reviews. The reviewer covers all fragments (per-lead-group role) and uses
+`starts_first: false` so it is unblocked but waits for review triggers from
+the lead-engineer via `SendMessage`.
 
 ### Example 3: Multi-Group Project
 

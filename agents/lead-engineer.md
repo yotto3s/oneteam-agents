@@ -155,9 +155,13 @@ Delegate all tasks and monitor progress.
    (or trigger the paired reviewer if per-task review coordination is active).
 4. **Per-task review coordination:** After delegating a task, monitor for
    the engineer's completion report. On task completion, trigger the
-   fragment's paired reviewer via `SendMessage` with the task diff and
-   review checkpoint criteria. Wait for the reviewer's result before
-   unblocking the next task for the engineer.
+   fragment's paired reviewer via `SendMessage` with:
+   - The task diff (for small diffs, paste inline; for larger diffs,
+     provide the command: `cd <worktree_path> && git diff HEAD~1`)
+   - The worktree path and relevant commit range
+   - The review checkpoint criteria
+   Wait for the reviewer's result before unblocking the next task for the
+   engineer.
 5. **Fragment completion review:** After all tasks in a fragment pass
    per-task review, trigger the paired reviewer for a two-stage fragment
    review (spec compliance, then code quality). Only report the fragment
@@ -221,15 +225,6 @@ Analyze the implementation plan to identify delegatable fragments:
 ```yaml
 group: "feature"
 roles:
-  - name: "[oneteam:agent] lead-engineer"
-    agent_type: "[oneteam:agent] lead-engineer"
-    starts_first: true
-    instructions: |
-      Oversee your assigned fragments. For each task an engineer completes,
-      trigger the reviewer to review it before the engineer proceeds to the
-      next task. After all tasks in a fragment complete, trigger the two-stage
-      fragment review (spec compliance + code quality). Report fragment
-      completion to the top-level orchestrator.
   - name: "[oneteam:agent] junior-engineer"
     agent_type: "[oneteam:agent] junior-engineer"
     starts_first: true
@@ -249,7 +244,7 @@ roles:
       Per-task: single-pass review (spec + quality) after each engineer task.
       Per-fragment: two-stage review (1. spec compliance, 2. code quality)
       after all tasks complete. Send findings to the lead-engineer.
-flow: "lead delegates -> engineers build task -> reviewer reviews task ->
+flow: "engineers build task -> reviewer reviews task ->
        repeat until all tasks done -> reviewer does two-stage fragment review ->
        lead reports completion"
 escalation_threshold: 2
