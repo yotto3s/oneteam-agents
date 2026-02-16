@@ -12,11 +12,7 @@ description: >-
 
 ## Iron Law
 
-**The agent MUST NOT declare "no issues found" or produce any findings summary
-without completing ALL six phases for EVERY item in scope.** Completing Phase 3
-for one function does not excuse skipping Phase 4 for that same function.
-Finding one bug does not excuse skipping the remaining scope. Each phase
-produces explicit written output before the next phase begins.
+**The agent MUST complete ALL six phases for EVERY item in scope before declaring "no issues found" or producing any findings summary.** Each phase produces explicit written output before the next phase begins — finding one bug does not excuse skipping the remaining scope.
 
 ## When to Use
 
@@ -40,35 +36,12 @@ The agent executes these six phases in strict order. No phase may be skipped.
 Each phase produces written output before the next begins. If the scope contains
 N items, every item passes through every phase.
 
-```dot
-digraph finding_bugs {
-    rankdir=TB;
-    node [shape=box, style="rounded,filled", fillcolor="#e8e8e8", fontname="Helvetica"];
-    edge [fontname="Helvetica", fontsize=10];
-
-    scope [label="Phase 1\nScope Definition", fillcolor="#c6e4f7"];
-    contracts [label="Phase 2\nContract Inventory", fillcolor="#c6e4f7"];
-    impact [label="Phase 3\nImpact Tracing &\nSpec Check", fillcolor="#c6e4f7"];
-    adversarial [label="Phase 4\nAdversarial Analysis", fillcolor="#f7d6c6"];
-    gaps [label="Phase 5\nGap Analysis", fillcolor="#f7d6c6"];
-    report [label="Phase 6\nShallow Verification\n& Report", fillcolor="#d4edda"];
-
-    scope -> contracts [label="scope list"];
-    contracts -> impact [label="contract table"];
-    impact -> adversarial [label="traced issues"];
-    adversarial -> gaps [label="adversarial findings"];
-    gaps -> report [label="coverage gaps"];
-
-    subgraph cluster_legend {
-        label="Legend";
-        style=dashed;
-        node [shape=plaintext, fillcolor=white];
-        l1 [label="Blue = inventory phases"];
-        l2 [label="Orange = analysis phases"];
-        l3 [label="Green = verification & output"];
-    }
-}
-```
+1. **Phase 1: Scope Definition** --> scope list
+2. **Phase 2: Contract Inventory** --> contract table
+3. **Phase 3: Impact Tracing & Spec Check** --> traced issues
+4. **Phase 4: Adversarial Analysis** --> adversarial findings
+5. **Phase 5: Gap Analysis** --> coverage gaps
+6. **Phase 6: Shallow Verification & Report** --> formal report
 
 ### Phase 1: Scope Definition
 
@@ -121,18 +94,7 @@ The agent applies a "prove it breaks" mindset. This phase is MANDATORY even if
 Phases 2-3 found nothing. Finding nothing earlier means this phase is MORE
 important, not less.
 
-| Technique | What to Probe |
-|---|---|
-| Boundary analysis | Zero, null, empty, max values at edges of changed logic |
-| Invalid state transitions | Can callers reach this code in an unexpected order? |
-| Race conditions | If two callers invoke simultaneously, what happens? |
-| Time boundaries | Timezone, leap year, month-end if relevant |
-| Input edge cases | Special characters, whitespace, encoding in changed paths |
-| Defect clustering | Spend more time on modules with prior bug history |
-
-The agent writes at least one adversarial scenario per item in scope. If no
-scenario produces a finding, the agent documents what was tried and why it did
-not break.
+Apply techniques from Tier 1-4 disciplines below. The agent writes at least one adversarial scenario per item in scope. If no scenario produces a finding, the agent documents what was tried and why it did not break.
 
 ### Phase 5: Gap Analysis
 
@@ -204,13 +166,9 @@ applies the correction in the right column.
 |---|---|
 | "The code looks fine" | Did the agent complete all 6 phases? If not, the agent does not know that. |
 | "I will just fix this quickly" | Stop. Add it to findings and keep scanning. Fixing mid-scan means forgetting the rest. |
-| "This scope is too large" | Break it into chunks. Analyze each chunk through all phases. Never skip a chunk. |
 | "The tests pass so it is probably fine" | Pesticide paradox -- passing tests only prove what they test. Check for gaps. |
 | "This change is trivial" | Trivial changes in high-traffic code paths cause production outages. Check contracts. |
 | "I already know what this code does" | Read it again. Assumptions are where bugs hide. |
-| "The PR was reviewed by humans" | Humans skim. The agent does the systematic trace they did not. |
-| "This is just a refactor" | Refactors change structure. Structure changes break implicit coupling. Check callers. |
-| "I checked the main change, the surrounding code is fine" | Cross-change interactions are the number one integration bug source. Trace the blast radius. |
 | "I found a bug, so the review is complete" | Finding one bug does not excuse skipping remaining scope. Complete all phases for all items. |
 
 ## Red Flags
