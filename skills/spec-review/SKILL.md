@@ -24,6 +24,7 @@ any implementation planning begins.
 1. **Obtain the spec.** Read the specification from the initialization context,
    authority message, or user prompt. If no spec is available, ask the authority
    for it before proceeding. Do NOT guess or start without a spec.
+   Template: `"Need the spec to begin review. Please provide it or point me to the design doc."`
 
 2. **Read it end-to-end.** Read the entire spec thoroughly before analyzing.
    Do not start identifying issues mid-read — complete the full read first to
@@ -114,6 +115,7 @@ If a section has no items, write "None" rather than omitting the section.
 
 **Send to authority for approval.** Via SendMessage if in a team, or display
 to user if standalone. Include the full report.
+Template: `"Spec review complete. Blocked on answers to <Q1, Q2, ...>. Please confirm the spec to proceed."`
 
 ## Phase 6: Hard Gate — Wait for Approval
 

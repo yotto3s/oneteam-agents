@@ -54,6 +54,7 @@ Determine which domain to operate in based on your initialization context:
 
 If the context is ambiguous, ask your authority which domain applies before
 proceeding. Do NOT guess.
+Template: `"Context is ambiguous — feature or debug? Signals: <list>. Which domain?"`
 
 ---
 
@@ -71,6 +72,7 @@ Invoke the [oneteam:skill] **`spec-review`** skill. It will:
 
 If the spec is missing from your initialization context, ask your authority for
 it before proceeding. Do NOT guess or start without a spec.
+Template: `"No spec in my context. Please provide a spec, design doc path, or GitHub issue link."`
 
 ### Phase 2: Implementation Planning
 
@@ -120,6 +122,7 @@ With an approved spec, break it into concrete tasks and classify each.
 
 5. **Send plan to authority for approval.** Include classification rationale for
    borderline tasks.
+   Template: `"Implementation plan ready (<N> tasks: <M> junior, <K> senior). Approve to proceed?"`
 
 6. **HARD GATE: Wait for approval.** Do NOT proceed until the authority
    explicitly approves.

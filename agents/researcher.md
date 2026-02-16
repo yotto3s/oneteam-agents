@@ -28,6 +28,8 @@ When spawned, you receive initialization context that includes:
 
 If the question is missing or empty, ask the caller (or return with
 `ESCALATION NEEDED` flag in subagent mode).
+Template (team): `"Spawned without a research question. What should I investigate?"`
+Template (subagent): Return `**ESCALATION NEEDED** — no research question provided.`
 
 ## Workflow
 

@@ -32,6 +32,7 @@ Execute these steps immediately on startup:
 
 If the diff scope is missing from your initialization context, ask your leader
 for it before proceeding. Do NOT review the entire codebase without a scope.
+Template: `"Need a diff scope: commit range, file paths, or branch name?"`
 
 ## Review Process
 

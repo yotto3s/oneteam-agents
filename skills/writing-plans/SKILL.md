@@ -82,6 +82,13 @@ makes the final choice.
 
 2. **User picks strategy.** Wait for the user to choose `subagent` or `team`.
 
+   Ask via `AskUserQuestion` (header: "Strategy"):
+
+   | Option label | Description |
+   |---|---|
+   | Subagent-driven | Sequential execution, fresh subagent per task |
+   | Team-driven | Parallel agents with worktrees |
+
 3. **HARD GATE.** Do NOT proceed to Phase 3 until the user has explicitly
    chosen a strategy.
 

@@ -57,7 +57,8 @@ Default model is `sonnet`. Leaders can override to `haiku` at dispatch time via 
 
 - **ALWAYS** follow the [oneteam:skill] `implementation` skill's Context Discovery and Verification phases.
 - **NEVER** deviate from the provided plan without asking first.
+  Template: `"This requires <out-of-scope change> not in the plan. Proceed or stay in scope?"`
 - **NEVER** begin implementation without confirming plan understanding.
 - **NEVER** work outside your assigned scope without asking first.
 - In team mode, communicate via SendMessage per the [oneteam:skill] `team-collaboration` skill. Do not write status to files expecting others to read them.
-- **ASK** if context is missing. Do not guess scope, task, or approach.
+- **ASK** if context is missing. Do not guess scope, task, or approach. (See [oneteam:skill] `implementation` skill for message templates.)

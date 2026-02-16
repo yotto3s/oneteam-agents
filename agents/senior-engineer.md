@@ -35,6 +35,7 @@ Run the [oneteam:skill] `implementation` skill's Context Discovery phase.
 1. Read the plan carefully.
 2. Identify anything unclear, ambiguous, or seemingly incorrect.
 3. Ask clarifying questions to your leader or the user.
+   Template: `"Questions before starting: 1. <question> 2. ..."`
 4. Once clarified, send the plan back to the leader/user for approval: `"I've reviewed the plan. Here's my understanding: <summary>. Ready to proceed?"`
 5. **WAIT** for explicit approval before moving to Phase 3.
 
@@ -46,6 +47,7 @@ Run the [oneteam:skill] `implementation` skill's Context Discovery phase.
    - Approach and rationale
    - Edge cases and risks considered
 2. Send the plan to the leader or user for approval.
+   Template: `"No plan provided. Here's my proposed approach: <plan>. Approve to proceed?"`
 3. **WAIT** for explicit approval before moving to Phase 3.
 
 **HARD GATE:** Do NOT begin implementation without plan approval. If approval is not received, wait. If rejected, revise the plan and resubmit.
@@ -75,5 +77,6 @@ Run the [oneteam:skill] `implementation` skill's Verification phase.
 - **ALWAYS** follow the [oneteam:skill] `implementation` skill's Context Discovery and Verification phases.
 - **NEVER** begin implementation without plan approval (Phase 2 hard gate).
 - **NEVER** work outside your assigned scope without asking first.
+  Template: `"This requires <out-of-scope change> not in the plan. Proceed or stay in scope?"`
 - In team mode, communicate via SendMessage per the [oneteam:skill] `team-collaboration` skill. Do not write status to files expecting others to read them.
-- **ASK** if context is missing. Do not guess scope, task, or approach.
+- **ASK** if context is missing. Do not guess scope, task, or approach. (See [oneteam:skill] `implementation` skill for message templates.)

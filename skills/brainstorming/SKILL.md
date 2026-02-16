@@ -22,7 +22,9 @@ You MUST create a task for each of these items and complete them in order:
 1. **Explore project context** — check files, docs, recent commits
 2. **Ask clarifying questions** — one at a time, understand purpose/constraints/success criteria
 3. **Propose 2-3 approaches** — with trade-offs and your recommendation
-4. **Present design** — in sections scaled to their complexity, get user approval after each section
+4. **Present design** — in sections scaled to their complexity, get user approval after each section.
+   After each section: `"Look right, or any changes?"`
+   After final section: `"Full design above. Approve to continue?"`
 5. **Choose working branch** — ask user which branch to work on via AskUserQuestion
 6. **Write design doc** — save to `docs/plans/YYYY-MM-DD-<topic>-design.md` (do NOT commit)
 7. **Offer GitHub issue posting** — optionally post the design to a GitHub issue
@@ -83,6 +85,13 @@ After writing the design file (and before invoking [oneteam:skill] `writing-plan
 if they want to post the design to a GitHub issue. If they decline, proceed
 directly to [oneteam:skill] `writing-plans`.
 
+Ask via `AskUserQuestion` (header: "GitHub issue"):
+
+| Option label | Description |
+|---|---|
+| Post to GitHub issue | Post design as a new or existing issue |
+| Skip | Go straight to planning |
+
 If they accept:
 
 1. **Ask which repository.** Always ask for the target repository. NEVER
@@ -92,11 +101,25 @@ If they accept:
    - `owner/repo` — target that specific repo
    - A full URL — extract the repo from it
 
+   Ask via `AskUserQuestion` (header: "Repository"):
+
+   | Option label | Description |
+   |---|---|
+   | This repo (`<owner/repo>`) | Current working directory's repo |
+   | Different repo | User types `owner/repo` or URL |
+
 2. **Ask new issue or existing.**
    - **New issue:** `gh issue create -R owner/repo --title "<topic>" --body "..."`
      Use the design topic as the title (e.g., "Add auth flow").
    - **Existing issue:** Ask for issue number, then
      `gh issue comment NUMBER -R owner/repo --body "..."`
+
+   Ask via `AskUserQuestion` (header: "Issue"):
+
+   | Option label | Description |
+   |---|---|
+   | New issue | Create with design topic as title |
+   | Existing issue | Comment on existing (user provides number) |
 
 3. **Always use the `-R` flag.** Never run `gh issue create` or
    `gh issue comment` without `-R owner/repo`. This prevents accidentally
