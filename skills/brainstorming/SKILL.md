@@ -150,6 +150,7 @@ If accepted:
 | Asking multiple questions at once | One question at a time |
 | Jumping to implementation before design approval | Hard gate -- present design and get explicit approval |
 | Invoking a skill other than `writing-plans` at the end | `writing-plans` is the only valid terminal state |
+| Writing design doc without user approval | Step 6 is an approval gate -- present the full doc and wait for explicit approval |
 
 ## Constraints
 
@@ -158,4 +159,5 @@ If accepted:
 - ALWAYS present design and get explicit approval before moving on
 - NEVER begin implementation until design is approved (hard gate)
 - NEVER invoke any skill other than [oneteam:skill] `writing-plans` as terminal state
+- NEVER write the design doc to file without presenting it to the user and receiving explicit approval (Step 6 approval gate)
 - YAGNI ruthlessly -- cut unnecessary features from all designs
