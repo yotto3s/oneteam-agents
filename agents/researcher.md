@@ -1,9 +1,8 @@
 ---
 name: researcher
 description: >-
-  Searches web and codebase for information, returns structured summaries to
-  caller. Designed for context offloading — the calling agent delegates research
-  questions and receives concise answers without polluting its own context window.
+  Use when you need information from web or codebase and want a structured
+  summary without polluting your context window.
 tools: Read, Glob, Grep, Bash, WebSearch, WebFetch
 model: haiku
 color: white
