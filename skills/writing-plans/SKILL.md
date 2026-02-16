@@ -70,9 +70,20 @@ Dispatch a sub-agent to read the design document and triage the work. No user in
 
 ## Phase 4: Execution Handoff
 
-1. **Save the plan.** Write to `plans/YYYY-MM-DD-<feature-name>-plan.md`. Do NOT commit.
+1. **Present the plan.** Pretty-print the full plan document as rendered markdown. Output it directly -- NOT inside a code block -- so the user sees formatted headings, bold text, bullets, etc.
 
-2. **Invoke execution skill.** Subagent-driven: use [superpowers:skill] `subagent-driven-development`, stay in this session, fresh subagent per task + two-stage review. Team-driven: use [oneteam:skill] `team-management`, pass fragment groupings, starts from Phase 2 (Team Setup).
+   `AskUserQuestion` (header: "Write to file"):
+
+   | Option label | Description |
+   |---|---|
+   | Yes, write it | Proceed to save the plan to file |
+   | Revise | User provides feedback; re-dispatch the architect agent |
+
+   If "Revise": re-dispatch the [oneteam:agent] `architect` with the user's feedback appended to the original prompt. Do NOT patch the plan yourself -- this is consistent with the "never patch yourself" constraint. After receiving the revised plan, present it again. Repeat until approved.
+
+2. **Save the plan.** Write to `plans/YYYY-MM-DD-<feature-name>-plan.md`. Do NOT commit.
+
+3. **Invoke execution skill.** Subagent-driven: use [superpowers:skill] `subagent-driven-development`, stay in this session, fresh subagent per task + two-stage review. Team-driven: use [oneteam:skill] `team-management`, pass fragment groupings, starts from Phase 2 (Team Setup).
 
 ## Quick Reference
 
@@ -81,7 +92,7 @@ Dispatch a sub-agent to read the design document and triage the work. No user in
 | 1. Analysis | Analyzer sub-agent (sonnet) | Analysis blob | -- |
 | 2. Strategy | User | Chosen strategy | Hard gate -- user must choose |
 | 3. Plan Writing | [oneteam:agent] `architect` | Complete plan document | -- |
-| 4. Execution Handoff | Main session | Saved plan + execution skill invoked | -- |
+| 4. Execution Handoff | Main session | Saved plan + execution skill invoked | User approves plan before save |
 
 ## Common Mistakes
 
