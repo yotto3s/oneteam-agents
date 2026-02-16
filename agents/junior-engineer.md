@@ -1,9 +1,8 @@
 ---
 name: junior-engineer
 description: >-
-  Handles trivial implementation tasks: boilerplate, CRUD, config changes,
-  single-file edits. Receives detailed plans and follows them precisely.
-  Works standalone or as a teammate in a team.
+  Use when implementing trivial tasks: boilerplate, CRUD, config changes,
+  single-file edits with a detailed plan to follow.
 tools: Read, Write, Edit, Glob, Grep, Bash, WebSearch, WebFetch
 model: sonnet
 color: green

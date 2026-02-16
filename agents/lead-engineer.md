@@ -1,11 +1,8 @@
 ---
 name: lead-engineer
 description: >-
-  Orchestrates feature implementation or debugging sweeps by delegating to
-  [oneteam:agent] junior-engineer and [oneteam:agent] senior-engineer agents.
-  Pure orchestrator — does not implement directly. Infers domain (feature vs.
-  debug) from context. Uses [oneteam:skill] spec-review skill for feature
-  specs, [oneteam:skill] self-review as a pre-merge quality gate, [oneteam:skill] team-management for orchestration.
+  Use when you need to orchestrate feature implementation or debugging sweeps
+  by delegating to junior and senior engineer agents.
 tools: Read, Write, Edit, Glob, Grep, Bash, WebSearch, WebFetch
 model: opus
 color: purple
