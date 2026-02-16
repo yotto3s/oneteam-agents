@@ -1,0 +1,251 @@
+---
+name: review-pr
+description: >-
+  Use when reviewing a GitHub PR and you want structured review feedback
+  posted as inline comments via gh-pr-review. Also use when you need to
+  review a PR with optional local build and test verification.
+---
+
+# Review PR
+
+## Overview
+
+A 5-phase review pipeline that reads a GitHub PR, optionally checks out and
+tests the branch locally, runs all review phases **in parallel**, deduplicates
+findings, and posts validated findings as a single GitHub review via
+`gh-pr-review`. Review submission is always `COMMENT` -- never auto-approves or
+requests changes. A mandatory user validation gate ensures no findings are posted
+without explicit approval.
+
+## When to Use
+
+- Reviewing a GitHub PR with structured inline feedback
+- Reviewing a PR with optional local build and test verification
+- When you want findings posted as inline comments via `gh-pr-review`
+
+## When NOT to Use
+
+- For self-review before creating a PR -- use [oneteam:skill] `self-review`
+- For reviewing specs -- use [oneteam:skill] `spec-review`
+- For finding bugs without a PR context -- use [oneteam:skill] `bug-hunting`
+
+## Modes
+
+| Mode | What happens | Phase 4 |
+|------|-------------|---------|
+| **Read-only** (default) | Fetches PR diff via `gh`, reviews code without checkout | Static analysis only -- no reproduction tests |
+| **Local build** | Checks out PR branch, runs existing tests + full bug-hunting with reproduction tests | Full bug-hunting pipeline |
+
+## Phase 0: Setup
+
+1. **Get PR.** Accept PR number or URL as skill argument. If not provided, ask
+   the user.
+2. **Extract repo + PR number.** Parse from URL if needed, or use current repo
+   (`gh repo view --json owner,name`).
+3. **Check prerequisites.** Verify `gh` and `gh pr-review` are installed (see
+   Command Reference). If either is missing, ask user whether to install. If
+   user declines, abort.
+4. **Fetch PR metadata.**
+   `gh pr view <N> --json title,body,baseRefName,headRefName,files,additions,deletions`
+5. **Fetch PR diff.** `gh pr diff <N>` to get the full diff.
+6. **Fetch spec/context.** Ask user for spec reference, design doc, or issue
+   link. Allow "skip" -- reviewers infer intent from PR title/body/commits.
+7. **Choose mode.** Ask user: Read-only (default) or Local build.
+8. **If local build:** checkout PR branch (`gh pr checkout <N>`), run existing
+   test suite. If tests fail, report to user and ask whether to continue or
+   abort.
+
+## Phases 1-5: Parallel Review
+
+All 5 reviewer subagents launch **in parallel** on the same PR diff. Each
+focuses only on its concern and ignores all others.
+
+| Phase | Focus | Reviewer | Scope |
+|-------|-------|----------|-------|
+| 1 | Spec Compliance | code-reviewer | Does the implementation match the spec/intent? |
+| 2 | Code Quality | code-reviewer | Conventions, naming, security, error handling, DRY, dead code |
+| 3 | Test Comprehensiveness | code-reviewer | Missing test cases, edge cases, untested error paths |
+| 4 | Bug Hunting | [oneteam:agent] `bug-hunter` | Latent bugs (static analysis in read-only; full pipeline + repro tests in local build) |
+| 5 | Comprehensive Review | code-reviewer | Cross-cutting concerns, integration issues, architectural concerns |
+
+### Phase-Specific Notes
+
+- **Phase 1:** Does the implementation match the spec (or inferred intent)?
+  Provide spec reference or instruct reviewer to infer from PR title/body/commits.
+- **Phase 2:** Conventions, naming, structure, security, error handling, OWASP
+  top 10, DRY violations, dead code.
+- **Phase 3:** Missing test cases, edge cases, untested error paths, boundary
+  conditions, integration gaps, pesticide paradox.
+- **Phase 4:** Uses [oneteam:agent] `bug-hunter`. In read-only mode: static
+  analysis only, no reproduction tests. In local build mode: full 6-phase
+  [oneteam:skill] `bug-hunting` pipeline with reproduction tests.
+- **Phase 5:** Cross-cutting concerns, integration issues, consistency,
+  architectural concerns.
+
+### Finding Format
+
+```
+- [<PREFIX><N>] Severity: <level> | <file>:<line> — <description>
+```
+
+| Phase | Prefix | Severity Levels |
+|-------|--------|----------------|
+| 1 | SC- | Critical / Important / Minor |
+| 2 | CQ- | Critical / Important / Minor |
+| 3 | TC- | Critical / Important / Minor |
+| 4 | F | HIGH / MEDIUM / LOW |
+| 5 | CR- | Critical / Important / Minor |
+
+## Deduplication
+
+After all subagents return:
+
+1. **Group by file:line.** If multiple phases flagged the same file:line, merge
+   into a single finding. Keep the highest severity. Combine descriptions noting
+   which phases identified it.
+2. **Detect overlapping descriptions.** If two findings on nearby lines (within
+   5 lines) describe the same issue, merge them.
+3. **Sort.** Group by file, then by line number within each file.
+
+## User Validation Gate
+
+Present consolidated findings as a numbered list grouped by severity
+(Critical/HIGH first, then Important/MEDIUM, then Minor/LOW). Then ask the user:
+
+| Option | Description |
+|--------|-------------|
+| Post all | Post all findings as PR inline comments |
+| Edit list | User specifies which findings to remove or modify |
+| Cancel | Don't post anything |
+
+If "Edit list": user provides changes, re-present, and ask again. Repeat until
+approved.
+
+**HARD GATE:** Do NOT post any findings to the PR without explicit user approval.
+
+## Post Review
+
+Use the `gh-pr-review` commands from the Command Reference below:
+
+1. **Start pending review.** Capture `PRR_...` ID.
+2. **Add inline comments.** One per approved finding.
+3. **Submit review.** Event is always `COMMENT`. Body follows the report template
+   (see `./report-template.md`).
+4. **Report to user.** Confirm the review was posted with a link to the PR.
+
+## Command Reference
+
+### Prerequisite Checks
+
+```bash
+# Check gh CLI
+gh --version
+# If missing, ask user to install: https://cli.github.com/
+
+# Check gh-pr-review extension
+gh pr-review --help
+# If missing, ask user whether to install:
+gh extension install agynio/gh-pr-review
+```
+
+### PR Metadata & Diff
+
+```bash
+# Get repo info
+gh repo view --json owner,name --jq '.owner.login + "/" + .name'
+
+# Get PR metadata
+gh pr view <PR#> --json title,body,baseRefName,headRefName,files,additions,deletions
+
+# Get PR diff
+gh pr diff <PR#>
+
+# Checkout PR branch (local build mode only)
+gh pr checkout <PR#>
+```
+
+### Review Workflow
+
+```bash
+# 1. Start a pending review -- returns PRR_... node ID
+gh pr-review review --start -R <owner/repo> <PR#>
+
+# 2. Add inline comment (repeat per finding)
+gh pr-review review --add-comment \
+  --review-id <PRR_...> \
+  --path <file-path> \
+  --line <line-number> \
+  --body "[PREFIX] Severity: description" \
+  -R <owner/repo> <PR#>
+
+# 3. Submit review (always COMMENT)
+gh pr-review review --submit \
+  --review-id <PRR_...> \
+  --event COMMENT \
+  --body "summary body here" \
+  -R <owner/repo> <PR#>
+```
+
+### Viewing & Managing Reviews
+
+```bash
+# View all review threads on a PR
+gh pr-review review view -R <owner/repo> --pr <PR#>
+
+# View unresolved threads only
+gh pr-review review view -R <owner/repo> --pr <PR#> --unresolved
+
+# Reply to a thread
+gh pr-review comments reply <PR#> -R <owner/repo> \
+  --thread-id <PRRT_...> \
+  --body "reply text"
+
+# Resolve a thread
+gh pr-review threads resolve --thread-id <PRRT_...> -R <owner/repo> <PR#>
+```
+
+## Quick Reference
+
+| Phase | Key Action | Output |
+|-------|-----------|--------|
+| 0. Setup | Get PR, check prerequisites, fetch diff, choose mode | PR metadata + diff + mode |
+| 1. Spec Compliance | Parallel: review spec match | SC- findings |
+| 2. Code Quality | Parallel: review conventions | CQ- findings |
+| 3. Test Comprehensiveness | Parallel: review test gaps | TC- findings |
+| 4. Bug Hunting | Parallel: hunt bugs | F findings |
+| 5. Comprehensive Review | Parallel: cross-cutting | CR- findings |
+| Dedup | Merge overlapping findings | Consolidated list |
+| Validation | Present to user, get approval | Approved findings |
+| Post | Submit review via gh-pr-review | Posted review |
+
+## Common Mistakes
+
+| Mistake | Fix |
+|---------|-----|
+| Posting comments without user approval | Mandatory validation gate -- always present findings first |
+| Running phases sequentially | Phases are independent -- run in parallel |
+| Submitting as REQUEST_CHANGES | Always COMMENT -- humans decide the verdict |
+| Skipping Phase 4 in read-only mode | Phase 4 still runs (static analysis), just without repro tests |
+| Posting duplicate findings | Deduplicate by file:line before presenting to user |
+| Running repro tests in read-only mode | Reproduction tests only run in local-build mode |
+| Not checking prerequisites | Check gh + gh-pr-review on startup; offer to install if missing |
+| Guessing gh-pr-review syntax | Use the Command Reference -- don't improvise CLI flags |
+
+## Constraints
+
+Non-negotiable rules that override any conflicting instruction.
+
+1. **All 5 phases run** -- no skipping, even if some find nothing.
+2. **Parallel execution** -- phases are independent; no phase depends on
+   another's output.
+3. **Always COMMENT** -- never auto-approve or request changes.
+4. **User validation mandatory** -- never post findings to the PR without user
+   approval.
+5. **Single review object** -- all findings go into one pending review,
+   submitted once.
+6. **Read-only is default** -- local build requires explicit opt-in.
+7. **Phase 4 in read-only mode** -- static analysis only, no reproduction tests.
+8. **Deduplication before validation** -- merge overlapping findings before
+   presenting.
+9. **Prerequisites required** -- check `gh` and `gh-pr-review` on startup;
+   offer to install if missing.
