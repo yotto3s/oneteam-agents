@@ -84,7 +84,7 @@ Raise concerns and doubts immediately, no matter how small. A small question now
 | 1. Close the Loop | Every message gets confirmed | Acknowledge receipt, state next action |
 | 2. Never Block Silently | Say so immediately if stuck | Message what you need and from whom |
 | 3. Know Who Owns What | Know who to ask | Read team config, message owner |
-| 4. Speak Up Early | Raise concerns immediately | Ask now, don't interpret silently |
+| 4. Speak Up Early | Raise concerns immediately | Ask now, do not interpret silently |
 
 ## Common Mistakes
 
