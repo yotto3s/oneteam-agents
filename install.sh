@@ -231,6 +231,13 @@ do_install() {
     fi
   fi
 
+  # 4. Patch implementer-prompt.md for agent role dispatch ----------------------
+  local impl_prompt="$TARGET/skills/subagent-driven-development/implementer-prompt.md"
+  if [[ -f "$impl_prompt" ]]; then
+    sed -i "s/Task tool (general-purpose)/Task tool (junior-engineer or senior-engineer — use the task's **Agent role** from the plan)/" "$impl_prompt"
+    echo "Patched implementer-prompt.md for agent role dispatch"
+  fi
+
   # Write manifest for uninstall
   printf '%s\n' "${manifest[@]}" > "$TARGET/.oneteam-manifest"
 
