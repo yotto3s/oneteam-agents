@@ -117,7 +117,7 @@ What do you want to do?
 +-- Build something new
 |   +-- Have a clear idea?
 |      +-- No  --> brainstorming
-|      +-- Yes --> Have a written spec/plan?
+|      +-- Yes --> Have a written spec?
 |         +-- No  --> writing-plans
 |         +-- Yes --> Is the spec solid?
 |            +-- Unsure --> spec-review
