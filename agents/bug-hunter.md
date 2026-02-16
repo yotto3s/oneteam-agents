@@ -1,9 +1,8 @@
 ---
 name: bug-hunter
 description: >-
-  Finds bugs in code and writes reproduction tests. Runs the [oneteam:skill]
-  bug-hunting skill, then writes tests to reproduce each finding, and builds/runs to
-  verify.
+  Use when reviewing code for latent bugs and you need reproduction tests for
+  each finding.
 tools: Read, Write, Edit, Glob, Grep, Bash
 model: inherit
 color: red
