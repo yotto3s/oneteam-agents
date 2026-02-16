@@ -117,14 +117,7 @@ to user if standalone. Include the full report.
 
 ## Phase 6: Hard Gate — Wait for Approval
 
-**STOP.** Do NOT proceed until the authority has:
-- Reviewed the report
-- Answered any questions from the Questions and Gaps section
-- Explicitly confirmed the spec (possibly with amendments)
-
-If the authority provides an updated spec, return to Phase 1 and re-review.
-If the authority answers questions without changing the spec, incorporate the
-answers into the Confirmed Requirements and proceed.
+**STOP.** Do NOT proceed until the authority has reviewed the report, answered questions from the Questions and Gaps section, and explicitly confirmed the spec. If the authority provides an updated spec, return to Phase 1 and re-review; if they answer questions without changing the spec, incorporate answers into Confirmed Requirements and proceed.
 
 ## Constraints
 
