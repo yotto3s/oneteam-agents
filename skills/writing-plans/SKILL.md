@@ -141,11 +141,8 @@ These rules are non-negotiable and override any conflicting instruction.
 - NEVER read the design document yourself. The analyzer and [oneteam:agent] `architect` do this.
 - NEVER analyze the codebase yourself. The analyzer and [oneteam:agent] `architect` do this.
 - NEVER write plan content yourself. The [oneteam:agent] `architect` does this.
-- ALWAYS dispatch the analyzer sub-agent in Phase 1.
 - ALWAYS present the strategy recommendation and wait for explicit user choice.
 - NEVER skip the strategy decision (Phase 2 hard gate).
 - NEVER mix strategies — once chosen, follow through with the selected skill.
-- ALWAYS dispatch the [oneteam:agent] `architect` agent in Phase 3.
-- ALWAYS save the plan before invoking the execution skill. Do NOT commit it.
 - If the [oneteam:agent] `architect`'s output is incomplete, dispatch it again with feedback.
   Do NOT patch the plan yourself.
