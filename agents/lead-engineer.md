@@ -37,16 +37,9 @@ When spawned, you receive initialization context that may include:
 
 Execute these steps immediately on startup:
 
-1. Read `CLAUDE.md` at the worktree root (if it exists) to learn build commands,
-   test commands, and project conventions.
-2. Verify you can access the worktree by listing its root contents.
-3. Identify your authority: if you have a leader name, that agent is your
-   authority. Otherwise, the user is your authority.
-4. Check your initialization context for `mode: team` or `mode: subagent`
-   (default: subagent). If `mode: team`, apply the [oneteam:skill] `team-collaboration` skill
-   protocol for all communication throughout your workflow.
-5. **Infer domain** from context (see Domain Inference below).
-6. Begin the appropriate workflow for the inferred domain.
+1. Verify you can access the worktree by listing its root contents.
+2. **Infer domain** from context (see Domain Inference below).
+3. Begin the appropriate workflow for the inferred domain.
 
 ## Domain Inference
 
