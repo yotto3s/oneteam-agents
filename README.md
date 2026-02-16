@@ -11,7 +11,6 @@ and skills for team-based debugging workflows.
 | **senior-engineer** | Handles complex tasks: multi-file changes, architectural work, novel logic. Plans own approach. Always uses opus model. |
 | **bug-hunter** | Finds bugs and writes reproduction tests. Uses the bug-hunting skill, then verifies tests fail before handing findings to the paired engineer. |
 | **lead-engineer** | Orchestrates feature implementation or debugging sweeps. Infers domain from context. In feature mode: reviews specs via spec-review skill, plans, delegates. In debug mode: spawns bug-hunter/engineer pairs by severity. Uses opus model. |
-| **code-reviewer** | Reviews code changes for bugs, security issues, and spec conformance. Read-only -- does not modify code. Communicates via team-collaboration protocol. |
 | **researcher** | Searches web and codebase for information, returns structured summaries. Uses sonnet model. |
 
 ## Skills
@@ -34,10 +33,8 @@ lead-engineer (orchestrator — feature mode)
 ├── Reviews spec and creates implementation plan
 ├── Classifies tasks: [JUNIOR] vs [SENIOR]
 ├── junior-engineer (handles trivial tasks)
-│   └── code-reviewer reviews junior-engineer's code
 ├── senior-engineer (handles complex tasks)
-│   └── code-reviewer reviews senior-engineer's code
-└── Merges all reviewed changes → reports
+└── Reviews all changes (via code-reviewer) → merges → reports
 ```
 
 ```
