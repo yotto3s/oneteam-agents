@@ -54,6 +54,7 @@ YAML frontmatter with `name` and `description`, followed by phased pipeline docu
 | [oneteam:skill] research | 3-phase: clarify → gather → synthesize |
 | [oneteam:skill] self-review | 5-phase sequential pipeline: spec compliance → code quality → test comprehensiveness → bug hunting → comprehensive review, each with review-fix-re-review cycle |
 | [oneteam:skill] spec-review | 6-phase: read spec → analyze codebase → quality check → issue identification → report → approval gate |
+| [oneteam:skill] review-pr | 5-phase parallel pipeline: spec compliance, code quality, test comprehensiveness, bug hunting, comprehensive review with deduplication, user validation gate, and gh-pr-review posting |
 | [oneteam:skill] implementation | 2-phase: context discovery → verification + common best practices |
 
 ### Pipeline
