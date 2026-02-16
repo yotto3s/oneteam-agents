@@ -33,18 +33,18 @@ codebase and produces a fragment plan.
 Leader agents MUST define all required slots before orchestration begins. Optional
 slots have defaults that apply when unset.
 
-| Slot | Required | Default | Description | Example |
-|------|----------|---------|-------------|---------|
-| `splitting_strategy` | Yes | -- | How to analyze and split work into fragments. Defines the criteria for decomposing the codebase into independent units of work. | `"Module boundaries + git changes"` |
-| `fragment_size` | Yes | -- | Target number of files per fragment. Guides the granularity of work decomposition. | `"5-15 files"` |
-| `organization.group` | Yes | -- | Naming prefix for all agents in this organization. Used to construct agent names as `{group}-{role}-{N}`. | `"debug"` |
-| `organization.roles` | Yes | -- | Array of role definitions. Each role has: `name` (string), `agent_type` (string), `starts_first` (bool), `instructions` (string). | `[{name: "bug-hunter", agent_type: "bug-hunter", starts_first: true, instructions: "Run tests and report findings"}]` |
-| `organization.flow` | Yes | -- | Describes the communication and dependency flow between roles. Human-readable description of how work moves through the team. | `"bug-hunter finds -> debugger fixes -> bug-hunter verifies"` |
-| `team_name` | No | `{group}-team` | Override the team name used for TeamCreate and task coordination. | `"my-debug-team"` |
-| `escalation_threshold` | No | `3` | Number of attempts an agent makes before escalating to the leader. | `5` |
-| `review_criteria` | No | General code quality | Domain-specific checklist applied during code review. Appended to the standard review process. | `"All error paths must have tests; no raw SQL queries"` |
-| `report_fields` | No | None | Extra fields inserted into the top-level section of the final report. | `"Total bugs found, Coverage delta"` |
-| `domain_summary_sections` | No | None | Extra sections appended to the end of the final report. | `"## Regression Risk Assessment\n..."` |
+| Slot | Required | Default | Description |
+|------|----------|---------|-------------|
+| `splitting_strategy` | Yes | -- | How to analyze and split work into fragments. Defines the criteria for decomposing the codebase into independent units of work. |
+| `fragment_size` | Yes | -- | Target number of files per fragment. Guides the granularity of work decomposition. |
+| `organization.group` | Yes | -- | Naming prefix for all agents in this organization. Used to construct agent names as `{group}-{role}-{N}`. |
+| `organization.roles` | Yes | -- | Array of role definitions. Each role has: `name` (string), `agent_type` (string), `starts_first` (bool), `instructions` (string). |
+| `organization.flow` | Yes | -- | Describes the communication and dependency flow between roles. Human-readable description of how work moves through the team. |
+| `team_name` | No | `{group}-team` | Override the team name used for TeamCreate and task coordination. |
+| `escalation_threshold` | No | `3` | Number of attempts an agent makes before escalating to the leader. |
+| `review_criteria` | No | General code quality | Domain-specific checklist applied during code review. Appended to the standard review process. |
+| `report_fields` | No | None | Extra fields inserted into the top-level section of the final report. |
+| `domain_summary_sections` | No | None | Extra sections appended to the end of the final report. |
 
 ## Phase 1: Work Analysis
 
@@ -231,17 +231,12 @@ communication throughout the execution phase.
 
 4. **Periodic friendly check-ins.** Proactively reach out to each active
    teammate for a status update at regular intervals -- don't wait for them
-   to report or for problems to surface. Keep the tone friendly and
-   supportive, not interrogative. Examples:
+   to report or for problems to surface. Example:
    - "Hey, how's it going on your end? Anything I can help with?"
-   - "Just checking in -- making progress? Let me know if you hit any snags."
-   - "How are things looking? No rush, just want to stay in the loop."
 
    Aim to check in with each active agent at least once between major
-   milestones (e.g., between fragment completions). Stagger check-ins so
-   you're not messaging everyone at the same time. If an agent recently
-   sent a substantive update, skip the check-in -- they've already
-   communicated their status.
+   milestones (e.g., between fragment completions). If an agent recently
+   sent a substantive update, skip the check-in.
 
 5. **Cross-group relay.** For multi-group organizations where groups work on
    related aspects:
@@ -317,7 +312,7 @@ them into the base branch sequentially.
      then re-review the updated diff. Repeat until the changes pass review.
    - If the changes are approved: proceed to merge.
 
-3. **Merge protocol.** Merge one worktree at a time, sequentially:
+3. **CRITICAL: Merge protocol.** Merge one worktree at a time, sequentially:
    ```bash
    git checkout $BASE_BRANCH
    git merge {{group}}-fragment-N --no-ff -m "Merge {{group}}-fragment-N: <fragment description>"
@@ -389,17 +384,9 @@ up all infrastructure.
    section is mandatory -- none may be omitted.
 
 2. **Cleanup.** Execute all cleanup steps in order:
-   - Remove worktrees:
-     ```bash
-     git worktree remove ../{{group}}-fragment-N
-     ```
-     Repeat for each fragment.
-   - Delete merged branches:
-     ```bash
-     git branch -d {{group}}-fragment-N
-     ```
-     Use lowercase `-d` (safe delete) to ensure only fully-merged branches are
-     removed.
+   - Remove worktrees for each fragment.
+   - Delete merged branches (use safe delete `-d` to ensure only fully-merged
+     branches are removed).
    - Shut down all agents: send `shutdown_request` via `SendMessage` to each
      spawned agent. Wait for each agent to confirm shutdown before proceeding.
    - Delete the team: if this leader created the team (top-level leader), call
@@ -421,86 +408,19 @@ These rules are non-negotiable and override any conflicting instruction.
 - NEVER skip code review, even if the changes appear trivial.
 - NEVER create more than 4 fragments. If the scope seems to require more,
   increase fragment size or reduce scope.
-- ALWAYS merge sequentially, one worktree branch at a time. Run tests after
-  each merge before proceeding to the next.
 - ALWAYS clean up when work is complete: remove worktrees, delete branches,
   shut down agents, and delete the team.
 - NEVER spawn agents before their worktrees are created and verified.
 - If already operating as a teammate in an existing team, do NOT create a new
   team. Work within the existing team structure.
 
-## Organization Structure Examples
+## Organization Structure Example
 
-These examples demonstrate the versatility of the slot system across different
-use cases.
+This example demonstrates the versatility of the slot system for multi-group
+use cases. For single-group examples (debugging, feature development), see the
+domain configurations in [oneteam:agent] `lead-engineer`.
 
-### Example 1: Debugging Team
-
-A two-role team where bug-hunters find bugs and debuggers fix them, operating in
-a tight feedback loop per fragment.
-
-```yaml
-organization:
-  group: "debug"
-  roles:
-    - name: "[oneteam:agent] bug-hunter"
-      agent_type: "[oneteam:agent] bug-hunter"
-      starts_first: true
-      instructions: "Run [oneteam:skill] bug-hunting, write reproduction tests, send findings to debugger"
-    - name: "debugger"
-      agent_type: "debugger"
-      starts_first: false
-      instructions: "Receive findings, apply [superpowers:skill] systematic-debugging, send fixes to [oneteam:agent] bug-hunter"
-  flow: "[oneteam:agent] bug-hunter finds bugs -> debugger fixes -> [oneteam:agent] bug-hunter verifies -> converge"
-  escalation_threshold: 3
-```
-
-Agent naming for 2 fragments: `debug-bug-hunter-1`, `debug-debugger-1`,
-`debug-bug-hunter-2`, `debug-debugger-2`.
-
-Task dependencies: each `debug-debugger-N` task is blocked by the corresponding
-`debug-bug-hunter-N` task. Debuggers begin work only after [oneteam:agent] `bug-hunter`s produce
-initial findings.
-
-### Example 2: Feature Development Team
-
-A three-role team where the lead-engineer itself orchestrates engineers and a
-reviewer, with per-task review checkpoints and a two-stage fragment completion
-review. The lead-engineer is the orchestrator running `team-management` — it
-does not appear in `organization.roles` to avoid recursive spawning.
-
-```yaml
-organization:
-  group: "feature"
-  roles:
-    - name: "[oneteam:agent] junior-engineer"
-      agent_type: "[oneteam:agent] junior-engineer"
-      starts_first: true
-      instructions: "Implement [JUNIOR] tasks, wait for reviewer approval between tasks"
-    - name: "[oneteam:agent] senior-engineer"
-      agent_type: "[oneteam:agent] senior-engineer"
-      starts_first: true
-      instructions: "Implement [SENIOR] tasks, wait for reviewer approval between tasks"
-    - name: "reviewer"
-      agent_type: "[oneteam:agent] code-reviewer"
-      starts_first: false
-      instructions: "Per-task single-pass review, per-fragment two-stage review (spec + quality)"
-  flow: "engineers build task -> reviewer reviews task ->
-         repeat until all tasks done -> reviewer does two-stage fragment review ->
-         lead reports completion"
-  escalation_threshold: 2
-```
-
-Agent naming for 2 fragments: `feature-junior-engineer-1`,
-`feature-senior-engineer-1`, `feature-junior-engineer-2`,
-`feature-senior-engineer-2`, `feature-reviewer-1`.
-
-The lead-engineer itself coordinates per-task reviews and fragment completion
-reviews. The reviewer covers all fragments (per-lead-group role) and uses
-`starts_first: false` so it is unblocked but waits for review triggers from
-the lead-engineer via `SendMessage`.
-
-### Example 3: Multi-Group Project
+### Multi-Group Project
 
 A pipeline of three groups where each group has its own leader. The planning
 group produces a plan, the feature group implements it, and the debug group
