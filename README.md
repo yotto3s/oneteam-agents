@@ -109,3 +109,69 @@ To use a senior engineer for a complex task:
 - The `systematic-debugging` skill (from the
   [superpowers](https://github.com/anthropics/claude-plugins-official) plugin) is
   required for the debug workflow
+
+## When to Use Which Skill
+
+Use this guide to pick the right skill for your situation. Skills are invoked
+automatically by agents, but knowing which one fits your goal helps you start
+the right workflow.
+
+### Decision Tree
+
+```
+What do you want to do?
+|
++-- Build something new
+|   +-- Have a clear idea?
+|      +-- No  --> brainstorming
+|      +-- Yes --> Have a written spec/plan?
+|         +-- No  --> writing-plans
+|         +-- Yes --> Is the spec solid?
+|            +-- Unsure --> spec-review
+|            +-- Yes   --> How complex?
+|               +-- Small (few tasks)  --> subagent-driven-development
+|               +-- Large (many tasks) --> team-management
+|
++-- Fix or investigate bugs
+|   +-- Have a specific error/failure?
+|      +-- Yes --> systematic-debugging
+|      +-- No  --> Proactive bug hunting?
+|         +-- Yes --> bug-hunting
+|         +-- No  --> Full debug sweep?
+|            +-- Small scope --> subagent-driven-development
+|            +-- Large scope --> team-management
+|
++-- Research something
+    +-- research
+```
+
+### Example Scenarios
+
+**Building Features**
+
+| Scenario | Skill | What happens |
+|----------|-------|--------------|
+| "I have a vague idea for a new auth system" | brainstorming | Asks clarifying questions, proposes approaches, writes design doc, hands off to writing-plans |
+| "I have requirements, need a plan" | writing-plans | Analyzes complexity, picks strategy (subagent vs team), dispatches architect to write plan |
+| "I have a spec but I'm not sure it's complete" | spec-review | Reviews against IEEE 830/INVEST criteria, identifies gaps, produces quality report |
+| "Plan is ready, 3 independent tasks" | subagent-driven-development | Spawns fresh subagent per task, two-stage review after each |
+| "Plan is ready, 10+ tasks, needs coordination" | team-management | Sets up team with worktrees, spawns engineers, monitors progress, reviews, merges |
+
+**Tip:** Even when you have a concrete plan, consider starting with
+`brainstorming` -- it often surfaces missing requirements and edge cases before
+you commit to implementation.
+
+**Debugging**
+
+| Scenario | Skill | What happens |
+|----------|-------|--------------|
+| "Tests are failing with this error message" | systematic-debugging | Structured debugging: reproduce, hypothesize, isolate, fix, verify |
+| "I suspect there are bugs in the auth module but nothing is failing yet" | bug-hunting | 6-phase audit: scope, contracts, impact tracing, adversarial analysis, gap analysis |
+| "Full codebase debug sweep after a big refactor" | team-management | Spawns bug-hunter + engineer pairs, coordinates fixes |
+
+**Research & Planning**
+
+| Scenario | Skill | What happens |
+|----------|-------|--------------|
+| "How does the caching layer work in this codebase?" | research | Searches codebase and web, returns structured summary |
+| "Find best practices for WebSocket auth" | research | Web search + synthesis, returns actionable summary |
