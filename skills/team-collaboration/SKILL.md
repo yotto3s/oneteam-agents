@@ -13,10 +13,6 @@ Four principles for effective team collaboration. Each principle states what to
 uphold and provides concrete practices for how to keep it. Applies to all
 communication: between teammates, with leaders, and with the human user.
 
-Rooted in human team coordination: Aviation Crew Resource Management (closed-loop
-communication, speak-up culture) and distributed team research (anti-patterns like
-silent blocking and team opacity).
-
 ## Team Mode Activation Protocol
 
 When an agent's initialization context includes `mode: team`, apply these
