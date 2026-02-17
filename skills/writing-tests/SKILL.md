@@ -14,6 +14,8 @@ Write tests by reading **both** the spec and the implementation. The spec tells 
 
 **Core principle:** Spec-derived tests verify intent. Implementation-derived tests verify reality. You need both.
 
+**Orchestration model:** The invoking agent is a thin orchestrator. It analyzes spec and implementation, presents the test plan for user approval, dispatches subagents to write tests, reviews results against disciplines, and verifies. It does NOT write test code directly.
+
 ## When to Use
 
 - Adding tests to existing code that has no tests
@@ -92,7 +94,20 @@ If "Revise": incorporate the user's feedback, revise the test plan, and re-prese
 
 ### Phase 5: Write Tests
 
-Write each test following the best practices below.
+Dispatch test writing to a subagent via the Task tool based on complexity:
+
+- **Simple/small test files** (straightforward assertions, well-understood patterns, single test file) -> `subagent_type: junior-engineer`
+- **Complex logic, architectural test setup** (custom fixtures, mock infrastructure, multi-file test suites) -> `subagent_type: senior-engineer`
+
+The subagent prompt MUST include:
+
+1. The approved test plan table from Phase 4
+2. Source file paths to read (spec files and implementation files)
+3. The Disciplines section from this skill (as constraints the subagent must follow)
+4. The Best Practices section from this skill
+5. The test framework and conventions discovered during Phases 1-2
+
+Do NOT write tests yourself. Delegate to the subagent and review the output in Phase 6.
 
 ### Phase 7: Verify
 
