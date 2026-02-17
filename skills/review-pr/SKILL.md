@@ -100,6 +100,10 @@ focuses only on its concern and ignores all others.
 | 4 | F | HIGH / MEDIUM / LOW |
 | 5 | CR- | Critical / Important / Minor |
 
+This is the **internal** finding format used during review phases and
+deduplication. When posting findings as inline PR comments, use the structured
+comment template (see `./comment-template.md`).
+
 ## Deduplication
 
 After all subagents return:
@@ -132,10 +136,15 @@ approved.
 Use the `gh-pr-review` commands from the Command Reference below:
 
 1. **Start pending review.** Capture `PRR_...` ID.
-2. **Add inline comments.** One per approved finding.
+2. **Add inline comments.** One per approved finding, using the comment template
+   (see `./comment-template.md`).
 3. **Submit review.** Event is always `COMMENT`. Body follows the report template
    (see `./report-template.md`).
 4. **Report to user.** Confirm the review was posted with a link to the PR.
+
+**Recommended:** Use `./post-comments.sh` to post all comments and submit the
+review in one step. It handles shell escaping by writing each comment body to a
+temp file. See `./post-comments.sh` for input format and usage.
 
 ## Command Reference
 
@@ -176,23 +185,36 @@ gh pr checkout <PR#>
 
 ### Review Workflow
 
+**Recommended: use `post-comments.sh`** to avoid shell escaping issues.
+See `./post-comments.sh` for input JSON format and usage.
+
+```bash
+# Post all comments + submit review in one step
+./post-comments.sh <input.json>
+```
+
+**Manual commands** (use temp files to avoid escaping issues with special
+characters in `--body`):
+
 ```bash
 # 1. Start a pending review -- returns PRR_... node ID
 gh pr-review review --start -R <owner/repo> <PR#>
 
 # 2. Add inline comment (repeat per finding)
+#    Write comment body to temp file using ./comment-template.md format,
+#    then pass via command substitution to avoid escaping issues.
 gh pr-review review --add-comment \
   --review-id <PRR_...> \
   --path <file-path> \
   --line <line-number> \
-  --body "[PREFIX] Severity: description" \
+  --body "$(cat /tmp/comment-body.md)" \
   -R <owner/repo> <PR#>
 
 # 3. Submit review (always COMMENT)
 gh pr-review review --submit \
   --review-id <PRR_...> \
   --event COMMENT \
-  --body "summary body here" \
+  --body "$(cat /tmp/review-summary.md)" \
   -R <owner/repo> <PR#>
 ```
 
@@ -241,6 +263,7 @@ gh pr-review threads resolve --thread-id <PRRT_...> -R <owner/repo> <PR#>
 | Not checking prerequisites | Check gh + gh-pr-review on startup; offer to install if missing |
 | Checking out the target branch | Always `git fetch origin <baseRefName>` -- read files via `git show origin/<baseRefName>:<path>` |
 | Guessing gh-pr-review syntax | Use the Command Reference -- don't improvise CLI flags |
+| Passing comment body directly in `--body` quotes | Use `post-comments.sh` or write body to temp file and use `--body "$(cat file)"` |
 
 ## Constraints
 
