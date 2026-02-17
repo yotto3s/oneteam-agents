@@ -27,8 +27,12 @@ external code review is still required before merge.
 
 ## Phase 0: Setup
 
-1. **Diff scope.** Use caller-provided scope or ask. Default:
-   `git diff <base-branch>...HEAD`
+1. **Diff scope.** If the caller provided a base branch, use it. Otherwise,
+   detect it: examine git log to find the most likely base branch. Present the
+   result for confirmation:
+   `1. <detected-branch> (Recommended)  2. Other branch`
+   If the user picks "Other", ask for the branch name.
+   Default diff: `git diff <base-branch>...HEAD`
 2. **Spec reference.** Use caller-provided spec/design doc/issue link or ask.
    User may skip — intent inferred from commits in Phase 1.
 3. **Capture initial diff.** Store for Phase 1. Subsequent phases re-capture to
