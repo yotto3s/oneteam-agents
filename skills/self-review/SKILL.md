@@ -68,18 +68,23 @@ concern and ignore all others. Specific review scopes:
 
 - **Phase 1:** Does the implementation match the spec (or inferred intent)?
   Provide spec reference or instruct reviewer to infer from commits.
+  See `../review-prompts/phase-1-spec-compliance.md` for dispatch template.
 - **Phase 2:** Conventions, naming, structure, security, error handling, OWASP
   top 10, DRY violations, dead code.
+  See `../review-prompts/phase-2-code-quality.md` for dispatch template.
 - **Phase 3:** Missing test cases, edge cases, untested error paths, boundary
   conditions, integration gaps, pesticide paradox.
+  See `../review-prompts/phase-3-test-comprehensiveness.md` for dispatch template.
 - **Phase 5:** Cross-cutting concerns, integration issues, consistency,
   architectural concerns. Provide summaries of all prior phase findings.
+  See `../review-prompts/phase-5-comprehensive-review.md` for dispatch template.
 
 **Phase 4 exceptions:** Uses [oneteam:agent] `bug-hunter` with the full 6-phase
 [oneteam:skill] `bug-hunting` pipeline instead of code-reviewer. Re-verification
 runs reproduction tests only, not the full pipeline. Findings without
 reproduction tests still count toward the verdict — HIGH or MEDIUM untested
 findings trigger FAIL the same as unresolved tested findings.
+See `../review-prompts/phase-4-bug-hunting.md` for dispatch template.
 
 ### Finding Format
 
