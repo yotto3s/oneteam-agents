@@ -15,6 +15,7 @@ set -euo pipefail
 #   {
 #     "repo": "owner/repo",
 #     "pr": 42,
+#     "summary": "## Review Summary\n\n3 findings ...",
 #     "comments": [
 #       {
 #         "path": "src/foo.ts",
@@ -22,9 +23,14 @@ set -euo pipefail
 #         "start_line": 20,
 #         "body": "**[CQ-1] Severity: Important**\n\n**What:** ..."
 #       }
-#     ],
-#     "summary_file": "/tmp/review-summary.md"
+#     ]
 #   }
+#
+# Top-level fields:
+#   repo    - (required) GitHub repository in owner/repo format
+#   pr      - (required) pull request number
+#   summary - (required) markdown review summary submitted with the review
+#   comments - (required) array of inline comment objects
 #
 # Comment fields:
 #   path       - (required) file path relative to repo root
@@ -76,7 +82,7 @@ fi
 
 REPO="$(jq -r '.repo' "$INPUT_FILE")"
 PR="$(jq -r '.pr' "$INPUT_FILE")"
-SUMMARY_FILE="$(jq -r '.summary_file' "$INPUT_FILE")"
+SUMMARY="$(jq -r '.summary // empty' "$INPUT_FILE")"
 COMMENT_COUNT="$(jq '.comments | length' "$INPUT_FILE")"
 
 # Validate required fields
@@ -161,8 +167,8 @@ done
 
 # ── Submit review ────────────────────────────────────────────────────────
 
-if [[ -f "$SUMMARY_FILE" ]]; then
-  SUBMIT_BODY="$(cat "$SUMMARY_FILE")"
+if [[ -n "$SUMMARY" ]]; then
+  SUBMIT_BODY="$SUMMARY"
 else
   SUBMIT_BODY="Review posted by post-comments.sh ($POSTED comments)"
 fi

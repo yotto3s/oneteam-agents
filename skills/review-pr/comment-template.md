@@ -1,9 +1,9 @@
 # Review PR Comment Template
 
 Supporting reference for the [oneteam:skill] `review-pr` skill. This template
-is used as the comment body when adding inline comments via
-`gh-pr-review review --add-comment`. Each section is mandatory. Keep every
-section to 1-2 lines -- inline comments must be scannable, not walls of text.
+defines the comment body format used by `post-comments.sh`. Each section is
+mandatory. Keep every section to 1-2 lines -- inline comments must be
+scannable, not walls of text.
 
 ## Template
 
@@ -51,19 +51,56 @@ missing test coverage, process concern), use a plain-text suggestion instead:
 
 - The `suggestion` block replaces the **exact line(s)** the comment is attached
   to. The replacement code must be complete and ready to apply.
-- Use multi-line comments (`--start-line` + `--line` in `gh-pr-review`) when
-  the suggestion spans multiple lines.
+- Use `start_line` in the JSON when the suggestion spans multiple lines.
 - Do **not** use a `suggestion` block for deletions (empty block), additions of
   new lines outside the comment range, or non-code advice. Use plain-text
   `**Suggestion:**` for those cases.
 
-## Usage
+## JSON Format
 
-This template is filled in and passed as the `--body` argument to
-`gh-pr-review review --add-comment`. One comment is posted per approved finding.
-The finding's `--path` and `--line` are set from the `<file>:<line>` in the
-internal finding format.
+The agent builds a single JSON file and passes it to `post-comments.sh`. The
+JSON schema matches what the script expects:
 
-To avoid shell escaping issues with special characters in the comment body,
-use the `post-comments.sh` script (see `./post-comments.sh`) or write the
-body to a temp file and pass it via `--body "$(cat /tmp/comment-body.txt)"`.
+```json
+{
+  "repo": "owner/repo",
+  "pr": 42,
+  "summary": "## Review Summary\n\n3 findings across 2 files ...",
+  "comments": [
+    {
+      "path": "src/auth.ts",
+      "line": 15,
+      "body": "**[CQ-1] Severity: Important**\n\n**What:** Missing null check on `user.email`\n\n**Why:** Will throw TypeError at runtime\n\n```suggestion\nif (user?.email) {\n```"
+    },
+    {
+      "path": "src/auth.ts",
+      "line": 25,
+      "start_line": 20,
+      "body": "**[CQ-2] Severity: Important**\n\n**What:** Redundant validation block\n\n**Why:** Same check is already performed upstream\n\n```suggestion\nconst result = validate(input);\n```"
+    },
+    {
+      "path": "src/auth.ts",
+      "line": 40,
+      "body": "**[TC-1] Severity: Minor**\n\n**What:** No test for error path\n\n**Why:** Rejected promise case is untested\n\n**Suggestion:** Add a test for the rejected promise case"
+    }
+  ]
+}
+```
+
+### Comment Fields
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `path` | yes | File path relative to repo root |
+| `line` | yes | End line number for the comment |
+| `start_line` | no | Start line for multi-line comments / suggestions |
+| `body` | yes | Comment body using the template above |
+
+### Top-Level Fields
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `repo` | yes | GitHub repository in `owner/repo` format |
+| `pr` | yes | Pull request number |
+| `summary` | yes | Markdown review summary submitted with the review |
+| `comments` | yes | Array of inline comment objects |
