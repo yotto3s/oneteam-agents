@@ -36,6 +36,26 @@ without explicit approval.
 | **Read-only** (default) | Fetches PR diff via `gh`, reviews code without checkout | Static analysis only -- no reproduction tests |
 | **Local build** | Checks out PR branch, runs existing tests + full bug-hunting with reproduction tests | Full bug-hunting pipeline |
 
+### Read-Only Mode Constraints (All Phases)
+
+When running in read-only mode (the default), **every** subagent (Phases 1-5)
+operates under these constraints:
+
+- **No branch checkout.** Do not `git checkout` or `git switch` to any branch.
+  Use `git show origin/<baseRefName>:<path>` to read files from the target
+  branch.
+- **No building.** Do not run build commands (`make`, `npm run build`, `cargo
+  build`, etc.).
+- **No file writes.** Do not create, modify, or delete any files in the working
+  tree.
+- **No test execution.** Do not run test suites or individual tests.
+- **Analysis is static only.** Review the PR diff, read source files via `git
+  show`, and reason about the code. That is the entire toolkit.
+
+These constraints apply equally to code-reviewer subagents (Phases 1, 2, 3, 5)
+and the [oneteam:agent] `bug-hunter` (Phase 4). Phase 4 has an additional
+constraint: no reproduction tests (see Phase-Specific Notes).
+
 ## Phase 0: Setup
 
 1. **Get PR.** Accept PR number or URL as skill argument. If not provided, ask
@@ -55,14 +75,18 @@ without explicit approval.
 7. **Fetch spec/context.** Ask user for spec reference, design doc, or issue
    link. Allow "skip" -- reviewers infer intent from PR title/body/commits.
 8. **Choose mode.** Ask user: Read-only (default) or Local build.
-9. **If local build:** checkout PR branch (`gh pr checkout <N>`), run existing
+9. **If local build:** checkout PR branch (`gh pr checkout <N>`) and pull latest
+   changes (`git pull`). `gh pr checkout` does not update an existing local
+   branch -- the explicit pull ensures the code is current. Then run existing
    test suite. If tests fail, report to user and ask whether to continue or
    abort.
 
 ## Phases 1-5: Parallel Review
 
 All 5 reviewer subagents launch **in parallel** on the same PR diff. Each
-focuses only on its concern and ignores all others.
+focuses only on its concern and ignores all others. In read-only mode, every
+subagent MUST be explicitly told it is in read-only mode and given the
+Read-Only Mode Constraints (see Modes section above).
 
 | Phase | Focus | Reviewer | Scope |
 |-------|-------|----------|-------|
@@ -80,8 +104,9 @@ focuses only on its concern and ignores all others.
   top 10, DRY violations, dead code.
 - **Phase 3:** Missing test cases, edge cases, untested error paths, boundary
   conditions, integration gaps, pesticide paradox.
-- **Phase 4:** Uses [oneteam:agent] `bug-hunter`. In read-only mode: static
-  analysis only, no reproduction tests. In local build mode: full 6-phase
+- **Phase 4:** Uses [oneteam:agent] `bug-hunter`. In read-only mode: all
+  general read-only constraints apply (see Modes section), plus no reproduction
+  tests -- static analysis only. In local build mode: full 6-phase
   [oneteam:skill] `bug-hunting` pipeline with reproduction tests.
 - **Phase 5:** Cross-cutting concerns, integration issues, consistency,
   architectural concerns.
@@ -181,6 +206,7 @@ gh pr diff <PR#>
 
 # Checkout PR branch (local build mode only)
 gh pr checkout <PR#>
+git pull  # gh pr checkout does not update an existing local branch
 ```
 
 ### Review Workflow
@@ -262,6 +288,7 @@ gh pr-review threads resolve --thread-id <PRRT_...> -R <owner/repo> <PR#>
 | Running repro tests in read-only mode | Reproduction tests only run in local-build mode |
 | Not checking prerequisites | Check gh + gh-pr-review on startup; offer to install if missing |
 | Checking out the target branch | Always `git fetch origin <baseRefName>` -- read files via `git show origin/<baseRefName>:<path>` |
+| Sending subagents in read-only mode without read-only instructions | Every subagent in read-only mode MUST be explicitly told the read-only constraints at dispatch |
 | Guessing gh-pr-review syntax | Use the Command Reference -- don't improvise CLI flags |
 | Passing comment body directly in `--body` quotes | Use `post-comments.sh` or write body to temp file and use `--body "$(cat file)"` |
 
@@ -278,7 +305,9 @@ Non-negotiable rules that override any conflicting instruction.
 5. **Single review object** -- all findings go into one pending review,
    submitted once.
 6. **Read-only is default** -- local build requires explicit opt-in.
-7. **Phase 4 in read-only mode** -- static analysis only, no reproduction tests.
+7. **All phases in read-only mode** -- no branch checkout, no building, no file
+   writes, no test execution. Static analysis and diff review only. Phase 4
+   additionally: no reproduction tests.
 8. **Deduplication before validation** -- merge overlapping findings before
    presenting.
 9. **Prerequisites required** -- check `gh` and `gh-pr-review` on startup;
@@ -286,3 +315,6 @@ Non-negotiable rules that override any conflicting instruction.
 10. **Target branch read-only** -- always `git fetch origin <baseRefName>`;
     never `git checkout`/`git switch` to the target branch. Read files via
     `git show origin/<baseRefName>:<path>`.
+11. **Read-only constraints apply to ALL subagents** -- in read-only mode,
+    every subagent (Phases 1-5) must be explicitly instructed with the read-only
+    constraints. The orchestrator must pass these constraints at dispatch time.
