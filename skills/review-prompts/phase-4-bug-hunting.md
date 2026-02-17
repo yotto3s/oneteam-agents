@@ -31,7 +31,7 @@ Task tool (bug-hunter):
        modules; map the blast radius
     2. **Contract Inventory** — enumerate preconditions, postconditions,
        invariants, and implicit assumptions for each changed function
-    3. **Impact Tracing** — trace callers/callees; verify cross-change
+    3. **Impact Tracing and Spec Check** — trace callers/callees; verify cross-change
        interactions are safe
     4. **Adversarial Analysis** — apply adversarial techniques; write at
        least one adversarial scenario per scope item
