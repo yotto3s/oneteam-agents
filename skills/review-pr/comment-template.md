@@ -7,6 +7,24 @@ section to 1-2 lines -- inline comments must be scannable, not walls of text.
 
 ## Template
 
+When the finding has a **concrete code change**, include a GitHub suggestion
+block so reviewers can apply it with one click:
+
+````
+**[<PREFIX><N>] Severity: <level>**
+
+**What:** <1-2 sentence description of the issue>
+
+**Why:** <1-2 sentence impact or reasoning -- why this matters>
+
+```suggestion
+<replacement code for the line(s) covered by this comment>
+```
+````
+
+When the finding is a **non-code recommendation** (architectural advice,
+missing test coverage, process concern), use a plain-text suggestion instead:
+
 ```
 **[<PREFIX><N>] Severity: <level>**
 
@@ -14,7 +32,7 @@ section to 1-2 lines -- inline comments must be scannable, not walls of text.
 
 **Why:** <1-2 sentence impact or reasoning -- why this matters>
 
-**Suggestion:** <1-2 sentence suggested fix or improvement>
+**Suggestion:** <1-2 sentence recommended action>
 ```
 
 ## Field Reference
@@ -26,7 +44,18 @@ section to 1-2 lines -- inline comments must be scannable, not walls of text.
 | level | Severity from internal Finding Format | Important |
 | What | Description of the issue | Missing null check on `user.email` before string comparison |
 | Why | Impact or reasoning | Will throw TypeError at runtime if user has no email set |
-| Suggestion | Suggested fix or improvement | Add early return or optional chaining: `user.email?.toLowerCase()` |
+| suggestion block | Replacement code for the commented line(s) | `user.email?.toLowerCase()` |
+| Suggestion (text) | Non-code recommendation when no code block applies | Add integration tests for the new auth flow |
+
+## GitHub Suggestion Block Rules
+
+- The `suggestion` block replaces the **exact line(s)** the comment is attached
+  to. The replacement code must be complete and ready to apply.
+- Use multi-line comments (`--start-line` + `--line` in `gh-pr-review`) when
+  the suggestion spans multiple lines.
+- Do **not** use a `suggestion` block for deletions (empty block), additions of
+  new lines outside the comment range, or non-code advice. Use plain-text
+  `**Suggestion:**` for those cases.
 
 ## Usage
 

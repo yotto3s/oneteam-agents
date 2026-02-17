@@ -19,11 +19,18 @@ set -euo pipefail
 #       {
 #         "path": "src/foo.ts",
 #         "line": 23,
+#         "start_line": 20,
 #         "body": "**[CQ-1] Severity: Important**\n\n**What:** ..."
 #       }
 #     ],
 #     "summary_file": "/tmp/review-summary.md"
 #   }
+#
+# Comment fields:
+#   path       - (required) file path relative to repo root
+#   line       - (required) end line number for the comment
+#   start_line - (optional) start line for multi-line comments / suggestions
+#   body       - (required) comment body (use comment-template.md format)
 #
 # Prerequisites:
 #   - gh CLI (https://cli.github.com/)
@@ -121,18 +128,30 @@ FAILED=0
 for i in $(seq 0 $(( COMMENT_COUNT - 1 ))); do
   FILE_PATH="$(jq -r ".comments[$i].path" "$INPUT_FILE")"
   LINE="$(jq -r ".comments[$i].line" "$INPUT_FILE")"
+  START_LINE="$(jq -r ".comments[$i].start_line // empty" "$INPUT_FILE")"
 
   # Write body to temp file — avoids all shell escaping issues
   BODY_FILE="$TMPDIR_WORK/comment-$i.md"
   jq -r ".comments[$i].body" "$INPUT_FILE" > "$BODY_FILE"
 
-  if gh pr-review review --add-comment \
-    --review-id "$REVIEW_ID" \
-    --path "$FILE_PATH" \
-    --line "$LINE" \
-    --body "$(cat "$BODY_FILE")" \
-    -R "$REPO" "$PR" 2>/dev/null; then
-    echo "  + $FILE_PATH:$LINE"
+  # Build command args — include --start-line only for multi-line comments
+  CMD_ARGS=(
+    --review-id "$REVIEW_ID"
+    --path "$FILE_PATH"
+    --line "$LINE"
+    --body "$(cat "$BODY_FILE")"
+    -R "$REPO" "$PR"
+  )
+  if [[ -n "$START_LINE" ]]; then
+    CMD_ARGS+=(--start-line "$START_LINE")
+  fi
+
+  if gh pr-review review --add-comment "${CMD_ARGS[@]}" 2>/dev/null; then
+    if [[ -n "$START_LINE" ]]; then
+      echo "  + $FILE_PATH:$START_LINE-$LINE"
+    else
+      echo "  + $FILE_PATH:$LINE"
+    fi
     (( POSTED++ )) || true
   else
     echo "  ! FAILED $FILE_PATH:$LINE" >&2
