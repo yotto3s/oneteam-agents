@@ -47,7 +47,8 @@ Each phase follows this cycle:
 1. Spawn reviewer subagent for the phase focus
 2. If findings: spawn engineer ([oneteam:agent] `senior-engineer` for
    Critical/Important/HIGH/MEDIUM, [oneteam:agent] `junior-engineer` for
-   Minor/LOW)
+   Minor/LOW). See `../review-prompts/engineer-fix-findings.md` for dispatch
+   template.
 3. Re-review once with updated diff
 4. Proceed to the next phase regardless of re-review outcome
 
