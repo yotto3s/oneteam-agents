@@ -42,8 +42,11 @@ Task tool (code-reviewer):
 
     List findings:
     - [CQ-1] Severity: Critical | <file>:<line> — <description>
+      Suggestion: <optional — concrete fix or action to resolve>
     - [CQ-2] Severity: Important | <file>:<line> — <description>
+      Suggestion: <optional — concrete fix or action to resolve>
     - [CQ-3] Severity: Minor | <file>:<line> — <description>
+      Suggestion: <optional — concrete fix or action to resolve>
 
     Severity levels:
     - **Critical** — security vulnerability, data loss risk, or severe

@@ -42,8 +42,11 @@ Task tool (code-reviewer):
 
     List findings:
     - [TC-1] Severity: Critical | <file>:<line> — <description>
+      Suggestion: <optional — concrete fix or action to resolve>
     - [TC-2] Severity: Important | <file>:<line> — <description>
+      Suggestion: <optional — concrete fix or action to resolve>
     - [TC-3] Severity: Minor | <file>:<line> — <description>
+      Suggestion: <optional — concrete fix or action to resolve>
 
     Severity levels:
     - **Critical** — major code path with zero test coverage

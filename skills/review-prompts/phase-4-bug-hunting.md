@@ -47,8 +47,11 @@ Task tool (bug-hunter):
 
     List findings:
     - [F1] Severity: HIGH | <file>:<line> — <description>
+      Suggestion: <optional — concrete fix or action to resolve>
     - [F2] Severity: MEDIUM | <file>:<line> — <description>
+      Suggestion: <optional — concrete fix or action to resolve>
     - [F3] Severity: LOW | <file>:<line> — <description>
+      Suggestion: <optional — concrete fix or action to resolve>
 
     Severity levels:
     - **HIGH** — likely bug that causes incorrect behavior, data loss, or

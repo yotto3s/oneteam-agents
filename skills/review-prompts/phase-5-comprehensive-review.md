@@ -46,8 +46,11 @@ Task tool (code-reviewer):
 
     List findings:
     - [CR-1] Severity: Critical | <file>:<line> — <description>
+      Suggestion: <optional — concrete fix or action to resolve>
     - [CR-2] Severity: Important | <file>:<line> — <description>
+      Suggestion: <optional — concrete fix or action to resolve>
     - [CR-3] Severity: Minor | <file>:<line> — <description>
+      Suggestion: <optional — concrete fix or action to resolve>
 
     Severity levels:
     - **Critical** — systemic issue affecting multiple components or

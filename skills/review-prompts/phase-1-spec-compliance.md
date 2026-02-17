@@ -42,8 +42,11 @@ Task tool (code-reviewer):
 
     List findings:
     - [SC-1] Severity: Critical | <file>:<line> — <description>
+      Suggestion: <optional — concrete fix or action to resolve>
     - [SC-2] Severity: Important | <file>:<line> — <description>
+      Suggestion: <optional — concrete fix or action to resolve>
     - [SC-3] Severity: Minor | <file>:<line> — <description>
+      Suggestion: <optional — concrete fix or action to resolve>
 
     Severity levels:
     - **Critical** — spec requirement completely missing or fundamentally
