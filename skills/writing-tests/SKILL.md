@@ -77,6 +77,18 @@ Run the tests. Check:
 - Coverage report shows the code paths you targeted are actually hit
 - No tests are tautological (always pass regardless of implementation)
 
+## Disciplines
+
+Non-negotiable rules that govern test writing quality. These are checked during Phase 6 (Review) and included as constraints in subagent prompts during Phase 5 (Write Tests).
+
+1. **Present-before-write** -- Never write test code without presenting the test plan and getting user approval. This is a hard gate between Phase 3 and Phase 5.
+2. **Diff-aware scope** -- Stick to the stated scope (files, functions, PR). Do not silently expand to test unrelated code.
+3. **Explain coverage gaps** -- If any code path is intentionally skipped, include it in the test plan table as a "Skipped" row with the reason.
+4. **No copy-paste from implementation** -- Calculate expected values from first principles. Never copy production logic into tests to compute expected results.
+5. **No snapshot-as-understanding** -- Do not use snapshot tests as a substitute for understanding expected output. Every assertion must reflect a deliberate expectation.
+6. **Prefer parameterized tests (Google Test)** -- When using Google Test, use `TEST_P` / `INSTANTIATE_TEST_SUITE_P` for test cases that vary only by input/output data, rather than duplicating test bodies.
+7. **Implementation may be wrong** -- Do not assume all tests will pass. If a spec-derived test fails against the implementation, that is likely a bug in the implementation, not a bad test. Report failing tests as findings rather than adjusting them to pass.
+
 ## Best Practices
 
 ### Arrange-Act-Assert (AAA)
