@@ -35,8 +35,8 @@ Do NOT invoke any implementation skill, write any code, scaffold any project, or
    After each section: `"Look right, or any changes?"`
    After final section: `"Full design above. Approve to continue?"`
 5. **Choose working branch** -- via AskUserQuestion (see below).
-6. **Present full design doc** -- pretty-print as rendered markdown (NOT in a code block); approve via AskUserQuestion.
-7. **Write design doc** -- `plans/YYYY-MM-DD-<topic>-design.md` (do NOT commit).
+6. **Write design doc** -- save to `plans/YYYY-MM-DD-<topic>-design.md` (do NOT commit).
+7. **Present and review design doc** -- pretty-print as rendered markdown (NOT in a code block); ask for changes via AskUserQuestion. Loop until approved.
 8. **Offer GitHub issue posting** -- optionally post design to a GitHub issue.
 9. **Invoke [oneteam:skill] `writing-plans`** -- no other skill.
 
@@ -50,9 +50,9 @@ digraph brainstorming {
     "Present design sections" [shape=box];
     "User approves design?" [shape=diamond];
     "Choose working branch" [shape=box];
-    "Present full design doc" [shape=box];
-    "User approves final doc?" [shape=diamond];
     "Write design doc" [shape=box];
+    "Present design doc" [shape=box];
+    "User approves doc?" [shape=diamond];
     "Offer GitHub issue posting" [shape=box];
     "Invoke [oneteam:skill] writing-plans skill" [shape=doublecircle];
 
@@ -62,11 +62,11 @@ digraph brainstorming {
     "Present design sections" -> "User approves design?";
     "User approves design?" -> "Present design sections" [label="no, revise"];
     "User approves design?" -> "Choose working branch" [label="yes"];
-    "Choose working branch" -> "Present full design doc";
-    "Present full design doc" -> "User approves final doc?";
-    "User approves final doc?" -> "Present full design doc" [label="no, revise"];
-    "User approves final doc?" -> "Write design doc" [label="yes"];
-    "Write design doc" -> "Offer GitHub issue posting";
+    "Choose working branch" -> "Write design doc";
+    "Write design doc" -> "Present design doc";
+    "Present design doc" -> "User approves doc?";
+    "User approves doc?" -> "Write design doc" [label="make changes"];
+    "User approves doc?" -> "Offer GitHub issue posting" [label="looks good"];
     "Offer GitHub issue posting" -> "Invoke [oneteam:skill] writing-plans skill";
 }
 ```
@@ -85,22 +85,22 @@ Run `git branch --show-current`, then `AskUserQuestion` (header: "Branch"):
 
 **Switch to existing**: `git checkout <branch>`. **Create new branch**: `git checkout -b <name>`.
 
-### Step 6: Present Full Design Doc
+### Step 6: Write Design Doc
 
-Pretty-print the full compiled design document as rendered markdown. Output it directly -- NOT inside a code block -- so the user sees formatted headings, bold text, bullets, etc.
+Save the full compiled design document to `plans/YYYY-MM-DD-<topic>-design.md`. Use elements-of-style:writing-clearly-and-concisely if available. Do NOT `git add` or `git commit`.
 
-`AskUserQuestion` (header: "Write to file"):
+### Step 7: Present and Review Design Doc
+
+Pretty-print the full design document as rendered markdown. Output it directly -- NOT inside a code block -- so the user sees formatted headings, bold text, bullets, etc.
+
+`AskUserQuestion` (header: "Review"):
 
 | Option label | Description |
 |---|---|
-| Yes, write it | Proceed to write the design doc to file |
-| Revise | User provides feedback; revise and re-present |
+| Looks good | Proceed to GitHub issue posting |
+| Make changes | User provides feedback; incorporate it, update the file, and re-present |
 
-If "Revise": incorporate the user's feedback, revise the document, and present it again. Repeat until approved.
-
-### Step 7: Write Design Doc
-
-Save to `plans/YYYY-MM-DD-<topic>-design.md`. Use elements-of-style:writing-clearly-and-concisely if available. Do NOT `git add` or `git commit`.
+If "Make changes": incorporate the user's feedback, revise the document, update the file at the same path, and present the updated document again. Repeat until approved.
 
 ### Step 8: GitHub Issue Posting
 
@@ -138,8 +138,8 @@ If accepted:
 | 3 | Propose 2-3 approaches with trade-offs | -- |
 | 4 | Present design sections | User approves each section |
 | 5 | Choose working branch | User selects via AskUserQuestion |
-| 6 | Present full design doc | User approves via AskUserQuestion |
-| 7 | Write design doc to `plans/` | -- |
+| 6 | Write design doc to `plans/` | -- |
+| 7 | Present and review design doc | User approves via AskUserQuestion |
 | 8 | Offer GitHub issue posting | User opts in/out |
 | 9 | Invoke [oneteam:skill] `writing-plans` | Terminal state |
 
@@ -150,7 +150,7 @@ If accepted:
 | Asking multiple questions at once | One question at a time |
 | Jumping to implementation before design approval | Hard gate -- present design and get explicit approval |
 | Invoking a skill other than `writing-plans` at the end | `writing-plans` is the only valid terminal state |
-| Writing design doc without user approval | Step 6 is an approval gate -- present the full doc and wait for explicit approval |
+| Proceeding past review without user approval | Step 7 is an approval gate -- present the doc and wait for explicit approval before continuing |
 
 ## Constraints
 
@@ -159,5 +159,5 @@ If accepted:
 - ALWAYS present design and get explicit approval before moving on
 - NEVER begin implementation until design is approved (hard gate)
 - NEVER invoke any skill other than [oneteam:skill] `writing-plans` as terminal state
-- NEVER write the design doc to file without presenting it to the user and receiving explicit approval (Step 6 approval gate)
+- NEVER proceed past the design doc review without presenting it to the user and receiving explicit approval (Step 7 approval gate)
 - YAGNI ruthlessly -- cut unnecessary features from all designs
