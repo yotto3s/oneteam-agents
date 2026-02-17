@@ -37,7 +37,7 @@ Task tool (bug-hunter):
        least one adversarial scenario per scope item
     5. **Gap Analysis** — identify changed code paths with no test
        coverage, untested contracts
-    6. **Verification and Report** — trace concrete code paths to confirm
+    6. **Shallow Verification and Report** — trace concrete code paths to confirm
        each suspect; assign severity and confidence
 
     All six phases are mandatory. Do not skip any phase even if earlier
