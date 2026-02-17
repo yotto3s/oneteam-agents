@@ -66,11 +66,35 @@ describe('functionName', () => {
 
 For classes with multiple methods, nest by method first, then by category.
 
-### Phase 4: Write Tests
+### Phase 4: Present Test Plan
+
+Print the test plan as a rendered markdown table (not in a code block):
+
+| # | Group | Test | Rationale | Source |
+|---|-------|------|-----------|--------|
+| 1 | valid inputs | returns base price for single seat | happy path | spec |
+| 2 | valid inputs | applies annual discount at 20% | billing cycle branch | impl:L42 |
+| 3 | edge cases | handles zero seats | guard clause | impl:L15 |
+| -- | **Skipped** | minimum charge floor | dead code -- lowest is $5.40/seat | impl:L78 |
+
+Followed by a summary: **N tests planned, M paths skipped**
+
+Then `AskUserQuestion` (header: "Test plan"):
+
+| Option label | Description |
+|---|---|
+| Approve | Proceed to write tests |
+| Revise | User provides feedback; revise and re-present |
+
+If "Revise": incorporate the user's feedback, revise the test plan, and re-present. Repeat until approved.
+
+**HARD GATE:** Do NOT write any test code until the user has approved the test plan.
+
+### Phase 5: Write Tests
 
 Write each test following the best practices below.
 
-### Phase 5: Verify
+### Phase 7: Verify
 
 Run the tests. Check:
 - All pass (or fail for expected reasons if testing bugs)
