@@ -100,16 +100,21 @@ Read-Only Mode Constraints (see Modes section above).
 
 - **Phase 1:** Does the implementation match the spec (or inferred intent)?
   Provide spec reference or instruct reviewer to infer from PR title/body/commits.
+  See `../review-prompts/phase-1-spec-compliance.md` for dispatch template.
 - **Phase 2:** Conventions, naming, structure, security, error handling, OWASP
   top 10, DRY violations, dead code.
+  See `../review-prompts/phase-2-code-quality.md` for dispatch template.
 - **Phase 3:** Missing test cases, edge cases, untested error paths, boundary
   conditions, integration gaps, pesticide paradox.
+  See `../review-prompts/phase-3-test-comprehensiveness.md` for dispatch template.
 - **Phase 4:** Uses [oneteam:agent] `bug-hunter`. In read-only mode: all
   general read-only constraints apply (see Modes section), plus no reproduction
   tests -- static analysis only. In local build mode: full 6-phase
   [oneteam:skill] `bug-hunting` pipeline with reproduction tests.
+  See `../review-prompts/phase-4-bug-hunting.md` for dispatch template.
 - **Phase 5:** Cross-cutting concerns, integration issues, consistency,
   architectural concerns.
+  See `../review-prompts/phase-5-comprehensive-review.md` for dispatch template.
 
 ### Finding Format
 
