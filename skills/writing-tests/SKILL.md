@@ -133,9 +133,18 @@ Do NOT patch the tests yourself -- re-dispatch the subagent with specific feedba
 ### Phase 7: Verify
 
 Run the tests. Check:
-- All pass (or fail for expected reasons if testing bugs)
-- Coverage report shows the code paths you targeted are actually hit
-- No tests are tautological (always pass regardless of implementation)
+
+- **Passing tests** confirm the implementation matches the spec for those paths
+- **Failing tests** are potential implementation bugs -- report them as findings, do NOT delete or weaken the test to make it pass. A spec-derived test that fails is evidence the implementation does not match the spec. Document each failure:
+
+  ```
+  FINDING: <test name> — expected <X>, got <Y>
+  Source: <spec reference or impl line>
+  Likely cause: <hypothesis>
+  ```
+
+- **Coverage report** shows the targeted code paths are actually hit
+- **No tautological tests** — verify tests actually exercise the code under test (not just asserting constants or mocking everything)
 
 ## Disciplines
 
