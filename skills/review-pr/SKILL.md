@@ -47,11 +47,15 @@ without explicit approval.
    user declines, abort.
 4. **Fetch PR metadata.**
    `gh pr view <N> --json title,body,baseRefName,headRefName,files,additions,deletions`
-5. **Fetch PR diff.** `gh pr diff <N>` to get the full diff.
-6. **Fetch spec/context.** Ask user for spec reference, design doc, or issue
+5. **Fetch target branch (read-only).** Use `git fetch origin <baseRefName>` to
+   make the target branch available locally as `origin/<baseRefName>`. **Never**
+   `git checkout` or `git switch` to the target branch — use `git show
+   origin/<baseRefName>:<path>` to read individual files for context.
+6. **Fetch PR diff.** `gh pr diff <N>` to get the full diff.
+7. **Fetch spec/context.** Ask user for spec reference, design doc, or issue
    link. Allow "skip" -- reviewers infer intent from PR title/body/commits.
-7. **Choose mode.** Ask user: Read-only (default) or Local build.
-8. **If local build:** checkout PR branch (`gh pr checkout <N>`), run existing
+8. **Choose mode.** Ask user: Read-only (default) or Local build.
+9. **If local build:** checkout PR branch (`gh pr checkout <N>`), run existing
    test suite. If tests fail, report to user and ask whether to continue or
    abort.
 
@@ -157,6 +161,12 @@ gh repo view --json owner,name --jq '.owner.login + "/" + .name'
 # Get PR metadata
 gh pr view <PR#> --json title,body,baseRefName,headRefName,files,additions,deletions
 
+# Fetch target branch (read-only -- never checkout)
+git fetch origin <baseRefName>
+
+# Read a file from the target branch without checkout
+git show origin/<baseRefName>:<file-path>
+
 # Get PR diff
 gh pr diff <PR#>
 
@@ -229,6 +239,7 @@ gh pr-review threads resolve --thread-id <PRRT_...> -R <owner/repo> <PR#>
 | Posting duplicate findings | Deduplicate by file:line before presenting to user |
 | Running repro tests in read-only mode | Reproduction tests only run in local-build mode |
 | Not checking prerequisites | Check gh + gh-pr-review on startup; offer to install if missing |
+| Checking out the target branch | Always `git fetch origin <baseRefName>` -- read files via `git show origin/<baseRefName>:<path>` |
 | Guessing gh-pr-review syntax | Use the Command Reference -- don't improvise CLI flags |
 
 ## Constraints
@@ -249,3 +260,6 @@ Non-negotiable rules that override any conflicting instruction.
    presenting.
 9. **Prerequisites required** -- check `gh` and `gh-pr-review` on startup;
    offer to install if missing.
+10. **Target branch read-only** -- always `git fetch origin <baseRefName>`;
+    never `git checkout`/`git switch` to the target branch. Read files via
+    `git show origin/<baseRefName>:<path>`.
