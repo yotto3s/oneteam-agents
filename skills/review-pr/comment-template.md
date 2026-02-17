@@ -21,9 +21,9 @@ section to 1-2 lines -- inline comments must be scannable, not walls of text.
 
 | Field | Source | Example |
 |-------|--------|---------|
-| PREFIX | Phase prefix from Finding Format (SC-, CQ-, TC-, F, CR-) | CQ- |
+| PREFIX | Phase prefix from internal Finding Format (SC-, CQ-, TC-, F, CR-) | CQ- |
 | N | Finding number within phase | 3 |
-| level | Severity from Finding Format | Important |
+| level | Severity from internal Finding Format | Important |
 | What | Description of the issue | Missing null check on `user.email` before string comparison |
 | Why | Impact or reasoning | Will throw TypeError at runtime if user has no email set |
 | Suggestion | Suggested fix or improvement | Add early return or optional chaining: `user.email?.toLowerCase()` |

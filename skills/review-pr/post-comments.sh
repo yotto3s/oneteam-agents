@@ -72,14 +72,44 @@ PR="$(jq -r '.pr' "$INPUT_FILE")"
 SUMMARY_FILE="$(jq -r '.summary_file' "$INPUT_FILE")"
 COMMENT_COUNT="$(jq '.comments | length' "$INPUT_FILE")"
 
+# Validate required fields
+if [[ -z "$REPO" || "$REPO" == "null" ]]; then
+  echo "Error: missing or null 'repo' in $INPUT_FILE" >&2
+  exit 1
+fi
+if [[ -z "$PR" || "$PR" == "null" ]]; then
+  echo "Error: missing or null 'pr' in $INPUT_FILE" >&2
+  exit 1
+fi
+if [[ -z "$COMMENT_COUNT" || "$COMMENT_COUNT" == "null" || "$COMMENT_COUNT" -le 0 ]] 2>/dev/null; then
+  echo "Error: 'comments' array is missing or empty in $INPUT_FILE" >&2
+  exit 1
+fi
+
 echo "Posting review to $REPO#$PR ($COMMENT_COUNT comments)"
 
 # ── Start pending review ─────────────────────────────────────────────────
 
-REVIEW_ID="$(gh pr-review review --start -R "$REPO" "$PR" 2>&1 | grep -oE 'PRR_[A-Za-z0-9_-]+')" || {
+REVIEW_CMD_OUTPUT="$(gh pr-review review --start -R "$REPO" "$PR" 2>&1)" || {
   echo "Error: failed to start pending review." >&2
+  echo "$REVIEW_CMD_OUTPUT" >&2
   exit 1
 }
+
+mapfile -t REVIEW_IDS < <(grep -oE 'PRR_[A-Za-z0-9_-]+' <<<"$REVIEW_CMD_OUTPUT" | uniq || true)
+
+if (( ${#REVIEW_IDS[@]} == 0 )); then
+  echo "Error: failed to parse review ID from gh-pr-review output." >&2
+  echo "$REVIEW_CMD_OUTPUT" >&2
+  exit 1
+fi
+
+if (( ${#REVIEW_IDS[@]} > 1 )); then
+  echo "Warning: multiple review IDs found; using the first one." >&2
+  printf '  Detected IDs: %s\n' "${REVIEW_IDS[@]}" >&2
+fi
+
+REVIEW_ID="${REVIEW_IDS[0]}"
 
 echo "Started review: $REVIEW_ID"
 
