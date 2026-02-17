@@ -109,6 +109,27 @@ The subagent prompt MUST include:
 
 Do NOT write tests yourself. Delegate to the subagent and review the output in Phase 6.
 
+### Phase 6: Review
+
+Read the test files written by the subagent. Check each test against all 7 Disciplines:
+
+| # | Discipline | Check |
+|---|-----------|-------|
+| 1 | Present-before-write | Was the test plan approved before any code was written? |
+| 2 | Diff-aware scope | Do the tests stay within the stated scope? No tests for unrelated code? |
+| 3 | Explain coverage gaps | Are all skipped paths documented in the test plan with reasons? |
+| 4 | No copy-paste from implementation | Are expected values calculated from first principles, not copied from production code? |
+| 5 | No snapshot-as-understanding | Does every assertion reflect a deliberate expectation, not a snapshot? |
+| 6 | Prefer parameterized tests | When using Google Test, are data-varying tests using `TEST_P` / `INSTANTIATE_TEST_SUITE_P`? |
+| 7 | Implementation may be wrong | Are failing tests reported as findings rather than weakened to pass? |
+
+If violations are found:
+1. Document the specific violations with file paths and line numbers
+2. Re-dispatch the subagent with the violation feedback appended to the original prompt
+3. Review the revised output again
+
+Do NOT patch the tests yourself -- re-dispatch the subagent with specific feedback. This is consistent with the orchestrator pattern used in [oneteam:skill] `writing-plans`.
+
 ### Phase 7: Verify
 
 Run the tests. Check:
