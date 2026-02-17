@@ -129,6 +129,8 @@ copy_skill() {
 
   rm -rf "$dest"
   cp -r "$src" "$dest"
+  # Make scripts executable
+  chmod +x "$dest"/*.sh 2>/dev/null || true
   echo "  + $name ($label$note)"
   return 0
 }
