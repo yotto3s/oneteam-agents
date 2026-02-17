@@ -75,7 +75,9 @@ constraint: no reproduction tests (see Phase-Specific Notes).
 7. **Fetch spec/context.** Ask user for spec reference, design doc, or issue
    link. Allow "skip" -- reviewers infer intent from PR title/body/commits.
 8. **Choose mode.** Ask user: Read-only (default) or Local build.
-9. **If local build:** checkout PR branch (`gh pr checkout <N>`), run existing
+9. **If local build:** checkout PR branch (`gh pr checkout <N>`) and pull latest
+   changes (`git pull`). `gh pr checkout` does not update an existing local
+   branch -- the explicit pull ensures the code is current. Then run existing
    test suite. If tests fail, report to user and ask whether to continue or
    abort.
 
@@ -204,6 +206,7 @@ gh pr diff <PR#>
 
 # Checkout PR branch (local build mode only)
 gh pr checkout <PR#>
+git pull  # gh pr checkout does not update an existing local branch
 ```
 
 ### Review Workflow
