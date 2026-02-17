@@ -70,18 +70,18 @@ Dispatch a sub-agent to read the design document and triage the work. No user in
 
 ## Phase 4: Execution Handoff
 
-1. **Present the plan.** Pretty-print the full plan document as rendered markdown. Output it directly -- NOT inside a code block -- so the user sees formatted headings, bold text, bullets, etc.
+1. **Save the plan.** Write to `plans/YYYY-MM-DD-<feature-name>-plan.md`. Do NOT commit.
 
-   `AskUserQuestion` (header: "Write to file"):
+2. **Present and review the plan.** Pretty-print the full plan document as rendered markdown. Output it directly -- NOT inside a code block -- so the user sees formatted headings, bold text, bullets, etc.
+
+   `AskUserQuestion` (header: "Review"):
 
    | Option label | Description |
    |---|---|
-   | Yes, write it | Proceed to save the plan to file |
-   | Revise | User provides feedback; re-dispatch the architect agent |
+   | Looks good | Proceed to execution |
+   | Make changes | User provides feedback; re-dispatch the architect agent |
 
-   If "Revise": re-dispatch the [oneteam:agent] `architect` with the user's feedback appended to the original prompt. Do NOT patch the plan yourself -- this is consistent with the "never patch yourself" constraint. After receiving the revised plan, present it again. Repeat until approved.
-
-2. **Save the plan.** Write to `plans/YYYY-MM-DD-<feature-name>-plan.md`. Do NOT commit.
+   If "Make changes": re-dispatch the [oneteam:agent] `architect` with the user's feedback appended to the original prompt. Do NOT patch the plan yourself -- this is consistent with the "never patch yourself" constraint. After receiving the revised plan, update the file at the same path, and present it again. Repeat until approved.
 
 3. **Invoke execution skill.** Subagent-driven: use [superpowers:skill] `subagent-driven-development`, stay in this session, fresh subagent per task + two-stage review. Team-driven: use [oneteam:skill] `team-management`, pass fragment groupings, starts from Phase 2 (Team Setup).
 
@@ -92,7 +92,7 @@ Dispatch a sub-agent to read the design document and triage the work. No user in
 | 1. Analysis | Analyzer sub-agent (sonnet) | Analysis blob | -- |
 | 2. Strategy | User | Chosen strategy | Hard gate -- user must choose |
 | 3. Plan Writing | [oneteam:agent] `architect` | Complete plan document | -- |
-| 4. Execution Handoff | Main session | Saved plan + execution skill invoked | User approves plan before save |
+| 4. Execution Handoff | Main session | Saved plan + execution skill invoked | User approves plan before execution |
 
 ## Common Mistakes
 
@@ -102,7 +102,7 @@ Dispatch a sub-agent to read the design document and triage the work. No user in
 | Writing plan content yourself | Dispatch the architect agent -- never patch the plan |
 | Skipping the strategy decision | Phase 2 is a hard gate -- present options and wait for explicit choice |
 | Mixing strategies mid-execution | Once chosen, follow through with the selected execution skill |
-| Saving the plan without user approval | Phase 4 is an approval gate -- present the plan and wait for explicit approval |
+| Proceeding to execution without user approval | Phase 4 is an approval gate -- present the plan and wait for explicit approval before invoking execution |
 
 ## Constraints
 
@@ -114,5 +114,5 @@ These rules are non-negotiable and override any conflicting instruction.
 - ALWAYS present the strategy recommendation and wait for explicit user choice.
 - NEVER skip the strategy decision (Phase 2 hard gate).
 - NEVER mix strategies -- once chosen, follow through with the selected skill.
-- NEVER save the plan to file without presenting it to the user and receiving explicit approval (Phase 4 approval gate).
+- NEVER proceed to execution without presenting the plan to the user and receiving explicit approval (Phase 4 approval gate).
 - If the [oneteam:agent] `architect`'s output is incomplete, dispatch it again with feedback. Do NOT patch the plan yourself.
