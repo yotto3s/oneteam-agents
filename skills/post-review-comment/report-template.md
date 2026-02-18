@@ -1,7 +1,7 @@
 # Review PR Report Template
 
-Supporting reference for the [oneteam:skill] `review-pr` skill. This template
-is used as the review body when submitting via `gh-pr-review review --submit`.
+Supporting reference for the [oneteam:skill] `post-review-comment` skill. This
+template is used as the review body when submitting via `gh-pr-review review --submit`.
 Every section is mandatory. Empty sections are written as "None" -- they are
 never omitted.
 

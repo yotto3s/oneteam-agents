@@ -1,0 +1,410 @@
+---
+name: review-navi
+description: >-
+  Use when a human reviewer wants AI-assisted walkthrough of a GitHub PR,
+  to understand changes before providing feedback, or when reviewing a large
+  or complex PR with AI assistance while the human drives the review.
+---
+
+# Review Navi
+
+## Overview
+
+A 5-phase interactive skill that helps human reviewers understand and navigate
+GitHub pull requests. It pre-analyzes the entire PR, presents a summary and
+checklist, then walks through each change with explanations and categorized highlights
+— pausing for discussion at every stop.
+
+**Key difference from `review-pr`:** `review-pr` automates the review (AI finds
+issues, posts comments). `review-navi` assists a human reviewer — it
+explains, highlights, and tracks concerns while the human makes the judgment
+calls.
+
+## When to Use
+
+- Reviewing someone else's PR and wanting a guided walkthrough
+- Understanding a large or complex PR before providing feedback
+- When the human reviewer wants to drive the review with AI assistance
+
+## When NOT to Use
+
+- For automated AI review — use [oneteam:skill] `review-pr`
+- For self-review before creating a PR — use [oneteam:skill] `self-review`
+- For reviewing specs — use [oneteam:skill] `spec-review`
+
+## Modes
+
+| Mode | What happens | File writes |
+|------|-------------|-------------|
+| **Read-only** (default) | Analysis from diff, `gh api`, and optional `git fetch`/`git show` for remote file context; no checkout, no builds | Concern tracking file only |
+| **Local checkout** | `git fetch` + checkout PR branch for full file context | Concern tracking file only |
+
+## Checklist
+
+1. **Get PR and metadata** -- accept PR number/URL, fetch metadata + diff, present overview.
+2. **Ask for spec reference** -- optional design doc or issue link for context.
+3. **Choose review mode** -- read-only (default) or local checkout.
+4. **Pre-analyze PR** -- dispatch subagent with full diff for structured analysis.
+5. **Present summary & checklist** -- big-picture summary + numbered change units in review order.
+6. **Start walkthrough** -- reviewer confirms start or jumps to specific item.
+7. **Walk through each item** -- show diff, explain, highlight (FYI/Risk/Nit), pause for review.
+   Per-item loop: looks good, raise concern, ask question, or done reviewing.
+8. **Present final summary** -- items reviewed, concerns by severity, blocking issues.
+9. **Choose posting option** -- inline comments, single comment, or skip. **HARD GATE.**
+   If posting: check prerequisites (`gh pr-review` for inline, `gh` for single comment).
+10. **Done** -- report concern file path and PR link (if posted).
+
+## Process Flow
+
+```dot
+digraph review-navi {
+    // Phase 0: Setup
+    "Get PR + metadata" [shape=box];
+    "Ask for spec reference" [shape=box];
+    "Choose mode" [shape=diamond];
+    "Checkout PR branch" [shape=box];
+
+    // Phase 1: Pre-Analysis
+    "Dispatch pre-analysis subagent" [shape=box];
+
+    // Phase 2: Summary & Checklist
+    "Present summary & checklist" [shape=box];
+    "Start walkthrough?" [shape=diamond];
+
+    // Phase 3: Interactive Walkthrough
+    "Show item diff + explain + highlights" [shape=box];
+    "Reviewer action?" [shape=diamond];
+    "Log concern" [shape=box];
+    "Answer question" [shape=box];
+    "More items?" [shape=diamond];
+
+    // Phase 4: Completion
+    "Present final summary" [shape=box];
+    "Post to PR?" [shape=diamond];
+    "Check prerequisites" [shape=box];
+    "Post review comments" [shape=box];
+    "Done" [shape=doublecircle];
+
+    // Phase 0 flow
+    "Get PR + metadata" -> "Ask for spec reference";
+    "Ask for spec reference" -> "Choose mode";
+    "Choose mode" -> "Dispatch pre-analysis subagent" [label="read-only"];
+    "Choose mode" -> "Checkout PR branch" [label="local checkout"];
+    "Checkout PR branch" -> "Dispatch pre-analysis subagent";
+
+    // Phase 1 -> Phase 2
+    "Dispatch pre-analysis subagent" -> "Present summary & checklist";
+
+    // Phase 2 -> Phase 3
+    "Present summary & checklist" -> "Start walkthrough?";
+    "Start walkthrough?" -> "Show item diff + explain + highlights" [label="start or jump"];
+
+    // Phase 3: per-item loop
+    "Show item diff + explain + highlights" -> "Reviewer action?";
+    "Reviewer action?" -> "More items?" [label="looks good"];
+    "Reviewer action?" -> "Log concern" [label="raise concern"];
+    "Reviewer action?" -> "Answer question" [label="ask question"];
+    "Reviewer action?" -> "Present final summary" [label="done reviewing"];
+    "Log concern" -> "Reviewer action?";
+    "Answer question" -> "Reviewer action?";
+    "More items?" -> "Show item diff + explain + highlights" [label="yes"];
+    "More items?" -> "Present final summary" [label="no"];
+
+    // Phase 4: completion
+    "Present final summary" -> "Post to PR?";
+    "Post to PR?" -> "Check prerequisites" [label="inline or single"];
+    "Post to PR?" -> "Done" [label="skip"];
+    "Check prerequisites" -> "Post review comments";
+    "Post review comments" -> "Done";
+}
+```
+
+## Phase 0: Setup
+
+1. **Get PR.** Accept PR number, URL, or detect from current branch. If not
+   provided, ask the user.
+2. **Extract repo + PR number.** Parse from URL if needed, or use current repo
+   (`gh repo view --json owner,name`).
+3. **Fetch PR metadata.**
+   `gh pr view <N> --json title,body,author,baseRefName,headRefName,files,additions,deletions`
+4. **Fetch full diff.** `gh pr diff <N>`
+5. **Present quick overview:** title, author, stats (files changed, +/- lines).
+6. **Spec reference.** `AskUserQuestion` (header: "Spec reference"):
+
+   | Option label | Description |
+   |---|---|
+   | Provide reference | User enters a spec, design doc, or issue link |
+   | Skip | Infer intent from PR title/body/commits |
+
+   If "Provide reference": ask for the spec, design doc, or issue link. This
+   helps the pre-analysis subagent understand context beyond the PR body.
+
+7. **Choose mode.** `AskUserQuestion` (header: "Review mode"):
+
+   | Option label | Description |
+   |---|---|
+   | Read-only | Analysis from diff, `gh api`, and optional `git fetch`/`git show` for remote file context; no checkout, no builds (default) |
+   | Local checkout | `git fetch` + checkout PR branch for full file context |
+
+8. **If local checkout:** `gh pr checkout <N>` and `git pull` to ensure the
+   branch is current.
+
+## Phase 1: Pre-Analysis
+
+Dispatch a subagent (read-only) with the full PR diff and metadata. The
+subagent produces a structured analysis containing:
+
+1. **High-level summary** — What the PR does and why, in 2-3 sentences.
+2. **Logical change groups** — Cluster related changes into reviewable units:
+   - A single function change (if substantial)
+   - A whole file (if changes are small/cohesive)
+   - A group of related files (e.g., handler + test + type definition)
+3. **Per-unit analysis:**
+   - What changed and why (intent)
+   - Highlight notes (classify each into exactly one category):
+     - **FYI** — Looks unclear at first but is actually fine; preemptive context
+       (e.g., unusual pattern that's intentional, seemingly redundant code that's needed)
+     - **Risk** — Potential bugs, edge cases, missing error handling, security concerns
+     - **Nit** — Minor style/naming/comment polish
+   - Complexity: LOW / MEDIUM / HIGH
+   - Related context: affected callers, tests, or types
+4. **Cross-cutting concerns** — Things spanning multiple units (API contract
+   changes, migration risks, breaking changes).
+5. **Recommended review order** — Logical sequence (e.g., types first, then core
+   logic, then tests).
+
+The analysis is stored in-session (not written to disk). Neither mode writes
+the analysis to disk — only the concern tracking file is written.
+
+## Phase 2: Summary & Checklist
+
+Present to the reviewer:
+
+**Big-picture summary** — 2-3 sentence overview of what the PR accomplishes.
+
+**Change checklist** — All change units in recommended review order, formatted
+as a markdown checklist (`- [ ]`):
+
+```
+## PR #42: Add user authentication
+
+**Summary:** Adds JWT-based auth with login/logout endpoints, middleware, and tests.
+
+### Review Checklist
+- [ ] 1. `types/auth.ts` -- New auth types (LOW risk)
+- [ ] 2. `middleware/auth.ts` -- JWT verification middleware (HIGH risk)
+- [ ] 3. `routes/login.ts` + `routes/logout.ts` -- Auth endpoints (MEDIUM risk)
+- [ ] 4. `tests/auth.test.ts` -- Test coverage (LOW risk)
+
+Cross-cutting: JWT secret handling spans middleware and routes.
+```
+
+**HARD GATE:** `AskUserQuestion` (header: "Walkthrough"):
+
+| Option label | Description |
+|---|---|
+| Start walkthrough | Begin reviewing items in the recommended order |
+| Jump to item | Skip ahead to a specific checklist item |
+
+Wait for the reviewer to confirm before starting the walkthrough. If "Jump to
+item": ask for the item number; the walkthrough begins at that item.
+
+## Phase 3: Interactive Walkthrough
+
+### Concern File Setup
+
+At walkthrough start, create the concern tracking file:
+`yyyy-mm-dd_PR-[PR_NUMBER]_review.md`
+
+This file persists locally regardless of posting choice.
+
+### Per-Item Walkthrough
+
+For each checklist item, in order:
+
+1. **Show the diff** — Present the relevant diff hunk(s), syntax highlighted.
+2. **Explain** — What changed and why (from pre-analysis).
+3. **Highlight notes** — Present categorized highlights from pre-analysis in
+   fixed order (FYI, then Risk, then Nit). Omit empty categories.
+
+   ```
+   Highlights: 1 FYI · 1 Risk · 1 Nit
+
+   **FYI:**
+   - The `async` wrapper looks redundant but is needed for the retry middleware.
+
+   **Risk:**
+   - No null check on `user.email` — will throw if OAuth provider omits it.
+
+   **Nit:**
+   - Parameter `d` could be more descriptive (e.g., `duration`).
+   ```
+4. **Pause for review** — `AskUserQuestion` (header: "Review"):
+
+   | Option label | Description |
+   |---|---|
+   | Looks good | Mark item as reviewed and advance to next item |
+   | Raise concern | Log a concern for this change (prompts for details) |
+   | Ask question | Ask a question about this code (prompts for details) |
+   | Done reviewing | End walkthrough early, go to completion |
+
+   **Behavior:**
+   - **"Looks good"** — Mark item reviewed, show progress (step 5), auto-advance
+     to next item.
+   - **"Raise concern"** — Reviewer describes concern via the built-in "Other"
+     text field. Append to concern file with file:line, description, severity.
+     Then re-show the same `AskUserQuestion` so the reviewer can raise more
+     concerns, ask questions, or advance.
+   - **"Ask question"** — Reviewer asks via "Other" text field. Answer the
+     question. Then re-show the `AskUserQuestion`.
+   - **"Done reviewing"** — End walkthrough early, proceed to Phase 4 completion.
+   - **Jump to item** — Available via built-in "Other" (reviewer types "jump 3"
+     or similar).
+
+   The pause **loops** until the reviewer selects "Looks good" or "Done
+   reviewing."
+
+5. **Show updated checklist** — Display progress:
+   `[3/7 reviewed] Next: middleware/auth.ts (HIGH risk)`
+
+### Concern File Format
+
+```markdown
+# Review Concerns -- PR #42
+
+## middleware/auth.ts:23
+**Severity:** HIGH
+**Concern:** JWT expiry not checked before token refresh
+
+## routes/login.ts:45
+**Severity:** MEDIUM
+**Concern:** Missing rate limiting on login endpoint
+
+## routes/login.ts (file-level)
+**Severity:** LOW
+**Concern:** No structured error responses for auth failures
+```
+
+### Handling Reviewer Questions
+
+If the reviewer asks about something the pre-analysis does not cover (e.g.,
+"what calls this function?"), perform live analysis:
+- **Read-only mode:** Read relevant code via `gh api` or
+  `git show origin/<baseRefName>:<path>`
+- **Local checkout:** Read local files directly
+
+## Phase 4: Completion
+
+Triggered when all items are reviewed or the reviewer says "done."
+
+### Final Summary
+
+1. Items reviewed out of total.
+2. All concerns from the concern file, grouped by severity.
+3. Overall assessment: any blocking issues?
+
+### Posting Options
+
+`AskUserQuestion` (header: "Post to PR?"):
+
+| Option label | Description |
+|---|---|
+| Post as inline comments | Invoke [oneteam:skill] `post-review-comment` to post each concern as an inline comment on the relevant file:line; submit review as `COMMENT` |
+| Post as single review comment | Format all concerns into one structured review body; submit as `COMMENT` |
+| Skip | Keep the concern file local only; do not post anything |
+
+**HARD GATE:** Do NOT post any comments to the PR without explicit reviewer
+approval.
+
+### Prerequisite Check (before posting)
+
+When the reviewer chooses to post (either option), check prerequisites first:
+
+- **Inline comments:** Verify `gh pr-review` extension is installed
+  (`gh pr-review --help`). If missing, `AskUserQuestion` (header: "Install prerequisites"):
+
+  | Option label | Description |
+  |---|---|
+  | Install | Run `gh extension install agynio/gh-pr-review` automatically |
+  | Skip posting | Keep the concern file local only; do not post |
+
+- **Single review comment:** Verify `gh` CLI is available (`gh --version`).
+  If missing, inform the reviewer that posting is not possible and fall back to
+  keeping the concern file local only.
+
+### Done
+
+Report the concern file path and PR link (if posted).
+
+## Command Reference
+
+### PR Metadata & Diff
+
+```bash
+# Get repo info
+gh repo view --json owner,name --jq '.owner.login + "/" + .name'
+
+# Get PR metadata
+gh pr view <PR#> --json title,body,author,baseRefName,headRefName,files,additions,deletions
+
+# Get PR diff
+gh pr diff <PR#>
+
+# Read a file from the base branch without checkout
+git fetch origin <baseRefName>
+git show origin/<baseRefName>:<file-path>
+```
+
+### Local Checkout (optional)
+
+```bash
+# Checkout PR branch
+gh pr checkout <PR#>
+git pull  # gh pr checkout does not update an existing local branch
+```
+
+### Posting Review
+
+For inline comments, **Invoke [oneteam:skill] `post-review-comment`**. See that skill
+for JSON format, line number calculation, and posting commands.
+
+## Common Mistakes
+
+| Mistake | Fix |
+|---------|-----|
+| Using free-form text for walkthrough pauses | Always use AskUserQuestion for reviewer interaction during walkthrough |
+| Posting without reviewer approval | Hard gate -- always ask before posting anything to the PR |
+| Submitting as APPROVE or REQUEST_CHANGES | Always COMMENT -- the human reviewer makes the verdict |
+| Skipping checklist items silently | Every item must be presented; reviewer can say "done" to exit early |
+| Using lettered lists (a. b. c.) or numbered lists without checkboxes | **Always** use markdown checklist format: `- [ ] item`. Never use `a.` / `b.` / `1.` / `2.` without the `- [ ]` prefix |
+| Writing files in read-only mode | Only the concern tracking file is written; no other file writes |
+| Skipping pre-analysis and going straight to walkthrough | Always run Phase 1 before presenting the checklist |
+| Starting walkthrough without reviewer confirmation | Hard gate after Phase 2 -- wait for the reviewer to select a walkthrough option |
+| Not tracking concerns in the file | Append every concern raised during discussion to the concern file |
+| Posting without checking prerequisites | Check `gh pr-review` (inline) or `gh` (single comment) before attempting to post |
+
+## Constraints
+
+Non-negotiable rules that override any conflicting instruction.
+
+1. **Never post `APPROVE` or `REQUEST_CHANGES`** -- always `COMMENT`.
+2. **Never post without explicit reviewer approval** -- hard gate before any
+   posting to the PR.
+3. **Read-only is the default mode** -- no checkout, no builds, no file writes
+   except the concern tracking file.
+4. **Every change unit must be covered** -- no skipping items in the checklist.
+   The reviewer can say "done" to exit early, but items are never silently
+   skipped.
+5. **One structured pause per item** -- AskUserQuestion loops until the reviewer
+   says "Looks good" or "Done reviewing". Each iteration lets the reviewer raise
+   concerns, ask questions, or advance.
+6. **Concern file always persists locally** -- regardless of posting choice, the
+   concern file stays on disk.
+7. **Reuse posting infrastructure** -- post via [oneteam:skill] `post-review-comment`
+8. **Pre-analyze before walkthrough** -- always dispatch the subagent in Phase 1
+   before presenting the checklist or starting the walkthrough.
+9. **Checklist format for all review items** -- every list of review items,
+   change units, or walkthrough items MUST use markdown checklist format
+   (`- [ ]`). Never use lettered lists (`a.`, `b.`), plain numbered lists, or
+   any other format. This applies to Phase 2 checklist, walkthrough progress,
+   and final summary.

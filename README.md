@@ -23,6 +23,8 @@ and skills for team-based debugging and feature development workflows.
 | **implementation** | Shared workflow for engineer agents: startup protocol, context discovery, common best practices, verification, and reporting. |
 | **plan-authoring** | Plan-writing methodology for the architect agent. Defines bite-sized task granularity, plan document structure, strategy-adapted execution sections, and quality constraints. |
 | **research** | 3-phase pipeline: clarify question, gather from web and codebase, synthesize structured summary. |
+| **post-review-comment** | Mechanical utility for posting review comments to GitHub PRs via gh-pr-review. Covers prerequisites, JSON input format, line number calculation, and command reference. Used by review skills, not directly. |
+| **review-navi** | 5-phase interactive PR walkthrough: pre-analyzes entire PR, presents summary and checklist, walks through each change with explanations and categorized highlights (FYI/Risk/Nit), pauses for discussion at every stop. Human drives the review, AI assists. |
 | **review-pr** | 5-phase parallel PR review pipeline: spec compliance, code quality, test comprehensiveness, bug hunting, comprehensive review with deduplication, user validation gate, and gh-pr-review posting. |
 | **self-review** | 5-phase pre-merge quality gate: spec compliance, code quality, test comprehensiveness, bug hunting, comprehensive review. Each phase spawns reviewer/bug-hunter subagents and engineers for fixes. Produces a PASS/FAIL Self-Review Report. |
 | **spec-review** | 6-phase spec quality review: read & understand, analyze codebase, quality check (IEEE 830/INVEST/Wiegers criteria), issue identification, report generation, approval gate. |
@@ -134,7 +136,10 @@ What do you want to do?
 |   +-- writing-tests
 |
 +-- Review changes before merge
-|   +-- self-review
+|   +-- Your own changes? --> self-review
+|   +-- Someone else's PR?
+|      +-- Want AI to post comments? --> review-pr
+|      +-- Want guided walkthrough?  --> review-navi
 |
 +-- Fix or investigate bugs
 |   +-- Have a specific error/failure?
@@ -162,6 +167,8 @@ What do you want to do?
 | "Plan is ready, 10+ tasks, needs coordination" | team-management | Sets up team with worktrees, spawns engineers, monitors progress, reviews, merges |
 | "This module has no tests, need to add coverage" | writing-tests | Reads spec and implementation, derives tests from both sources, applies boundary analysis and dead code detection |
 | "Implementation is done, review before merge" | self-review | Runs 5-phase pipeline: spec compliance, code quality, test comprehensiveness, bug hunting, comprehensive review. Spawns fixers for issues found. Produces PASS/FAIL report. |
+| "I need to review this PR, walk me through it" | review-navi | Pre-analyzes PR, presents summary and checklist, walks through each file with categorized highlights (FYI/Risk/Nit), pauses for discussion. Human drives the review. |
+| "Review this PR and post comments" | review-pr | Runs 5-phase parallel review, deduplicates findings, asks for approval, posts inline comments via gh-pr-review. |
 
 **Tip:** Even when you have a concrete plan, consider starting with
 `brainstorming` -- it often surfaces missing requirements and edge cases before
