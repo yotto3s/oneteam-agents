@@ -10,8 +10,9 @@ description: >-
 
 ## Overview
 
-A 5-phase sequential review pipeline that spawns specialized reviewer and
-engineer subagents. Each phase follows a review-fix-re-review cycle. Produces a
+A 5-phase review pipeline that spawns specialized reviewer and engineer
+subagents. Phases 1-4 run in parallel (Wave 1) with a consolidated fix cycle,
+followed by Phase 5 (Wave 2) which runs after Wave 1 completes. Produces a
 Self-Review Report with a PASS/FAIL verdict. This is a pre-review quality pass;
 external code review is still required before merge.
 
@@ -52,17 +53,39 @@ external code review is still required before merge.
 
 ## Pipeline
 
-### Review-Fix-Re-Review Cycle
+### Architecture
 
-Each phase follows this cycle:
-
-1. Spawn reviewer subagent for the phase focus
-2. If findings: spawn engineer ([oneteam:agent] `senior-engineer` for
-   Critical/Important/HIGH/MEDIUM, [oneteam:agent] `junior-engineer` for
-   Minor/LOW). See `./engineer-fix-findings.md` for dispatch
-   template.
-3. Re-review once with updated diff
-4. Proceed to the next phase regardless of re-review outcome
+```
+Phase 0 (Setup)
+    |
+    v
++-- Wave 1: Parallel Review --------+
+| Phase 1  Phase 2  Phase 3  Phase 4 |
+| (spec)   (quality)(tests)  (bugs)  |
++---------+---------+---------+------+
+          |
+          v
+    Deduplicate findings
+          |
+          v
+    Consolidated fix cycle
+    (one engineer, one pass)
+          |
+          v
+    Re-review once
+          |
+          v
++-- Wave 2 -------------------------+
+| Phase 5 (Comprehensive Review)     |
+| (receives prior findings summary)  |
++-----------------------------------+
+          |
+          v
+    Fix cycle (standard)
+          |
+          v
+    Self-Review Report (PASS/FAIL)
+```
 
 ### Phases
 
@@ -74,10 +97,15 @@ Each phase follows this cycle:
 | 4 | Bug Hunting | [oneteam:agent] `bug-hunter` | F | HIGH / MEDIUM / LOW |
 | 5 | Comprehensive Review | code-reviewer | CR- | Critical / Important / Minor |
 
+### Wave 1: Parallel Review (Phases 1-4)
+
+All 4 reviewer subagents launch **in parallel** on the same initial diff from
+Phase 0. Each focuses only on its concern and ignores all others.
+
 ### Phase-Specific Notes
 
-**Phases 1-3, 5** each instruct the reviewer to focus ONLY on that phase's
-concern and ignore all others. Specific review scopes:
+**Phases 1-3** each instruct the reviewer to focus ONLY on that phase's concern
+and ignore all others. Specific review scopes:
 
 - **Phase 1:** Does the implementation match the spec (or inferred intent)?
   Provide spec reference or instruct reviewer to infer from commits.
@@ -88,9 +116,6 @@ concern and ignore all others. Specific review scopes:
 - **Phase 3:** Missing test cases, edge cases, untested error paths, boundary
   conditions, integration gaps, pesticide paradox.
   See `./phase-3-test-comprehensiveness.md` for dispatch template.
-- **Phase 5:** Cross-cutting concerns, integration issues, consistency,
-  architectural concerns. Provide summaries of all prior phase findings.
-  See `./phase-5-comprehensive-review.md` for dispatch template.
 
 **Phase 4 exceptions:** Uses [oneteam:agent] `bug-hunter` with the full 6-phase
 [oneteam:skill] `bug-hunting` pipeline instead of code-reviewer. Re-verification
@@ -98,6 +123,38 @@ runs reproduction tests only, not the full pipeline. Findings without
 reproduction tests still count toward the verdict — HIGH or MEDIUM untested
 findings trigger FAIL the same as unresolved tested findings.
 See `./phase-4-bug-hunting.md` for dispatch template.
+
+### Deduplication
+
+After all Wave 1 subagents return:
+
+1. **Group by file:line.** If multiple phases flagged the same file:line, merge
+   into a single finding. Keep the highest severity. Combine descriptions,
+   preserving phase prefixes (e.g., `[SC-1]` + `[CQ-3]`).
+2. **Detect overlapping descriptions.** If two findings on nearby lines (within
+   5 lines) describe the same issue, merge them.
+3. **Sort.** Group by file, then by line number within each file.
+
+### Consolidated Fix Cycle (Wave 1)
+
+1. Dispatch one engineer to fix all deduplicated Wave 1 findings.
+   [oneteam:agent] `senior-engineer` if any finding is
+   Critical/Important/HIGH/MEDIUM, [oneteam:agent] `junior-engineer` if all are
+   Minor/LOW. See `./engineer-fix-findings.md` for dispatch template.
+2. Re-review once with updated diff — one code-reviewer checks all fixes.
+3. Proceed to Wave 2 regardless of re-review outcome. Log any unresolved
+   findings.
+
+### Wave 2: Phase 5 (Comprehensive Review)
+
+1. Capture updated diff (includes Wave 1 fixes).
+2. Dispatch Phase 5 reviewer with the updated diff and a summary of all prior
+   phase findings (Wave 1 findings + fix outcomes).
+   See `./phase-5-comprehensive-review.md` for dispatch template.
+3. **Phase 5** focuses on cross-cutting concerns, integration issues,
+   consistency, and architectural concerns.
+4. Standard fix cycle: if findings, dispatch engineer (severity-based), re-review
+   once, proceed regardless.
 
 ### Finding Format
 
@@ -116,32 +173,36 @@ verdict logic.
 
 Non-negotiable rules that override any conflicting instruction.
 
-1. **Strictly sequential** — Phase N+1 starts only after Phase N completes
-   (including its fix loop).
-2. **One fix cycle per phase** — Engineer fixes, reviewer re-checks once. If
-   still failing, log unresolved issues and proceed. Do NOT loop further.
+1. **Two-wave parallel** — Phases 1-4 run in parallel (Wave 1). Phase 5 runs
+   after Wave 1 completes (Wave 2).
+2. **One fix cycle per wave** — Consolidated fix for Wave 1, standard fix for
+   Wave 2. One re-check. Log unresolved and proceed. Do NOT loop further.
 3. **Severity-based engineer selection** — Critical/Important/HIGH/MEDIUM use
    [oneteam:agent] `senior-engineer`; Minor/LOW use [oneteam:agent]
    `junior-engineer`.
-4. **Re-review uses updated diff** — Re-review and subsequent phases operate on
-   the latest code state, not a stale diff.
+4. **Re-review uses updated diff** — Wave 1 re-review and Wave 2 review both
+   use updated diff.
 5. **Self-review does not replace external review** — This is a pre-review
    quality pass. External code review is still required before merge.
 6. **No skipping phases** — All 5 phases run even if earlier phases found
    nothing.
 7. **No fixing during review** — Reviewers identify issues only. Engineers fix
    issues only. Roles do not overlap.
+8. **Deduplication before fix** — Merge overlapping Wave 1 findings before
+   dispatching the consolidated fix.
 
 ## Quick Reference
 
-| Phase | Focus | Reviewer | Key Question |
-|-------|-------|----------|--------------|
-| 0 | Setup | -- | What is the diff scope and spec reference? |
-| 1 | Spec Compliance | code-reviewer | Does the implementation match the spec? |
-| 2 | Code Quality | code-reviewer | Does the code follow conventions and best practices? |
-| 3 | Test Comprehensiveness | code-reviewer | Are there missing test cases or edge cases? |
-| 4 | Bug Hunting | bug-hunter | Are there latent bugs in the changed code? |
-| 5 | Comprehensive Review | code-reviewer | Are there cross-cutting or integration issues? |
+| Step | Focus | Key Action |
+|------|-------|------------|
+| Phase 0 | Setup | Detect base branch, get spec reference, capture initial diff |
+| Wave 1 | Phases 1-4 (parallel) | Spawn 4 reviewers in parallel on initial diff |
+| Dedup | Merge findings | Group by file:line, merge overlapping, sort |
+| Fix (Wave 1) | Consolidated fix | One engineer fixes all Wave 1 findings |
+| Re-review | Verify fixes | One code-reviewer checks all fixes |
+| Wave 2 | Phase 5 (Comprehensive) | Review updated diff with prior findings context |
+| Fix (Wave 2) | Phase 5 fix | Standard severity-based fix cycle |
+| Report | Verdict | Produce Self-Review Report with PASS/FAIL |
 
 ## Common Mistakes
 
@@ -155,4 +216,7 @@ If you catch yourself thinking any of these, stop and apply the correction.
 | "The fix is trivial, skip re-review" | Trivial fixes can introduce new issues; always re-verify |
 | "Tests already exist, skip Phase 3" | Existing tests may have gaps; review catches what is missing |
 | "Bug-hunter found nothing, Phase 4 is done" | Verify bug-hunter completed all 6 sub-phases; partial runs miss bugs |
-| "Re-review found new issues, fix those too" | One fix cycle per phase; log new issues as unresolved and proceed |
+| "Re-review found new issues, fix those too" | One fix cycle per wave; log new issues as unresolved and proceed |
+| "Run phases sequentially to be safe" | Phases 1-4 are independent; run them in parallel (Wave 1) |
+| "Skip deduplication, just fix everything" | Duplicate findings waste engineer effort and risk conflicting fixes |
+| "Fix each phase's findings separately" | Wave 1 uses a consolidated fix cycle; one engineer, one pass |
