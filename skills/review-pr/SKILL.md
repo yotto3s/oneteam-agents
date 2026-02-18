@@ -63,8 +63,12 @@ constraint: no reproduction tests (see Phase-Specific Notes).
 2. **Extract repo + PR number.** Parse from URL if needed, or use current repo
    (`gh repo view --json owner,name`).
 3. **Check prerequisites.** Verify `gh` and `gh pr-review` are installed (see
-   Command Reference). If either is missing, ask user whether to install. If
-   user declines, abort.
+   Command Reference). If either is missing, `AskUserQuestion` (header: "Install prerequisites"):
+
+   | Option label | Description |
+   |---|---|
+   | Install | Install the missing tool(s) automatically |
+   | Abort | Cancel the review |
 4. **Fetch PR metadata.**
    `gh pr view <N> --json title,body,baseRefName,headRefName,files,additions,deletions`
 5. **Fetch target branch (read-only).** Use `git fetch origin <baseRefName>` to
@@ -72,14 +76,30 @@ constraint: no reproduction tests (see Phase-Specific Notes).
    `git checkout` or `git switch` to the target branch — use `git show
    origin/<baseRefName>:<path>` to read individual files for context.
 6. **Fetch PR diff.** `gh pr diff <N>` to get the full diff.
-7. **Fetch spec/context.** Ask user for spec reference, design doc, or issue
-   link. Allow "skip" -- reviewers infer intent from PR title/body/commits.
-8. **Choose mode.** Ask user: Read-only (default) or Local build.
+7. **Fetch spec/context.** `AskUserQuestion` (header: "Spec reference"):
+
+   | Option label | Description |
+   |---|---|
+   | Provide reference | User enters a spec, design doc, or issue link |
+   | Skip | Reviewers infer intent from PR title/body/commits |
+
+   If "Provide reference": ask for the spec, design doc, or issue link.
+
+8. **Choose mode.** `AskUserQuestion` (header: "Review mode"):
+
+   | Option label | Description |
+   |---|---|
+   | Read-only | Static analysis only -- no checkout or test execution (default) |
+   | Local build | Checkout PR branch, run tests, full bug-hunting pipeline |
 9. **If local build:** checkout PR branch (`gh pr checkout <N>`) and pull latest
    changes (`git pull`). `gh pr checkout` does not update an existing local
    branch -- the explicit pull ensures the code is current. Then run existing
-   test suite. If tests fail, report to user and ask whether to continue or
-   abort.
+   test suite. If tests fail, report failures and `AskUserQuestion` (header: "Tests failing"):
+
+   | Option label | Description |
+   |---|---|
+   | Continue | Proceed with review despite test failures |
+   | Abort | Cancel the review |
 
 ## Phases 1-5: Parallel Review
 
@@ -148,16 +168,16 @@ After all subagents return:
 ## User Validation Gate
 
 Present consolidated findings as a numbered list grouped by severity
-(Critical/HIGH first, then Important/MEDIUM, then Minor/LOW). Then ask the user:
+(Critical/HIGH first, then Important/MEDIUM, then Minor/LOW). Then `AskUserQuestion` (header: "Post findings"):
 
-| Option | Description |
-|--------|-------------|
+| Option label | Description |
+|---|---|
 | Post all | Post all findings as PR inline comments |
 | Edit list | User specifies which findings to remove or modify |
 | Cancel | Don't post anything |
 
-If "Edit list": user provides changes, re-present, and ask again. Repeat until
-approved.
+If "Edit list": user provides changes, re-present `AskUserQuestion`, and repeat
+until approved.
 
 **HARD GATE:** Do NOT post any findings to the PR without explicit user approval.
 
@@ -175,6 +195,26 @@ Use the `gh-pr-review` commands from the Command Reference below:
 **Recommended:** Use `./post-comments.sh` to post all comments and submit the
 review in one step. It handles shell escaping by writing each comment body to a
 temp file. See `./post-comments.sh` for input format and usage.
+
+### Line Number Calculation
+
+The `line` field in inline comments refers to the line number in the **new file
+version** (right side of the diff). To derive it from a unified diff hunk:
+
+1. Read the hunk header: `@@ -old,count +new,count @@`. The `new` value is the
+   starting line number for the new file.
+2. The **first line** in the hunk body (immediately after the `@@` header)
+   corresponds to that starting line number.
+3. Count forward: context lines (` `) and added lines (`+`) each consume one
+   new-file line number. Removed lines (`-`) do **not** consume a new-file line
+   number -- skip them.
+4. **Verify** the target line before posting: run
+   `git show <PR-HEAD>:<path> | sed -n '<line>p'` and confirm the content
+   matches the intended target.
+
+Common off-by-one cause: miscounting leading context lines (e.g., counting a
+blank context line twice or counting the hunk header itself as a line). Always
+start counting from the `+new` value in the hunk header.
 
 ## Command Reference
 
@@ -296,6 +336,7 @@ gh pr-review threads resolve --thread-id <PRRT_...> -R <owner/repo> <PR#>
 | Sending subagents in read-only mode without read-only instructions | Every subagent in read-only mode MUST be explicitly told the read-only constraints at dispatch |
 | Guessing gh-pr-review syntax | Use the Command Reference -- don't improvise CLI flags |
 | Passing comment body directly in `--body` quotes | Use `post-comments.sh` or write body to temp file and use `--body "$(cat file)"` |
+| Off-by-one line numbers in inline comments | Derive line numbers from the `+new` value in the hunk header; verify with `git show <HEAD>:<path> \| sed -n '<line>p'` before posting |
 
 ## Constraints
 

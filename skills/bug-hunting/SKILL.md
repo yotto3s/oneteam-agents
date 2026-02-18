@@ -29,7 +29,15 @@ Six phases in strict order. No phase may be skipped. Each produces written outpu
 
 ### Phase 1: Scope Definition
 
-Identify every changed file, function, and module in scope. Map the blast radius (callers, callees, dependents). Write the scope list explicitly. If the user does not provide scope, ask: `"Need a scope to begin: PR numbers, file paths, module names, or a directory?"`
+Identify every changed file, function, and module in scope. Map the blast radius (callers, callees, dependents). Write the scope list explicitly. If the user does not provide scope, `AskUserQuestion` (header: "Scope"):
+
+| Option label | Description |
+|---|---|
+| PR numbers | User provides one or more PR numbers to review |
+| File paths | User provides specific file paths to analyze |
+| Module or directory | User provides a module name or directory path |
+
+After the user selects a scope type, collect the specific value(s) (e.g., PR numbers, file paths, or directory) and proceed with scope definition.
 
 ### Phase 2: Contract Inventory
 
