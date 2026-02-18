@@ -229,7 +229,7 @@ Triggered when all items are reviewed or the reviewer says "done."
 
 | Option label | Description |
 |---|---|
-| Post as inline comments | Use `./post-comments.sh` to post each concern as an inline comment on the relevant file:line; submit review as `COMMENT` |
+| Post as inline comments | Invoke [oneteam:skill] `post-review-comment` to post each concern as an inline comment on the relevant file:line; submit review as `COMMENT` |
 | Post as single review comment | Format all concerns into one structured review body; submit as `COMMENT` |
 | Skip | Keep the concern file local only; do not post anything |
 
@@ -285,7 +285,7 @@ git pull  # gh pr checkout does not update an existing local branch
 
 ### Posting Review
 
-For inline comments, use [oneteam:skill] `post-review-comment`. See that skill
+For inline comments, **Invoke [oneteam:skill] `post-review-comment`**. See that skill
 for JSON format, line number calculation, and posting commands.
 
 ## Quick Reference
@@ -330,6 +330,5 @@ Non-negotiable rules that override any conflicting instruction.
 6. **Concern file always persists locally** -- regardless of posting choice, the
    concern file stays on disk.
 7. **Reuse posting infrastructure** -- post via [oneteam:skill] `post-review-comment`
-   (symlinked `post-comments.sh` and `comment-template.md`).
 8. **Pre-analyze before walkthrough** -- always dispatch the subagent in Phase 1
    before presenting the checklist or starting the walkthrough.

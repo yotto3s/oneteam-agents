@@ -1,1 +1,0 @@
-../post-review-comment/comment-template.md

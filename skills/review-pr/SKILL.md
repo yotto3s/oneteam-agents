@@ -152,7 +152,7 @@ Read-Only Mode Constraints (see Modes section above).
 
 This is the **internal** finding format used during review phases and
 deduplication. When posting findings as inline PR comments, use the structured
-comment template (see `./comment-template.md`).
+comment template (see [oneteam:skill] `post-review-comment`).
 
 ## Deduplication
 
@@ -183,14 +183,8 @@ until approved.
 
 ## Post Review
 
-Use [oneteam:skill] `post-review-comment` to post approved findings as inline
-PR comments. Build JSON input per that skill's format and run `./post-comments.sh`.
-
-See the `post-review-comment` skill for:
-- JSON input schema and comment fields
-- Line number calculation from unified diff hunks
-- `gh-pr-review` command reference
-- Prerequisite checks
+**Invoke [oneteam:skill] `post-review-comment`** to post approved findings as inline
+PR comments.
 
 ## Command Reference
 
