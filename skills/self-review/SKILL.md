@@ -48,8 +48,8 @@ external code review is still required before merge.
    | Skip | Infer intent from commits in Phase 1 |
 
    If "Provide reference": ask for the spec, design doc, or issue link.
-3. **Capture initial diff.** Store for Phase 1. Subsequent phases re-capture to
-   include fixes from earlier phases.
+3. **Capture initial diff.** Store for Wave 1 (Phases 1-4 all review this same
+   diff). Wave 2 re-captures the diff after Wave 1 fixes are applied.
 
 ## Pipeline
 
@@ -118,10 +118,12 @@ and ignore all others. Specific review scopes:
   See `./phase-3-test-comprehensiveness.md` for dispatch template.
 
 **Phase 4 exceptions:** Uses [oneteam:agent] `bug-hunter` with the full 6-phase
-[oneteam:skill] `bug-hunting` pipeline instead of code-reviewer. Re-verification
-runs reproduction tests only, not the full pipeline. Findings without
-reproduction tests still count toward the verdict — HIGH or MEDIUM untested
-findings trigger FAIL the same as unresolved tested findings.
+[oneteam:skill] `bug-hunting` pipeline instead of code-reviewer. In the Wave 1
+consolidated re-review, one code-reviewer checks all fixes including Phase 4
+findings. If Phase 4 findings need standalone re-verification outside the
+consolidated cycle, reproduction tests only are run — not the full pipeline.
+Findings without reproduction tests still count toward the verdict — HIGH or
+MEDIUM untested findings trigger FAIL the same as unresolved tested findings.
 See `./phase-4-bug-hunting.md` for dispatch template.
 
 ### Deduplication
