@@ -53,6 +53,71 @@ calls.
 9. **Choose posting option** -- inline comments, single comment, or skip. **HARD GATE.**
 10. **Done** -- report concern file path and PR link (if posted).
 
+## Process Flow
+
+```dot
+digraph review_companion {
+    // Phase 0: Setup
+    "Get PR + metadata" [shape=box];
+    "Ask for spec reference" [shape=box];
+    "Choose mode" [shape=diamond];
+    "Checkout PR branch" [shape=box];
+
+    // Phase 1: Pre-Analysis
+    "Dispatch pre-analysis subagent" [shape=box];
+
+    // Phase 2: Summary & Checklist
+    "Present summary & checklist" [shape=box];
+    "Start walkthrough?" [shape=diamond];
+
+    // Phase 3: Interactive Walkthrough
+    "Show item diff + explain + highlights" [shape=box];
+    "Reviewer action?" [shape=diamond];
+    "Log concern" [shape=box];
+    "Answer question" [shape=box];
+    "More items?" [shape=diamond];
+
+    // Phase 4: Completion
+    "Present final summary" [shape=box];
+    "Post to PR?" [shape=diamond];
+    "Check prerequisites" [shape=box];
+    "Post review comments" [shape=box];
+    "Done" [shape=doublecircle];
+
+    // Phase 0 flow
+    "Get PR + metadata" -> "Ask for spec reference";
+    "Ask for spec reference" -> "Choose mode";
+    "Choose mode" -> "Dispatch pre-analysis subagent" [label="read-only"];
+    "Choose mode" -> "Checkout PR branch" [label="local checkout"];
+    "Checkout PR branch" -> "Dispatch pre-analysis subagent";
+
+    // Phase 1 -> Phase 2
+    "Dispatch pre-analysis subagent" -> "Present summary & checklist";
+
+    // Phase 2 -> Phase 3
+    "Present summary & checklist" -> "Start walkthrough?";
+    "Start walkthrough?" -> "Show item diff + explain + highlights" [label="start or jump"];
+
+    // Phase 3: per-item loop
+    "Show item diff + explain + highlights" -> "Reviewer action?";
+    "Reviewer action?" -> "More items?" [label="looks good"];
+    "Reviewer action?" -> "Log concern" [label="raise concern"];
+    "Reviewer action?" -> "Answer question" [label="ask question"];
+    "Reviewer action?" -> "Present final summary" [label="done reviewing"];
+    "Log concern" -> "Reviewer action?";
+    "Answer question" -> "Reviewer action?";
+    "More items?" -> "Show item diff + explain + highlights" [label="yes"];
+    "More items?" -> "Present final summary" [label="no"];
+
+    // Phase 4: completion
+    "Present final summary" -> "Post to PR?";
+    "Post to PR?" -> "Check prerequisites" [label="inline or single"];
+    "Post to PR?" -> "Done" [label="skip"];
+    "Check prerequisites" -> "Post review comments";
+    "Post review comments" -> "Done";
+}
+```
+
 ## Phase 0: Setup
 
 1. **Get PR.** Accept PR number, URL, or detect from current branch. If not
