@@ -31,8 +31,8 @@ Task tool (senior-engineer | junior-engineer):
 
     ## Inputs
 
-    **Findings to fix:**
-    [FINDINGS]
+    **Findings file:** [FINDINGS_FILE]
+    Read this file for the full list of findings to fix.
 
     **Diff (current state):**
     [DIFF]
@@ -41,7 +41,7 @@ Task tool (senior-engineer | junior-engineer):
 
     ## Your Job
 
-    Fix each finding listed above. For each finding:
+    Read the findings file, then fix each finding listed. For each finding:
 
     1. Read the file and line referenced in the finding
     2. Understand the issue described
@@ -67,14 +67,19 @@ Task tool (senior-engineer | junior-engineer):
     - If a finding cannot be fixed without a larger refactor, implement
       the minimal viable fix and note what further work is needed.
 
-    ## Output Format
+    ## Output
 
-    For each finding, report:
+    Write your fix report to **[FIX_REPORT_FILE]** using this format:
+
+    ```markdown
+    # Fix Report — [PHASE_NAMES]
+
     - [<PREFIX><N>] FIXED | <file>:<line> — <brief description of fix>
-
-    If a finding could not be fully resolved:
     - [<PREFIX><N>] PARTIAL | <file>:<line> — <what was done and what
       remains>
 
     Summary: total fixed, total partial, any test results.
+    ```
+
+    Also return the same summary in your response.
 ~~~

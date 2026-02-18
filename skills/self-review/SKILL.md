@@ -48,7 +48,11 @@ external code review is still required before merge.
    | Skip | Infer intent from commits in Phase 1 |
 
    If "Provide reference": ask for the spec, design doc, or issue link.
-3. **Capture initial diff.** Store for Wave 1 (Phases 1-4 all review this same
+3. **Create session directory.** Run `mktemp -d -t self-review-XXXXXX` to create
+   a unique temp directory for this self-review run. All intermediate files
+   (findings, fix reports) are written here. This avoids file collisions when
+   multiple self-reviews run concurrently.
+4. **Capture initial diff.** Store for Wave 1 (Phases 1-4 all review this same
    diff). Wave 2 re-captures the diff after Wave 1 fixes are applied.
 
 ## Pipeline
@@ -57,29 +61,29 @@ external code review is still required before merge.
 
 ```dot
 digraph self_review {
-    "Phase 0 (Setup)" [shape=box];
+    "Phase 0 (Setup + session dir)" [shape=box];
     "Phase 1 (Spec)" [shape=box];
     "Phase 2 (Quality)" [shape=box];
     "Phase 3 (Tests)" [shape=box];
     "Phase 4 (Bugs)" [shape=box];
-    "Deduplicate findings" [shape=box];
+    "Dedup + write findings file" [shape=box];
     "Consolidated fix cycle" [shape=box];
-    "Re-review once" [shape=box];
+    "Re-review fixes" [shape=box];
     "Phase 5 (Comprehensive Review)" [shape=box];
     "Fix cycle (standard)" [shape=box];
     "Self-Review Report (PASS/FAIL)" [shape=doublecircle];
 
-    "Phase 0 (Setup)" -> "Phase 1 (Spec)" [label="Wave 1"];
-    "Phase 0 (Setup)" -> "Phase 2 (Quality)" [label="Wave 1"];
-    "Phase 0 (Setup)" -> "Phase 3 (Tests)" [label="Wave 1"];
-    "Phase 0 (Setup)" -> "Phase 4 (Bugs)" [label="Wave 1"];
-    "Phase 1 (Spec)" -> "Deduplicate findings";
-    "Phase 2 (Quality)" -> "Deduplicate findings";
-    "Phase 3 (Tests)" -> "Deduplicate findings";
-    "Phase 4 (Bugs)" -> "Deduplicate findings";
-    "Deduplicate findings" -> "Consolidated fix cycle";
-    "Consolidated fix cycle" -> "Re-review once";
-    "Re-review once" -> "Phase 5 (Comprehensive Review)" [label="Wave 2"];
+    "Phase 0 (Setup + session dir)" -> "Phase 1 (Spec)" [label="Wave 1"];
+    "Phase 0 (Setup + session dir)" -> "Phase 2 (Quality)" [label="Wave 1"];
+    "Phase 0 (Setup + session dir)" -> "Phase 3 (Tests)" [label="Wave 1"];
+    "Phase 0 (Setup + session dir)" -> "Phase 4 (Bugs)" [label="Wave 1"];
+    "Phase 1 (Spec)" -> "Dedup + write findings file";
+    "Phase 2 (Quality)" -> "Dedup + write findings file";
+    "Phase 3 (Tests)" -> "Dedup + write findings file";
+    "Phase 4 (Bugs)" -> "Dedup + write findings file";
+    "Dedup + write findings file" -> "Consolidated fix cycle";
+    "Consolidated fix cycle" -> "Re-review fixes";
+    "Re-review fixes" -> "Phase 5 (Comprehensive Review)" [label="Wave 2"];
     "Phase 5 (Comprehensive Review)" -> "Fix cycle (standard)";
     "Fix cycle (standard)" -> "Self-Review Report (PASS/FAIL)";
 }
@@ -135,14 +139,21 @@ After all Wave 1 subagents return:
 2. **Detect overlapping descriptions.** If two findings on nearby lines (within
    5 lines) describe the same issue, merge them.
 3. **Sort.** Group by file, then by line number within each file.
+4. **Write findings file.** Write the deduplicated findings to
+   `<session-dir>/wave1-findings.md`. This file is the single source of truth
+   shared between the engineer and re-reviewer.
 
 ### Consolidated Fix Cycle (Wave 1)
 
-1. Dispatch one engineer to fix all deduplicated Wave 1 findings.
+1. Dispatch one engineer to fix all deduplicated Wave 1 findings. Pass
+   `<session-dir>/wave1-findings.md` as the findings file and
+   `<session-dir>/wave1-fix-report.md` as the fix report output file.
    [oneteam:agent] `senior-engineer` if any finding is
    Critical/Important/HIGH/MEDIUM, [oneteam:agent] `junior-engineer` if all are
    Minor/LOW. See `./engineer-fix-findings.md` for dispatch template.
-2. Re-review once with updated diff — one code-reviewer checks all fixes.
+2. Re-review once with updated diff — one code-reviewer verifies all fixes
+   using the findings file and fix report file. See `./re-review-fixes.md` for
+   dispatch template.
 3. Proceed to Wave 2 regardless of re-review outcome. Log any unresolved
    findings.
 
@@ -154,8 +165,12 @@ After all Wave 1 subagents return:
    See `./phase-5-comprehensive-review.md` for dispatch template.
 3. **Phase 5** focuses on cross-cutting concerns, integration issues,
    consistency, and architectural concerns.
-4. Standard fix cycle: if findings, dispatch engineer (severity-based), re-review
-   once, proceed regardless.
+4. Standard fix cycle: if findings, write them to
+   `<session-dir>/wave2-findings.md`, dispatch engineer (severity-based) with
+   `<session-dir>/wave2-fix-report.md` as output file. See
+   `./engineer-fix-findings.md` for dispatch template.
+5. Re-review once using the findings file and fix report file. See
+   `./re-review-fixes.md` for dispatch template. Proceed regardless.
 
 ### Finding Format
 
@@ -196,13 +211,14 @@ Non-negotiable rules that override any conflicting instruction.
 
 | Step | Focus | Key Action |
 |------|-------|------------|
-| Phase 0 | Setup | Detect base branch, get spec reference, capture initial diff |
+| Phase 0 | Setup | Detect base branch, get spec reference, create session dir, capture initial diff |
 | Wave 1 | Phases 1-4 (parallel) | Spawn 4 reviewers in parallel on initial diff |
-| Dedup | Merge findings | Group by file:line, merge overlapping, sort |
-| Fix (Wave 1) | Consolidated fix | One engineer fixes all Wave 1 findings |
-| Re-review | Verify fixes | One code-reviewer checks all fixes |
+| Dedup | Merge findings | Group by file:line, merge overlapping, sort, write findings file |
+| Fix (Wave 1) | Consolidated fix | Engineer reads findings file, writes fix report file |
+| Re-review | Verify fixes | Code-reviewer reads findings + fix report files (`re-review-fixes.md`) |
 | Wave 2 | Phase 5 (Comprehensive) | Review updated diff with prior findings context |
-| Fix (Wave 2) | Phase 5 fix | Standard severity-based fix cycle |
+| Fix (Wave 2) | Phase 5 fix | Write findings file, engineer writes fix report file |
+| Re-review | Verify fixes | Code-reviewer reads findings + fix report files (`re-review-fixes.md`) |
 | Report | Verdict | Produce Self-Review Report with PASS/FAIL |
 
 ## Common Mistakes
