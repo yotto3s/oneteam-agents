@@ -36,7 +36,7 @@ calls.
 
 | Mode | What happens | File writes |
 |------|-------------|-------------|
-| **Read-only** (default) | All analysis from diff and `gh api` only; no checkout, no builds | Concern tracking file only |
+| **Read-only** (default) | Analysis from diff, `gh api`, and optional `git fetch`/`git show` for remote file context; no checkout, no builds | Concern tracking file only |
 | **Local checkout** | `git fetch` + checkout PR branch for full file context | Concern tracking file only |
 
 ## Phase 0: Setup
@@ -63,7 +63,7 @@ calls.
 
    | Option label | Description |
    |---|---|
-   | Read-only | All analysis from diff and `gh api` only; no checkout, no builds (default) |
+   | Read-only | Analysis from diff, `gh api`, and optional `git fetch`/`git show` for remote file context; no checkout, no builds (default) |
    | Local checkout | `git fetch` + checkout PR branch for full file context |
 
 8. **If local checkout:** `gh pr checkout <N>` and `git pull` to ensure the
