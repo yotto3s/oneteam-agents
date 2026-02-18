@@ -1,9 +1,9 @@
 ---
 name: review-companion
 description: >-
-  Use when a human reviewer wants AI-assisted walkthrough of a GitHub PR.
-  Pre-analyzes the diff, presents a checklist, then walks through each change
-  with explanations and risk highlights — pausing for discussion at every stop.
+  Use when a human reviewer wants AI-assisted walkthrough of a GitHub PR,
+  to understand changes before providing feedback, or when reviewing a large
+  or complex PR with AI assistance while the human drives the review.
 ---
 
 # Review Companion
@@ -90,7 +90,8 @@ subagent produces a structured analysis containing:
 5. **Recommended review order** — Logical sequence (e.g., types first, then core
    logic, then tests).
 
-The analysis is stored in-session (not written to disk in read-only mode).
+The analysis is stored in-session (not written to disk). Neither mode writes
+the analysis to disk — only the concern tracking file is written.
 
 ## Phase 2: Summary & Checklist
 
@@ -138,14 +139,18 @@ For each checklist item, in order:
    security, style).
 4. **Pause for discussion** — Wait for the reviewer's input:
    - Ask questions about the code
-   - Raise concerns — append each to the concern file with file:line,
-     description, severity
+   - Raise concerns — append each to the concern file with file:line (or
+     file-level if no specific line), description, severity
    - "looks good" / "ok" — done discussing this item
+   - If the reviewer does not respond, gently re-prompt: summarize the item
+     and ask if they have questions or want to move on
 5. **Show updated checklist** — Mark item as reviewed, display progress.
 6. **Pause for navigation** — Wait for direction:
    - **"next"** — proceed to next item
    - **"jump N"** — jump to item N
    - **"done"** — end walkthrough early, go to Phase 4
+   - If no response or unclear, re-prompt with the available navigation
+     options
 
 **Two pauses per item** — discussion pause (step 4), then navigation pause
 (step 6). Never combine into a single pause. These pauses are free-form
@@ -164,6 +169,10 @@ selecting from structured options.
 ## routes/login.ts:45
 **Severity:** MEDIUM
 **Concern:** Missing rate limiting on login endpoint
+
+## routes/login.ts (file-level)
+**Severity:** LOW
+**Concern:** No structured error responses for auth failures
 ```
 
 ### Handling Reviewer Questions
