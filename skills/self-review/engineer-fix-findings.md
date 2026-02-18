@@ -8,7 +8,7 @@ for Minor/LOW findings.
 **Wave 1 (Phases 1–4 consolidated fix):** findings from multiple phases are
 merged into a single dispatch. The `[PHASE_NAMES]` placeholder will list all
 contributing phases (e.g., "Spec Compliance, Code Quality") and findings may
-carry mixed prefixes (e.g., SC-1, CQ-3).
+carry mixed prefixes (e.g., SC-1/CQ-3).
 
 **Wave 2 (Phase 5 only):** findings come from the Comprehensive Review phase
 alone. `[PHASE_NAMES]` will be "Comprehensive Review" and prefixes will be CR-.
