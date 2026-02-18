@@ -180,10 +180,10 @@ the analysis to disk — only the concern tracking file is written.
 
 Present to the reviewer:
 
-**A. Big-picture summary** — 2-3 sentence overview of what the PR accomplishes.
+**Big-picture summary** — 2-3 sentence overview of what the PR accomplishes.
 
-**B. Change checklist** — Numbered list of all change units in recommended
-review order:
+**Change checklist** — All change units in recommended review order, formatted
+as a markdown checklist (`- [ ]`):
 
 ```
 ## PR #42: Add user authentication
@@ -376,6 +376,7 @@ for JSON format, line number calculation, and posting commands.
 | Posting without reviewer approval | Hard gate -- always ask before posting anything to the PR |
 | Submitting as APPROVE or REQUEST_CHANGES | Always COMMENT -- the human reviewer makes the verdict |
 | Skipping checklist items silently | Every item must be presented; reviewer can say "done" to exit early |
+| Using lettered lists (a. b. c.) or numbered lists without checkboxes | **Always** use markdown checklist format: `- [ ] item`. Never use `a.` / `b.` / `1.` / `2.` without the `- [ ]` prefix |
 | Writing files in read-only mode | Only the concern tracking file is written; no other file writes |
 | Skipping pre-analysis and going straight to walkthrough | Always run Phase 1 before presenting the checklist |
 | Starting walkthrough without reviewer confirmation | Hard gate after Phase 2 -- wait for the reviewer to select a walkthrough option |
@@ -402,3 +403,8 @@ Non-negotiable rules that override any conflicting instruction.
 7. **Reuse posting infrastructure** -- post via [oneteam:skill] `post-review-comment`
 8. **Pre-analyze before walkthrough** -- always dispatch the subagent in Phase 1
    before presenting the checklist or starting the walkthrough.
+9. **Checklist format for all review items** -- every list of review items,
+   change units, or walkthrough items MUST use markdown checklist format
+   (`- [ ]`). Never use lettered lists (`a.`, `b.`), plain numbered lists, or
+   any other format. This applies to Phase 2 checklist, walkthrough progress,
+   and final summary.
