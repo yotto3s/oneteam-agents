@@ -52,7 +52,7 @@ YAML frontmatter with `name` and `description`, followed by phased pipeline docu
 | [oneteam:skill] team-collaboration | 4 principles: close the loop, never block silently, know ownership, speak up early |
 | [oneteam:skill] team-management | 5-phase orchestration: analysis (conditional) → team setup → monitoring → review/merge → consolidation |
 | [oneteam:skill] research | 3-phase: clarify → gather → synthesize |
-| [oneteam:skill] self-review | 5-phase sequential pipeline: spec compliance → code quality → test comprehensiveness → bug hunting → comprehensive review, each with review-fix-re-review cycle |
+| [oneteam:skill] self-review | 5-phase two-wave parallel pipeline: Phases 1-4 (spec compliance, code quality, test comprehensiveness, bug hunting) run in parallel with deduplication and consolidated fix, then Phase 5 (comprehensive review) with prior findings context |
 | [oneteam:skill] spec-review | 6-phase: read spec → analyze codebase → quality check → issue identification → report → approval gate |
 | [oneteam:skill] review-pr | 5-phase parallel pipeline: spec compliance, code quality, test comprehensiveness, bug hunting, comprehensive review with deduplication, user validation gate, and gh-pr-review posting |
 | [oneteam:skill] implementation | 2-phase: context discovery → verification + common best practices |
