@@ -51,6 +51,7 @@ calls.
    Per-item loop: looks good, raise concern, ask question, or done reviewing.
 8. **Present final summary** -- items reviewed, concerns by severity, blocking issues.
 9. **Choose posting option** -- inline comments, single comment, or skip. **HARD GATE.**
+   If posting: check prerequisites (`gh pr-review` for inline, `gh` for single comment).
 10. **Done** -- report concern file path and PR link (if posted).
 
 ## Process Flow
