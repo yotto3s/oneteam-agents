@@ -10,7 +10,7 @@ description: >-
 
 ## Overview
 
-A 4-phase interactive skill that helps human reviewers understand and navigate
+A 5-phase interactive skill that helps human reviewers understand and navigate
 GitHub pull requests. It pre-analyzes the entire PR, presents a summary and
 checklist, then walks through each change with explanations and risk highlights
 — pausing for discussion at every stop.
