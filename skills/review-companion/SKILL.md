@@ -283,14 +283,14 @@ For manual posting commands, see [oneteam:skill] `review-pr` Command Reference.
 | 0. Setup | Get PR, fetch metadata + diff, choose mode | PR overview + mode selection |
 | 1. Pre-Analysis | Dispatch subagent to analyze full diff | Structured analysis document |
 | 2. Summary & Checklist | Present big-picture summary + numbered checklist | Checklist with risk levels |
-| 3. Interactive Walkthrough | Per-item: show diff, explain, highlight risks, looping AskUserQuestion | Concern file + reviewed checklist |
+| 3. Interactive Walkthrough | Per-item: show diff, explain, highlight risks, structured pause (loops) | Concern file + reviewed checklist |
 | 4. Completion | Final summary, posting options, hard gate | Posted review or local concern file |
 
 ## Common Mistakes
 
 | Mistake | Fix |
 |---------|-----|
-| Advancing past an item without waiting for "Looks good" or "Done reviewing" | The AskUserQuestion loops -- stay on the current item until the reviewer explicitly advances |
+| Using free-form text for walkthrough pauses | Always use AskUserQuestion for reviewer interaction during walkthrough |
 | Posting without reviewer approval | Hard gate -- always ask before posting anything to the PR |
 | Submitting as APPROVE or REQUEST_CHANGES | Always COMMENT -- the human reviewer makes the verdict |
 | Skipping checklist items silently | Every item must be presented; reviewer can say "done" to exit early |
@@ -312,9 +312,9 @@ Non-negotiable rules that override any conflicting instruction.
 4. **Every change unit must be covered** -- no skipping items in the checklist.
    The reviewer can say "done" to exit early, but items are never silently
    skipped.
-5. **Looping pause per item** -- the `AskUserQuestion` in step 4 loops until
-   the reviewer selects "Looks good" or "Done reviewing". Never auto-advance
-   without explicit reviewer action.
+5. **One structured pause per item** -- AskUserQuestion loops until the reviewer
+   says "Looks good" or "Done reviewing". Each iteration lets the reviewer raise
+   concerns, ask questions, or advance.
 6. **Concern file always persists locally** -- regardless of posting choice, the
    concern file stays on disk.
 7. **Reuse `review-pr` posting infrastructure** -- post via symlinked
