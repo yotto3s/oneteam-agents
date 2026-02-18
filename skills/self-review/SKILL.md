@@ -28,13 +28,22 @@ external code review is still required before merge.
 ## Phase 0: Setup
 
 1. **Diff scope.** If the caller provided a base branch, use it. Otherwise,
-   detect it: examine git log to find the most likely base branch. Present the
-   result for confirmation:
-   `1. <detected-branch> (Recommended)  2. Other branch`
-   If the user picks "Other", ask for the branch name.
+   detect it: examine git log to find the most likely base branch.
+   `AskUserQuestion` (header: "Base branch"):
+
+   | Option label | Description |
+   |---|---|
+   | `<detected-branch>` | Use the detected base branch (recommended) |
+   | Other branch | User types the target branch name |
+
    Default diff: `git diff <base-branch>...HEAD`
-2. **Spec reference.** Use caller-provided spec/design doc/issue link or ask.
-   User may skip — intent inferred from commits in Phase 1.
+2. **Spec reference.** Use caller-provided spec/design doc/issue link. If not
+   provided, `AskUserQuestion` (header: "Spec reference"):
+
+   | Option label | Description |
+   |---|---|
+   | Provide reference | User enters a spec, design doc, or issue link |
+   | Skip | Infer intent from commits in Phase 1 |
 3. **Capture initial diff.** Store for Phase 1. Subsequent phases re-capture to
    include fixes from earlier phases.
 

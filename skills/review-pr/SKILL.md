@@ -63,8 +63,12 @@ constraint: no reproduction tests (see Phase-Specific Notes).
 2. **Extract repo + PR number.** Parse from URL if needed, or use current repo
    (`gh repo view --json owner,name`).
 3. **Check prerequisites.** Verify `gh` and `gh pr-review` are installed (see
-   Command Reference). If either is missing, ask user whether to install. If
-   user declines, abort.
+   Command Reference). If either is missing, `AskUserQuestion` (header: "Install prerequisites"):
+
+   | Option label | Description |
+   |---|---|
+   | Install | Install the missing tool(s) automatically |
+   | Abort | Cancel the review |
 4. **Fetch PR metadata.**
    `gh pr view <N> --json title,body,baseRefName,headRefName,files,additions,deletions`
 5. **Fetch target branch (read-only).** Use `git fetch origin <baseRefName>` to
@@ -72,14 +76,28 @@ constraint: no reproduction tests (see Phase-Specific Notes).
    `git checkout` or `git switch` to the target branch — use `git show
    origin/<baseRefName>:<path>` to read individual files for context.
 6. **Fetch PR diff.** `gh pr diff <N>` to get the full diff.
-7. **Fetch spec/context.** Ask user for spec reference, design doc, or issue
-   link. Allow "skip" -- reviewers infer intent from PR title/body/commits.
-8. **Choose mode.** Ask user: Read-only (default) or Local build.
+7. **Fetch spec/context.** `AskUserQuestion` (header: "Spec reference"):
+
+   | Option label | Description |
+   |---|---|
+   | Provide reference | User enters a spec, design doc, or issue link |
+   | Skip | Reviewers infer intent from PR title/body/commits |
+
+8. **Choose mode.** `AskUserQuestion` (header: "Review mode"):
+
+   | Option label | Description |
+   |---|---|
+   | Read-only | Static analysis only -- no checkout or test execution (default) |
+   | Local build | Checkout PR branch, run tests, full bug-hunting pipeline |
 9. **If local build:** checkout PR branch (`gh pr checkout <N>`) and pull latest
    changes (`git pull`). `gh pr checkout` does not update an existing local
    branch -- the explicit pull ensures the code is current. Then run existing
-   test suite. If tests fail, report to user and ask whether to continue or
-   abort.
+   test suite. If tests fail, report failures and `AskUserQuestion` (header: "Tests failing"):
+
+   | Option label | Description |
+   |---|---|
+   | Continue | Proceed with review despite test failures |
+   | Abort | Cancel the review |
 
 ## Phases 1-5: Parallel Review
 
@@ -148,10 +166,10 @@ After all subagents return:
 ## User Validation Gate
 
 Present consolidated findings as a numbered list grouped by severity
-(Critical/HIGH first, then Important/MEDIUM, then Minor/LOW). Then ask the user:
+(Critical/HIGH first, then Important/MEDIUM, then Minor/LOW). Then `AskUserQuestion` (header: "Post findings"):
 
-| Option | Description |
-|--------|-------------|
+| Option label | Description |
+|---|---|
 | Post all | Post all findings as PR inline comments |
 | Edit list | User specifies which findings to remove or modify |
 | Cancel | Don't post anything |
