@@ -39,6 +39,20 @@ calls.
 | **Read-only** (default) | Analysis from diff, `gh api`, and optional `git fetch`/`git show` for remote file context; no checkout, no builds | Concern tracking file only |
 | **Local checkout** | `git fetch` + checkout PR branch for full file context | Concern tracking file only |
 
+## Checklist
+
+1. **Get PR and metadata** -- accept PR number/URL, fetch metadata + diff, present overview.
+2. **Ask for spec reference** -- optional design doc or issue link for context.
+3. **Choose review mode** -- read-only (default) or local checkout.
+4. **Pre-analyze PR** -- dispatch subagent with full diff for structured analysis.
+5. **Present summary & checklist** -- big-picture summary + numbered change units in review order.
+6. **Start walkthrough** -- reviewer confirms start or jumps to specific item.
+7. **Walk through each item** -- show diff, explain, highlight (FYI/Risk/Nit), pause for review.
+   Per-item loop: looks good, raise concern, ask question, or done reviewing.
+8. **Present final summary** -- items reviewed, concerns by severity, blocking issues.
+9. **Choose posting option** -- inline comments, single comment, or skip. **HARD GATE.**
+10. **Done** -- report concern file path and PR link (if posted).
+
 ## Phase 0: Setup
 
 1. **Get PR.** Accept PR number, URL, or detect from current branch. If not
