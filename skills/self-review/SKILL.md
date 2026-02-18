@@ -55,36 +55,34 @@ external code review is still required before merge.
 
 ### Architecture
 
-```
-Phase 0 (Setup)
-    |
-    v
-+-- Wave 1: Parallel Review --------+
-| Phase 1  Phase 2  Phase 3  Phase 4 |
-| (spec)   (quality)(tests)  (bugs)  |
-+---------+---------+---------+------+
-          |
-          v
-    Deduplicate findings
-          |
-          v
-    Consolidated fix cycle
-    (one engineer, one pass)
-          |
-          v
-    Re-review once
-          |
-          v
-+-- Wave 2 -------------------------+
-| Phase 5 (Comprehensive Review)     |
-| (receives prior findings summary)  |
-+-----------------------------------+
-          |
-          v
-    Fix cycle (standard)
-          |
-          v
-    Self-Review Report (PASS/FAIL)
+```dot
+digraph self_review {
+    "Phase 0 (Setup)" [shape=box];
+    "Phase 1 (Spec)" [shape=box];
+    "Phase 2 (Quality)" [shape=box];
+    "Phase 3 (Tests)" [shape=box];
+    "Phase 4 (Bugs)" [shape=box];
+    "Deduplicate findings" [shape=box];
+    "Consolidated fix cycle" [shape=box];
+    "Re-review once" [shape=box];
+    "Phase 5 (Comprehensive Review)" [shape=box];
+    "Fix cycle (standard)" [shape=box];
+    "Self-Review Report (PASS/FAIL)" [shape=doublecircle];
+
+    "Phase 0 (Setup)" -> "Phase 1 (Spec)" [label="Wave 1"];
+    "Phase 0 (Setup)" -> "Phase 2 (Quality)" [label="Wave 1"];
+    "Phase 0 (Setup)" -> "Phase 3 (Tests)" [label="Wave 1"];
+    "Phase 0 (Setup)" -> "Phase 4 (Bugs)" [label="Wave 1"];
+    "Phase 1 (Spec)" -> "Deduplicate findings";
+    "Phase 2 (Quality)" -> "Deduplicate findings";
+    "Phase 3 (Tests)" -> "Deduplicate findings";
+    "Phase 4 (Bugs)" -> "Deduplicate findings";
+    "Deduplicate findings" -> "Consolidated fix cycle";
+    "Consolidated fix cycle" -> "Re-review once";
+    "Re-review once" -> "Phase 5 (Comprehensive Review)" [label="Wave 2"];
+    "Phase 5 (Comprehensive Review)" -> "Fix cycle (standard)";
+    "Fix cycle (standard)" -> "Self-Review Report (PASS/FAIL)";
+}
 ```
 
 ### Phases
@@ -132,7 +130,8 @@ After all Wave 1 subagents return:
 
 1. **Group by file:line.** If multiple phases flagged the same file:line, merge
    into a single finding. Keep the highest severity. Combine descriptions,
-   preserving phase prefixes (e.g., `[SC-1]` + `[CQ-3]`).
+   preserving phase prefixes (e.g., merging `[SC-1]` and `[CQ-3]` into
+   `[SC-1/CQ-3]`).
 2. **Detect overlapping descriptions.** If two findings on nearby lines (within
    5 lines) describe the same issue, merge them.
 3. **Sort.** Group by file, then by line number within each file.
