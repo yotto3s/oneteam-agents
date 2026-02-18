@@ -5,11 +5,29 @@ in the self-review orchestrator's review-fix-re-review cycle. Choose
 senior-engineer for Critical/Important/HIGH/MEDIUM findings, junior-engineer
 for Minor/LOW findings.
 
+**Wave 1 (Phases 1–4 consolidated fix):** findings from multiple phases are
+merged into a single dispatch. The `[PHASE_NAMES]` placeholder will list all
+contributing phases (e.g., "Spec Compliance, Code Quality") and findings may
+carry mixed prefixes (e.g., SC-1/CQ-3).
+
+**Wave 2 (Phase 5 only):** findings come from the Comprehensive Review phase
+alone. `[PHASE_NAMES]` will be "Comprehensive Review" and prefixes will be CR-.
+
 ~~~
 Task tool (senior-engineer | junior-engineer):
-  description: "Fix [PHASE_NAME] review findings"
+  description: "Fix [PHASE_NAMES] review findings"
   prompt: |
-    You are fixing review findings from **[PHASE_NAME]**.
+    You are fixing review findings from **[PHASE_NAMES]**.
+
+    These findings may come from one or more review phases. Each finding is
+    identified by a prefix that indicates its origin phase (e.g., SC- for
+    Spec Compliance, CQ- for Code Quality, TC- for Test Comprehensiveness,
+    F for Bug Hunting, CR- for Comprehensive Review). Fix all findings
+    regardless of which phase they came from.
+
+    Some findings may have been merged during deduplication and carry
+    multiple prefixes (e.g., SC-1/CQ-3). Treat each merged finding as a
+    single issue.
 
     ## Inputs
 
