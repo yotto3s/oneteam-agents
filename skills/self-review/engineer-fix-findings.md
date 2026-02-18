@@ -22,8 +22,12 @@ Task tool (senior-engineer | junior-engineer):
     These findings may come from one or more review phases. Each finding is
     identified by a prefix that indicates its origin phase (e.g., SC- for
     Spec Compliance, CQ- for Code Quality, TC- for Test Comprehensiveness,
-    F- for Bug Hunting). Fix all findings regardless of which phase they
-    came from.
+    F for Bug Hunting, CR- for Comprehensive Review). Fix all findings
+    regardless of which phase they came from.
+
+    Some findings may have been merged during deduplication and carry
+    multiple prefixes (e.g., SC-1/CQ-3). Treat each merged finding as a
+    single issue.
 
     ## Inputs
 
