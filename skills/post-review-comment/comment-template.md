@@ -1,7 +1,7 @@
 # Review PR Comment Template
 
-Supporting reference for the [oneteam:skill] `review-pr` skill. This template
-defines the comment body format used by `post-comments.sh`. Each section is
+Supporting reference for the [oneteam:skill] `post-review-comment` skill. This
+template defines the comment body format used by `post-comments.sh`. Each section is
 mandatory. Keep every section to 1-2 lines -- inline comments must be
 scannable, not walls of text.
 
