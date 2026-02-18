@@ -1,12 +1,12 @@
 ---
-name: review-companion
+name: review-navi
 description: >-
   Use when a human reviewer wants AI-assisted walkthrough of a GitHub PR,
   to understand changes before providing feedback, or when reviewing a large
   or complex PR with AI assistance while the human drives the review.
 ---
 
-# Review Companion
+# Review Navi
 
 ## Overview
 
@@ -16,7 +16,7 @@ checklist, then walks through each change with explanations and categorized high
 — pausing for discussion at every stop.
 
 **Key difference from `review-pr`:** `review-pr` automates the review (AI finds
-issues, posts comments). `review-companion` assists a human reviewer — it
+issues, posts comments). `review-navi` assists a human reviewer — it
 explains, highlights, and tracks concerns while the human makes the judgment
 calls.
 
@@ -57,7 +57,7 @@ calls.
 ## Process Flow
 
 ```dot
-digraph review_companion {
+digraph review-navi {
     // Phase 0: Setup
     "Get PR + metadata" [shape=box];
     "Ask for spec reference" [shape=box];
