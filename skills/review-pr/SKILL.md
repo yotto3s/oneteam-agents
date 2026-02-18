@@ -194,6 +194,26 @@ Use the `gh-pr-review` commands from the Command Reference below:
 review in one step. It handles shell escaping by writing each comment body to a
 temp file. See `./post-comments.sh` for input format and usage.
 
+### Line Number Calculation
+
+The `line` field in inline comments refers to the line number in the **new file
+version** (right side of the diff). To derive it from a unified diff hunk:
+
+1. Read the hunk header: `@@ -old,count +new,count @@`. The `new` value is the
+   starting line number for the new file.
+2. The **first line** in the hunk body (immediately after the `@@` header)
+   corresponds to that starting line number.
+3. Count forward: context lines (` `) and added lines (`+`) each consume one
+   new-file line number. Removed lines (`-`) do **not** consume a new-file line
+   number -- skip them.
+4. **Verify** the target line before posting: run
+   `git show <PR-HEAD>:<path> | sed -n '<line>p'` and confirm the content
+   matches the intended target.
+
+Common off-by-one cause: miscounting leading context lines (e.g., counting a
+blank context line twice or counting the hunk header itself as a line). Always
+start counting from the `+new` value in the hunk header.
+
 ## Command Reference
 
 ### Prerequisite Checks
@@ -314,6 +334,7 @@ gh pr-review threads resolve --thread-id <PRRT_...> -R <owner/repo> <PR#>
 | Sending subagents in read-only mode without read-only instructions | Every subagent in read-only mode MUST be explicitly told the read-only constraints at dispatch |
 | Guessing gh-pr-review syntax | Use the Command Reference -- don't improvise CLI flags |
 | Passing comment body directly in `--body` quotes | Use `post-comments.sh` or write body to temp file and use `--body "$(cat file)"` |
+| Off-by-one line numbers in inline comments | Derive line numbers from the `+new` value in the hunk header; verify with `git show <HEAD>:<path> \| sed -n '<line>p'` before posting |
 
 ## Constraints
 
