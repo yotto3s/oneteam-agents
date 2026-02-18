@@ -144,8 +144,21 @@ For each checklist item, in order:
 
 1. **Show the diff** — Present the relevant diff hunk(s), syntax highlighted.
 2. **Explain** — What changed and why (from pre-analysis).
-3. **Highlight risks** — Flag potential issues with severity (bugs, edge cases,
-   security, style).
+3. **Highlight notes** — Present categorized highlights from pre-analysis in
+   fixed order (FYI, then Risk, then Nit). Omit empty categories.
+
+   ```
+   Highlights: 1 FYI · 1 Risk · 1 Nit
+
+   **FYI:**
+   - The `async` wrapper looks redundant but is needed for the retry middleware.
+
+   **Risk:**
+   - No null check on `user.email` — will throw if OAuth provider omits it.
+
+   **Nit:**
+   - Parameter `d` could be more descriptive (e.g., `duration`).
+   ```
 4. **Pause for review** — `AskUserQuestion` (header: "Review"):
 
    | Option label | Description |
@@ -286,7 +299,7 @@ For manual posting commands, see [oneteam:skill] `review-pr` Command Reference.
 | 0. Setup | Get PR, fetch metadata + diff, choose mode | PR overview + mode selection |
 | 1. Pre-Analysis | Dispatch subagent to analyze full diff | Structured analysis document |
 | 2. Summary & Checklist | Present big-picture summary + numbered checklist | Checklist with risk levels |
-| 3. Interactive Walkthrough | Per-item: show diff, explain, highlight risks, structured pause (loops) | Concern file + reviewed checklist |
+| 3. Interactive Walkthrough | Per-item: show diff, explain, highlight notes (FYI/Risk/Nit), structured pause (loops) | Concern file + reviewed checklist |
 | 4. Completion | Final summary, posting options, hard gate | Posted review or local concern file |
 
 ## Common Mistakes
