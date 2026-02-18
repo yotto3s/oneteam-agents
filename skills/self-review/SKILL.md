@@ -36,6 +36,7 @@ external code review is still required before merge.
    | `<detected-branch>` | Use the detected base branch (recommended) |
    | Other branch | User types the target branch name |
 
+   If "Other branch": ask for the branch name.
    Default diff: `git diff <base-branch>...HEAD`
 2. **Spec reference.** Use caller-provided spec/design doc/issue link. If not
    provided, `AskUserQuestion` (header: "Spec reference"):
@@ -44,6 +45,8 @@ external code review is still required before merge.
    |---|---|
    | Provide reference | User enters a spec, design doc, or issue link |
    | Skip | Infer intent from commits in Phase 1 |
+
+   If "Provide reference": ask for the spec, design doc, or issue link.
 3. **Capture initial diff.** Store for Phase 1. Subsequent phases re-capture to
    include fixes from earlier phases.
 

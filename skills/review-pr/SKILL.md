@@ -83,6 +83,8 @@ constraint: no reproduction tests (see Phase-Specific Notes).
    | Provide reference | User enters a spec, design doc, or issue link |
    | Skip | Reviewers infer intent from PR title/body/commits |
 
+   If "Provide reference": ask for the spec, design doc, or issue link.
+
 8. **Choose mode.** `AskUserQuestion` (header: "Review mode"):
 
    | Option label | Description |
@@ -174,8 +176,8 @@ Present consolidated findings as a numbered list grouped by severity
 | Edit list | User specifies which findings to remove or modify |
 | Cancel | Don't post anything |
 
-If "Edit list": user provides changes, re-present, and ask again. Repeat until
-approved.
+If "Edit list": user provides changes, re-present `AskUserQuestion`, and repeat
+until approved.
 
 **HARD GATE:** Do NOT post any findings to the PR without explicit user approval.
 

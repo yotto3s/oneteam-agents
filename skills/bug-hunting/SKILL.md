@@ -37,6 +37,8 @@ Identify every changed file, function, and module in scope. Map the blast radius
 | File paths | User provides specific file paths to analyze |
 | Module or directory | User provides a module name or directory path |
 
+After the user selects a scope type, collect the specific value(s) (e.g., PR numbers, file paths, or directory) and proceed with scope definition.
+
 ### Phase 2: Contract Inventory
 
 For EACH function/module in scope, enumerate in writing:
