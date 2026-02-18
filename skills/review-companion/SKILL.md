@@ -148,8 +148,8 @@ For each checklist item, in order:
    | Option label | Description |
    |---|---|
    | Looks good | Mark item as reviewed and advance to next item |
-   | Raise concern | Log a concern for this change |
-   | Ask question | Ask a question about this code |
+   | Raise concern | Log a concern for this change (prompts for details) |
+   | Ask question | Ask a question about this code (prompts for details) |
    | Done reviewing | End walkthrough early, go to completion |
 
    **Behavior:**
@@ -168,7 +168,7 @@ For each checklist item, in order:
    The pause **loops** until the reviewer selects "Looks good" or "Done
    reviewing."
 
-5. **Show updated checklist** — Mark item as reviewed, display progress:
+5. **Show updated checklist** — Display progress:
    `[3/7 reviewed] Next: middleware/auth.ts (HIGH risk)`
 
 ### Concern File Format
