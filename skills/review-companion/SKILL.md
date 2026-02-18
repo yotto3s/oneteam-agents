@@ -114,11 +114,18 @@ review order:
 - [ ] 4. `tests/auth.test.ts` -- Test coverage (LOW risk)
 
 Cross-cutting: JWT secret handling spans middleware and routes.
-
-Ready to start the walkthrough?
 ```
 
-**HARD GATE:** Wait for the reviewer to confirm before starting the walkthrough.
+**HARD GATE:** `AskUserQuestion` (header: "Walkthrough"):
+
+| Option label | Description |
+|---|---|
+| Start walkthrough | Begin reviewing items in the recommended order |
+| Jump to item | Start at a specific item number (reviewer enters number) |
+
+Wait for the reviewer to confirm before starting the walkthrough. If "Jump to
+item": the reviewer enters an item number and the walkthrough begins at that
+item.
 
 ## Phase 3: Interactive Walkthrough
 
