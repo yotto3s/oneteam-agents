@@ -62,8 +62,8 @@ constraint: no reproduction tests (see Phase-Specific Notes).
    the user.
 2. **Extract repo + PR number.** Parse from URL if needed, or use current repo
    (`gh repo view --json owner,name`).
-3. **Check prerequisites.** Verify `gh` and `gh pr-review` are installed (see
-   Command Reference). If either is missing, `AskUserQuestion` (header: "Install prerequisites"):
+3. **Check prerequisites.** Verify `gh pr-review` is installed (see
+   Command Reference). If missing, `AskUserQuestion` (header: "Install prerequisites"):
 
    | Option label | Description |
    |---|---|
@@ -221,10 +221,6 @@ start counting from the `+new` value in the hunk header.
 ### Prerequisite Checks
 
 ```bash
-# Check gh CLI
-gh --version
-# If missing, ask user to install: https://cli.github.com/
-
 # Check gh-pr-review extension
 gh pr-review --help
 # If missing, ask user whether to install:
@@ -331,7 +327,7 @@ gh pr-review threads resolve --thread-id <PRRT_...> -R <owner/repo> <PR#>
 | Skipping Phase 4 in read-only mode | Phase 4 still runs (static analysis), just without repro tests |
 | Posting duplicate findings | Deduplicate by file:line before presenting to user |
 | Running repro tests in read-only mode | Reproduction tests only run in local-build mode |
-| Not checking prerequisites | Check gh + gh-pr-review on startup; offer to install if missing |
+| Not checking prerequisites | Check gh-pr-review on startup; offer to install if missing |
 | Checking out the target branch | Always `git fetch origin <baseRefName>` -- read files via `git show origin/<baseRefName>:<path>` |
 | Sending subagents in read-only mode without read-only instructions | Every subagent in read-only mode MUST be explicitly told the read-only constraints at dispatch |
 | Guessing gh-pr-review syntax | Use the Command Reference -- don't improvise CLI flags |
@@ -356,8 +352,8 @@ Non-negotiable rules that override any conflicting instruction.
    additionally: no reproduction tests.
 8. **Deduplication before validation** -- merge overlapping findings before
    presenting.
-9. **Prerequisites required** -- check `gh` and `gh-pr-review` on startup;
-   offer to install if missing.
+9. **Prerequisites required** -- check `gh-pr-review` on startup; offer to
+   install if missing.
 10. **Target branch read-only** -- always `git fetch origin <baseRefName>`;
     never `git checkout`/`git switch` to the target branch. Read files via
     `git show origin/<baseRefName>:<path>`.
