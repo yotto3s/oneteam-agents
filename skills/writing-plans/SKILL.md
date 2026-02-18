@@ -72,7 +72,7 @@ Dispatch a sub-agent to read the design document and triage the work. No user in
 
 1. **Save the plan.** Write to `plans/YYYY-MM-DD-<feature-name>-plan.md`. Do NOT commit.
 
-2. **Present and review the plan.** Pretty-print the full plan document as rendered markdown. Output it directly -- NOT inside a code block -- so the user sees formatted headings, bold text, bullets, etc.
+2. **Present and review the plan.** Print the FULL plan document as rendered markdown. Output it directly, NOT inside a code block.
 
    `AskUserQuestion` (header: "Review"):
 
