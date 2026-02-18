@@ -81,8 +81,11 @@ subagent produces a structured analysis containing:
    - A group of related files (e.g., handler + test + type definition)
 3. **Per-unit analysis:**
    - What changed and why (intent)
-   - Risk flags: potential bugs, edge cases, missing error handling, security
-     concerns, style issues
+   - Highlight notes (classify each into exactly one category):
+     - **FYI** — Looks unclear at first but is actually fine; preemptive context
+       (e.g., unusual pattern that's intentional, seemingly redundant code that's needed)
+     - **Risk** — Potential bugs, edge cases, missing error handling, security concerns
+     - **Nit** — Minor style/naming/comment polish
    - Complexity: LOW / MEDIUM / HIGH
    - Related context: affected callers, tests, or types
 4. **Cross-cutting concerns** — Things spanning multiple units (API contract
