@@ -1,1 +1,1 @@
-../review-pr/comment-template.md
+../post-review-comment/comment-template.md

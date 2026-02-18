@@ -285,12 +285,8 @@ git pull  # gh pr checkout does not update an existing local branch
 
 ### Posting Review
 
-```bash
-# Post all comments + submit review in one step (recommended)
-./post-comments.sh <input.json>
-```
-
-For manual posting commands, see [oneteam:skill] `review-pr` Command Reference.
+For inline comments, use [oneteam:skill] `post-review-comment`. See that skill
+for JSON format, line number calculation, and posting commands.
 
 ## Quick Reference
 
@@ -333,7 +329,7 @@ Non-negotiable rules that override any conflicting instruction.
    concerns, ask questions, or advance.
 6. **Concern file always persists locally** -- regardless of posting choice, the
    concern file stays on disk.
-7. **Reuse `review-pr` posting infrastructure** -- post via symlinked
-   `post-comments.sh` and `comment-template.md`.
+7. **Reuse posting infrastructure** -- post via [oneteam:skill] `post-review-comment`
+   (symlinked `post-comments.sh` and `comment-template.md`).
 8. **Pre-analyze before walkthrough** -- always dispatch the subagent in Phase 1
    before presenting the checklist or starting the walkthrough.

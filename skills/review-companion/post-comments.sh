@@ -1,1 +1,1 @@
-../review-pr/post-comments.sh
+../post-review-comment/post-comments.sh
