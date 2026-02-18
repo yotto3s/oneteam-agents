@@ -185,6 +185,10 @@ until approved.
 
 **Invoke [oneteam:skill] `post-review-comment`** to post approved findings as inline
 PR comments.
+**NOTE** Attach code sugesstions for trivial fixes like below
+```suggestion
+fixed_code();
+```
 
 ## Command Reference
 
