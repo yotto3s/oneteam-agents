@@ -121,11 +121,10 @@ Cross-cutting: JWT secret handling spans middleware and routes.
 | Option label | Description |
 |---|---|
 | Start walkthrough | Begin reviewing items in the recommended order |
-| Jump to item | Start at a specific item number (reviewer enters number) |
+| Jump to item | Skip ahead to a specific checklist item |
 
 Wait for the reviewer to confirm before starting the walkthrough. If "Jump to
-item": the reviewer enters an item number and the walkthrough begins at that
-item.
+item": ask for the item number; the walkthrough begins at that item.
 
 ## Phase 3: Interactive Walkthrough
 
@@ -293,7 +292,7 @@ For manual posting commands, see [oneteam:skill] `review-pr` Command Reference.
 | Skipping checklist items silently | Every item must be presented; reviewer can say "done" to exit early |
 | Writing files in read-only mode | Only the concern tracking file is written; no other file writes |
 | Skipping pre-analysis and going straight to walkthrough | Always run Phase 1 before presenting the checklist |
-| Starting walkthrough without reviewer confirmation | Hard gate after Phase 2 -- wait for "ready" before walking through items |
+| Starting walkthrough without reviewer confirmation | Hard gate after Phase 2 -- wait for the reviewer to select a walkthrough option |
 | Not tracking concerns in the file | Append every concern raised during discussion to the concern file |
 | Posting without checking prerequisites | Check `gh pr-review` (inline) or `gh` (single comment) before attempting to post |
 
