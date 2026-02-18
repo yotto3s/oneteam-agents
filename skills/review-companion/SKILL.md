@@ -143,25 +143,33 @@ For each checklist item, in order:
 2. **Explain** — What changed and why (from pre-analysis).
 3. **Highlight risks** — Flag potential issues with severity (bugs, edge cases,
    security, style).
-4. **Pause for discussion** — Wait for the reviewer's input:
-   - Ask questions about the code
-   - Raise concerns — append each to the concern file with file:line (or
-     file-level if no specific line), description, severity
-   - "looks good" / "ok" — done discussing this item
-   - If the reviewer does not respond, gently re-prompt: summarize the item
-     and ask if they have questions or want to move on
-5. **Show updated checklist** — Mark item as reviewed, display progress.
-6. **Pause for navigation** — Wait for direction:
-   - **"next"** — proceed to next item
-   - **"jump N"** — jump to item N
-   - **"done"** — end walkthrough early, go to Phase 4
-   - If no response or unclear, re-prompt with the available navigation
-     options
+4. **Pause for review** — `AskUserQuestion` (header: "Review"):
 
-**Two pauses per item** — discussion pause (step 4), then navigation pause
-(step 6). Never combine into a single pause. These pauses are free-form
-conversation points — the reviewer drives the discussion naturally rather than
-selecting from structured options.
+   | Option label | Description |
+   |---|---|
+   | Looks good | Mark item as reviewed and advance to next item |
+   | Raise concern | Log a concern for this change |
+   | Ask question | Ask a question about this code |
+   | Done reviewing | End walkthrough early, go to completion |
+
+   **Behavior:**
+   - **"Looks good"** — Mark item reviewed, show progress (step 5), auto-advance
+     to next item.
+   - **"Raise concern"** — Reviewer describes concern via the built-in "Other"
+     text field. Append to concern file with file:line, description, severity.
+     Then re-show the same `AskUserQuestion` so the reviewer can raise more
+     concerns, ask questions, or advance.
+   - **"Ask question"** — Reviewer asks via "Other" text field. Answer the
+     question. Then re-show the `AskUserQuestion`.
+   - **"Done reviewing"** — End walkthrough early, proceed to Phase 4 completion.
+   - **Jump to item** — Available via built-in "Other" (reviewer types "jump 3"
+     or similar).
+
+   The pause **loops** until the reviewer selects "Looks good" or "Done
+   reviewing."
+
+5. **Show updated checklist** — Mark item as reviewed, display progress:
+   `[3/7 reviewed] Next: middleware/auth.ts (HIGH risk)`
 
 ### Concern File Format
 
@@ -188,10 +196,6 @@ If the reviewer asks about something the pre-analysis does not cover (e.g.,
 - **Read-only mode:** Read relevant code via `gh api` or
   `git show origin/<baseRefName>:<path>`
 - **Local checkout:** Read local files directly
-
-### Progress Tracking
-
-After each item: `[3/7 reviewed] Next: middleware/auth.ts (HIGH risk)`
 
 ## Phase 4: Completion
 
@@ -279,14 +283,14 @@ For manual posting commands, see [oneteam:skill] `review-pr` Command Reference.
 | 0. Setup | Get PR, fetch metadata + diff, choose mode | PR overview + mode selection |
 | 1. Pre-Analysis | Dispatch subagent to analyze full diff | Structured analysis document |
 | 2. Summary & Checklist | Present big-picture summary + numbered checklist | Checklist with risk levels |
-| 3. Interactive Walkthrough | Per-item: show diff, explain, highlight risks, pause twice | Concern file + reviewed checklist |
+| 3. Interactive Walkthrough | Per-item: show diff, explain, highlight risks, looping AskUserQuestion | Concern file + reviewed checklist |
 | 4. Completion | Final summary, posting options, hard gate | Posted review or local concern file |
 
 ## Common Mistakes
 
 | Mistake | Fix |
 |---------|-----|
-| Combining discussion and navigation pauses | Always two separate pauses per item -- discussion first, then navigation |
+| Advancing past an item without waiting for "Looks good" or "Done reviewing" | The AskUserQuestion loops -- stay on the current item until the reviewer explicitly advances |
 | Posting without reviewer approval | Hard gate -- always ask before posting anything to the PR |
 | Submitting as APPROVE or REQUEST_CHANGES | Always COMMENT -- the human reviewer makes the verdict |
 | Skipping checklist items silently | Every item must be presented; reviewer can say "done" to exit early |
@@ -308,8 +312,9 @@ Non-negotiable rules that override any conflicting instruction.
 4. **Every change unit must be covered** -- no skipping items in the checklist.
    The reviewer can say "done" to exit early, but items are never silently
    skipped.
-5. **Two pauses per item** -- discussion pause, then navigation pause. Never
-   combine into a single pause.
+5. **Looping pause per item** -- the `AskUserQuestion` in step 4 loops until
+   the reviewer selects "Looks good" or "Done reviewing". Never auto-advance
+   without explicit reviewer action.
 6. **Concern file always persists locally** -- regardless of posting choice, the
    concern file stays on disk.
 7. **Reuse `review-pr` posting infrastructure** -- post via symlinked
