@@ -367,16 +367,6 @@ git pull  # gh pr checkout does not update an existing local branch
 For inline comments, **Invoke [oneteam:skill] `post-review-comment`**. See that skill
 for JSON format, line number calculation, and posting commands.
 
-## Quick Reference
-
-| Phase | Key Action | Output |
-|-------|-----------|--------|
-| 0. Setup | Get PR, fetch metadata + diff, choose mode | PR overview + mode selection |
-| 1. Pre-Analysis | Dispatch subagent to analyze full diff | Structured analysis document |
-| 2. Summary & Checklist | Present big-picture summary + numbered checklist | Checklist with risk levels |
-| 3. Interactive Walkthrough | Per-item: show diff, explain, highlight notes (FYI/Risk/Nit), structured pause (loops) | Concern file + reviewed checklist |
-| 4. Completion | Final summary, posting options, hard gate | Posted review or local concern file |
-
 ## Common Mistakes
 
 | Mistake | Fix |
