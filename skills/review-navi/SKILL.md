@@ -47,7 +47,7 @@ calls.
 4. **Pre-analyze PR** -- dispatch subagent with full diff for structured analysis.
 5. **Present summary & checklist** -- big-picture summary + numbered change units in review order.
 6. **Start walkthrough** -- reviewer confirms start or jumps to specific item.
-7. **Walk through each item** -- show diff, explain, highlight (FYI/Risk/Nit), pause for review.
+7. **Walk through each item** -- show diff, explain, highlight (FYI/Risk/Principle/Nit), pause for review.
    Per-item loop: looks good, raise concern, ask question, or done reviewing.
 8. **Present final summary** -- items reviewed, concerns by severity, blocking issues.
 9. **Choose posting option** -- inline comments, single comment, or skip. **HARD GATE.**
@@ -165,6 +165,13 @@ subagent produces a structured analysis containing:
      - **FYI** — Looks unclear at first but is actually fine; preemptive context
        (e.g., unusual pattern that's intentional, seemingly redundant code that's needed)
      - **Risk** — Potential bugs, edge cases, missing error handling, security concerns
+     - **Principle** — Software engineering principle violations:
+       - **DRY** — Duplicated logic introduced by the diff
+       - **SRP** — Function/class/module doing too many things or mixing unrelated responsibilities
+       - **Naming** — Inconsistent or unclear names relative to surrounding code
+         (isolated style suggestions like "rename `d` to `duration`" belong in Nit;
+         use Principle for systematic naming inconsistencies across the codebase)
+       - **Dead code** — Unreachable code or unused imports introduced by the diff
      - **Nit** — Minor style/naming/comment polish
    - Complexity: LOW / MEDIUM / HIGH
    - Related context: affected callers, tests, or types
@@ -222,19 +229,41 @@ This file persists locally regardless of posting choice.
 
 For each checklist item, in order:
 
-1. **Show the diff** — Present the relevant diff hunk(s), syntax highlighted.
+1. **Show the diff** — Present the relevant diff hunk(s) as markdown fenced
+   code blocks with the `diff` language tag. This renders unified diff format
+   with `+`/`-` line coloring:
+
+   ````
+   ```diff
+   @@ -12,6 +12,8 @@ function authenticate(token) {
+    const decoded = jwt.verify(token, SECRET);
+   -  return decoded;
+   +  if (!decoded.exp || decoded.exp < Date.now() / 1000) {
+   +    throw new TokenExpiredError('Token has expired');
+   +  }
+   +  return decoded;
+    }
+   ```
+   ````
+
+   Show only the hunks relevant to the current change unit — do not dump the
+   entire PR diff. If a change unit spans multiple files, show each file's
+   hunks under a file path header.
 2. **Explain** — What changed and why (from pre-analysis).
 3. **Highlight notes** — Present categorized highlights from pre-analysis in
-   fixed order (FYI, then Risk, then Nit). Omit empty categories.
+   fixed order (FYI, then Risk, then Principle, then Nit). Omit empty categories.
 
    ```
-   Highlights: 1 FYI · 1 Risk · 1 Nit
+   Highlights: 1 FYI · 1 Risk · 1 Principle · 1 Nit
 
    **FYI:**
    - The `async` wrapper looks redundant but is needed for the retry middleware.
 
    **Risk:**
    - No null check on `user.email` — will throw if OAuth provider omits it.
+
+   **Principle:**
+   - [DRY] Token validation logic duplicates `validateToken()` in `auth-utils.ts`.
 
    **Nit:**
    - Parameter `d` could be more descriptive (e.g., `duration`).
