@@ -54,7 +54,7 @@ Mark Pass or Fail per criterion with specific issues noted.
 
 ## Phase 4: Issue Identification
 
-Beyond the quality checklist, identify:
+Beyond the quality TaskList, identify:
 
 - **Ambiguities** -- statements interpretable multiple ways
 - **Missing edge cases** -- empty input, errors, concurrency, boundaries, unexpected types

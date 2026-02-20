@@ -12,7 +12,7 @@ description: >-
 
 A 5-phase interactive skill that helps human reviewers understand and navigate
 GitHub pull requests. It pre-analyzes the entire PR, presents a summary and
-checklist, then walks through each change with explanations and categorized highlights
+TaskList, then walks through each change with explanations and categorized highlights
 — pausing for discussion at every stop.
 
 **Key difference from `review-pr`:** `review-pr` automates the review (AI finds
@@ -39,13 +39,13 @@ calls.
 | **Read-only** (default) | Analysis from diff, `gh api`, and optional `git fetch`/`git show` for remote file context; no checkout, no builds | Concern tracking file only |
 | **Local checkout** | `git fetch` + checkout PR branch for full file context | Concern tracking file only |
 
-## Checklist
+## TaskList
 
 1. **Get PR and metadata** -- accept PR number/URL, fetch metadata + diff, present overview.
 2. **Ask for spec reference** -- optional design doc or issue link for context.
 3. **Choose review mode** -- read-only (default) or local checkout.
 4. **Pre-analyze PR** -- dispatch subagent with full diff for structured analysis.
-5. **Present summary & checklist** -- big-picture summary + numbered change units in review order.
+5. **Present summary & TaskList** -- big-picture summary + numbered change units in review order.
 6. **Start walkthrough** -- reviewer confirms start or jumps to specific item.
 7. **Walk through each item** -- show diff, explain, highlight (FYI/Risk/Principle/Nit), pause for review.
    Per-item loop: looks good, raise concern, ask question, or done reviewing.
@@ -67,8 +67,8 @@ digraph review-navi {
     // Phase 1: Pre-Analysis
     "Dispatch pre-analysis subagent" [shape=box];
 
-    // Phase 2: Summary & Checklist
-    "Present summary & checklist" [shape=box];
+    // Phase 2: Summary & TaskList
+    "Present summary & TaskList" [shape=box];
     "Start walkthrough?" [shape=diamond];
 
     // Phase 3: Interactive Walkthrough
@@ -93,10 +93,10 @@ digraph review-navi {
     "Checkout PR branch" -> "Dispatch pre-analysis subagent";
 
     // Phase 1 -> Phase 2
-    "Dispatch pre-analysis subagent" -> "Present summary & checklist";
+    "Dispatch pre-analysis subagent" -> "Present summary & TaskList";
 
     // Phase 2 -> Phase 3
-    "Present summary & checklist" -> "Start walkthrough?";
+    "Present summary & TaskList" -> "Start walkthrough?";
     "Start walkthrough?" -> "Show item diff + explain + highlights" [label="start or jump"];
 
     // Phase 3: per-item loop
@@ -183,21 +183,21 @@ subagent produces a structured analysis containing:
 The analysis is stored in-session (not written to disk). Neither mode writes
 the analysis to disk — only the concern tracking file is written.
 
-## Phase 2: Summary & Checklist
+## Phase 2: Summary & TaskList
 
 Present to the reviewer:
 
 **Big-picture summary** — 2-3 sentence overview of what the PR accomplishes.
 
-**Change checklist** — All change units in recommended review order, formatted
-as a markdown checklist (`- [ ]`):
+**Change TaskList** — All change units in recommended review order, formatted
+as a markdown check list (`- [ ]`):
 
 ```
 ## PR #42: Add user authentication
 
 **Summary:** Adds JWT-based auth with login/logout endpoints, middleware, and tests.
 
-### Review Checklist
+### Review TaskList
 - [ ] 1. `types/auth.ts` -- New auth types (LOW risk)
 - [ ] 2. `middleware/auth.ts` -- JWT verification middleware (HIGH risk)
 - [ ] 3. `routes/login.ts` + `routes/logout.ts` -- Auth endpoints (MEDIUM risk)
@@ -211,7 +211,7 @@ Cross-cutting: JWT secret handling spans middleware and routes.
 | Option label | Description |
 |---|---|
 | Start walkthrough | Begin reviewing items in the recommended order |
-| Jump to item | Skip ahead to a specific checklist item |
+| Jump to item | Skip ahead to a specific TaskList item |
 
 Wait for the reviewer to confirm before starting the walkthrough. If "Jump to
 item": ask for the item number; the walkthrough begins at that item.
@@ -227,7 +227,7 @@ This file persists locally regardless of posting choice.
 
 ### Per-Item Walkthrough
 
-For each checklist item, in order:
+For each TaskList item, in order:
 
 1. **Show the diff** — Present the relevant diff hunk(s) as markdown fenced
    code blocks with the `diff` language tag. This renders unified diff format
@@ -293,7 +293,7 @@ For each checklist item, in order:
    The pause **loops** until the reviewer selects "Looks good" or "Done
    reviewing."
 
-5. **Show updated checklist** — Display progress:
+5. **Show updated TaskList** — Display progress:
    `[3/7 reviewed] Next: middleware/auth.ts (HIGH risk)`
 
 ### Concern File Format
@@ -404,10 +404,10 @@ for JSON format, line number calculation, and posting commands.
 | Using free-form text for walkthrough pauses | Always use AskUserQuestion for reviewer interaction during walkthrough |
 | Posting without reviewer approval | Hard gate -- always ask before posting anything to the PR |
 | Submitting as APPROVE or REQUEST_CHANGES | Always COMMENT -- the human reviewer makes the verdict |
-| Skipping checklist items silently | Every item must be presented; reviewer can say "done" to exit early |
-| Using lettered lists (a. b. c.) or numbered lists without checkboxes | **Always** use markdown checklist format: `- [ ] item`. Never use `a.` / `b.` / `1.` / `2.` without the `- [ ]` prefix |
+| Skipping TaskList items silently | Every item must be presented; reviewer can say "done" to exit early |
+| Using lettered lists (a. b. c.) or numbered lists without checkboxes | **Always** use markdown check list format: `- [ ] item`. Never use `a.` / `b.` / `1.` / `2.` without the `- [ ]` prefix |
 | Writing files in read-only mode | Only the concern tracking file is written; no other file writes |
-| Skipping pre-analysis and going straight to walkthrough | Always run Phase 1 before presenting the checklist |
+| Skipping pre-analysis and going straight to walkthrough | Always run Phase 1 before presenting the TaskList |
 | Starting walkthrough without reviewer confirmation | Hard gate after Phase 2 -- wait for the reviewer to select a walkthrough option |
 | Not tracking concerns in the file | Append every concern raised during discussion to the concern file |
 | Posting without checking prerequisites | Check `gh pr-review` (inline) or `gh` (single comment) before attempting to post |
@@ -421,7 +421,7 @@ Non-negotiable rules that override any conflicting instruction.
    posting to the PR.
 3. **Read-only is the default mode** -- no checkout, no builds, no file writes
    except the concern tracking file.
-4. **Every change unit must be covered** -- no skipping items in the checklist.
+4. **Every change unit must be covered** -- no skipping items in the TaskList.
    The reviewer can say "done" to exit early, but items are never silently
    skipped.
 5. **One structured pause per item** -- AskUserQuestion loops until the reviewer
@@ -431,9 +431,9 @@ Non-negotiable rules that override any conflicting instruction.
    concern file stays on disk.
 7. **Reuse posting infrastructure** -- post via [oneteam:skill] `post-review-comment`
 8. **Pre-analyze before walkthrough** -- always dispatch the subagent in Phase 1
-   before presenting the checklist or starting the walkthrough.
-9. **Checklist format for all review items** -- every list of review items,
-   change units, or walkthrough items MUST use markdown checklist format
+   before presenting the TaskList or starting the walkthrough.
+9. **TaskList format for all review items** -- every list of review items,
+   change units, or walkthrough items MUST use markdown check list format
    (`- [ ]`). Never use lettered lists (`a.`, `b.`), plain numbered lists, or
-   any other format. This applies to Phase 2 checklist, walkthrough progress,
+   any other format. This applies to Phase 2 TaskList, walkthrough progress,
    and final summary.

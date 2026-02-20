@@ -26,7 +26,7 @@ Do NOT invoke any implementation skill, write any code, scaffold any project, or
 - Task already has a detailed plan -- skip to implementation
 - Pure refactoring with no behavior change
 
-## Checklist
+## TaskList
 
 1. **Explore project context** -- files, docs, recent commits.
 2. **Ask clarifying questions** -- one at a time; purpose, constraints, success criteria.

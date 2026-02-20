@@ -319,7 +319,7 @@ it('minimum charge floor cannot activate with current plan prices (lowest is $5.
 
 **If a clamp can't activate, that's a finding worth documenting.** Either the code is dead, the business rules changed, or the guard is there for safety. Write a test that proves it and annotate why.
 
-## Code Path Checklist
+## Code Path TaskList
 
 Use this when reading implementation (Phase 2) to make sure you don't miss paths:
 
