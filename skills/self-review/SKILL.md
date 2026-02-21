@@ -48,11 +48,16 @@ external code review is still required before merge.
    | Skip | Infer intent from commits in Phase 1 |
 
    If "Provide reference": ask for the spec, design doc, or issue link.
-3. **Create session directory.** Run `mktemp -d -t self-review-XXXXXX` to create
-   a unique temp directory for this self-review run. All intermediate files
-   (findings, fix reports) are written here. This avoids file collisions when
-   multiple self-reviews run concurrently.
-4. **Capture initial diff.** Store for Wave 1 (Phases 1-4 all review this same
+3. **Create or reuse session directory.** If `[SESSION_DIR]` was provided by the
+   caller (e.g., from [oneteam:skill] `writing-plans` or [oneteam:skill]
+   `team-management`), reuse it. Otherwise, create a new one:
+   `mktemp -d -t oneteam-session-XXXXXX`. All intermediate files (findings, fix
+   reports) are written here.
+4. **Write spec to session dir.** If a spec reference was provided (step 2) and
+   it contains substantial content (not just a path or URL), write it to
+   `[SESSION_DIR]/spec.md`. Dispatch templates reference this file instead of
+   inlining spec content.
+5. **Capture initial diff.** Store for Wave 1 (Phases 1-4 all review this same
    diff). Wave 2 re-captures the diff after Wave 1 fixes are applied.
 
 ## Pipeline
@@ -102,7 +107,8 @@ digraph self_review {
 ### Wave 1: Parallel Review (Phases 1-4)
 
 All 4 reviewer subagents launch **in parallel** on the same initial diff from
-Phase 0. Each focuses only on its concern and ignores all others.
+Phase 0. Each focuses only on its concern and ignores all others. Pass
+`[SESSION_DIR]` to each reviewer dispatch prompt.
 
 ### Phase-Specific Notes
 
@@ -146,8 +152,9 @@ After all Wave 1 subagents return:
 ### Consolidated Fix Cycle (Wave 1)
 
 1. Dispatch one engineer to fix all deduplicated Wave 1 findings. Pass
-   `<session-dir>/wave1-findings.md` as the findings file and
-   `<session-dir>/wave1-fix-report.md` as the fix report output file.
+   `[SESSION_DIR]/wave1-findings.md` as the findings file,
+   `[SESSION_DIR]/wave1-fix-report.md` as the fix report output file, and
+   `[SESSION_DIR]` as the session dir.
    [oneteam:agent] `senior-engineer` if any finding is
    Critical/Important/HIGH/MEDIUM, [oneteam:agent] `junior-engineer` if all are
    Minor/LOW. See `./engineer-fix-findings.md` for dispatch template.
@@ -166,8 +173,9 @@ After all Wave 1 subagents return:
 3. **Phase 5** focuses on cross-cutting concerns, integration issues,
    consistency, and architectural concerns.
 4. Standard fix cycle: if findings, write them to
-   `<session-dir>/wave2-findings.md`, dispatch engineer (severity-based) with
-   `<session-dir>/wave2-fix-report.md` as output file. See
+   `[SESSION_DIR]/wave2-findings.md`, dispatch engineer (severity-based) with
+   `[SESSION_DIR]/wave2-fix-report.md` as output file and `[SESSION_DIR]` as
+   the session dir. See
    `./engineer-fix-findings.md` for dispatch template.
 5. Re-review once using the findings file and fix report file. See
    `./re-review-fixes.md` for dispatch template. Proceed regardless.
@@ -211,7 +219,7 @@ Non-negotiable rules that override any conflicting instruction.
 
 | Step | Focus | Key Action |
 |------|-------|------------|
-| Phase 0 | Setup | Detect base branch, get spec reference, create session dir, capture initial diff |
+| Phase 0 | Setup | Detect base branch, get spec reference, create or reuse session dir, write spec.md, capture initial diff |
 | Wave 1 | Phases 1-4 (parallel) | Spawn 4 reviewers in parallel on initial diff |
 | Dedup | Merge findings | Group by file:line, merge overlapping, sort, write findings file |
 | Fix (Wave 1) | Consolidated fix | Engineer reads findings file, writes fix report file |

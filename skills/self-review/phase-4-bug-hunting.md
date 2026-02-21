@@ -20,6 +20,9 @@ Task tool (bug-hunter):
 
     **Spec reference:** [SPEC_REFERENCE]
 
+    **Session dir:** [SESSION_DIR]
+    If a spec file exists at `[SESSION_DIR]/spec.md`, read it for detailed spec content.
+
     [READ_ONLY_CONSTRAINTS]
 
     ## Your Job
