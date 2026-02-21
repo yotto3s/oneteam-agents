@@ -190,7 +190,7 @@ Present to the reviewer:
 **Big-picture summary** — 2-3 sentence overview of what the PR accomplishes.
 
 **Change TaskList** — All change units in recommended review order, formatted
-as a markdown check list (`- [ ]`):
+as a markdown checklist (`- [ ]`):
 
 ```
 ## PR #42: Add user authentication
