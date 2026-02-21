@@ -85,13 +85,20 @@ constraint: no reproduction tests (see Phase-Specific Notes).
 
    If "Provide reference": ask for the spec, design doc, or issue link.
 
-8. **Choose mode.** `AskUserQuestion` (header: "Review mode"):
+8. **Create or reuse session directory.** If `[SESSION_DIR]` was provided by the
+   caller, reuse it. Otherwise, create a new one:
+   `mktemp -d -t oneteam-session-XXXXXX`.
+9. **Write spec to session dir.** If a spec reference was provided (step 7) and
+   it contains substantial content (not just a path or URL), write it to
+   `[SESSION_DIR]/spec.md`. Dispatch templates reference this file instead of
+   inlining spec content.
+10. **Choose mode.** `AskUserQuestion` (header: "Review mode"):
 
    | Option label | Description |
    |---|---|
    | Read-only | Static analysis only -- no checkout or test execution (default) |
    | Local build | Checkout PR branch, run tests, full bug-hunting pipeline |
-9. **If local build:** checkout PR branch (`gh pr checkout <N>`) and pull latest
+11. **If local build:** checkout PR branch (`gh pr checkout <N>`) and pull latest
    changes (`git pull`). `gh pr checkout` does not update an existing local
    branch -- the explicit pull ensures the code is current. Then run existing
    test suite. If tests fail, report failures and `AskUserQuestion` (header: "Tests failing"):
@@ -104,9 +111,10 @@ constraint: no reproduction tests (see Phase-Specific Notes).
 ## Phases 1-5: Parallel Review
 
 All 5 reviewer subagents launch **in parallel** on the same PR diff. Each
-focuses only on its concern and ignores all others. In read-only mode, every
-subagent MUST be explicitly told it is in read-only mode and given the
-Read-Only Mode Constraints (see Modes section above).
+focuses only on its concern and ignores all others. Pass `[SESSION_DIR]` to
+each reviewer dispatch prompt. In read-only mode, every subagent MUST be
+explicitly told it is in read-only mode and given the Read-Only Mode
+Constraints (see Modes section above).
 
 | Phase | Focus | Reviewer | Scope |
 |-------|-------|----------|-------|
@@ -230,7 +238,7 @@ git pull  # gh pr checkout does not update an existing local branch
 
 | Phase | Key Action | Output |
 |-------|-----------|--------|
-| 0. Setup | Get PR, check prerequisites, fetch diff, choose mode | PR metadata + diff + mode |
+| 0. Setup | Get PR, check prerequisites, fetch diff, create session dir, write spec.md, choose mode | PR metadata + diff + mode + session dir |
 | 1. Spec Compliance | Parallel: review spec match | SC- findings |
 | 2. Code Quality | Parallel: review conventions | CQ- findings |
 | 3. Test Comprehensiveness | Parallel: review test gaps | TC- findings |

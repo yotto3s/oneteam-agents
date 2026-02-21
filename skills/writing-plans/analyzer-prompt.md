@@ -15,6 +15,7 @@ Task tool (general-purpose):
 
     **Design doc:** [PATH]
     **Codebase root:** [ROOT]
+    **Session dir:** [SESSION_DIR]
 
     ## Your Job
 
@@ -73,6 +74,8 @@ Task tool (general-purpose):
     Keep the task sketch lightweight — names, scope areas, complexity,
     dependencies. The architect agent will flesh these out into full tasks.
 
-    Do NOT write files, edit anything, or interact with the user. Just
-    analyze and return the structured output.
+    Write your analysis output to `[SESSION_DIR]/analysis.md`.
+    Also return the same output in your response.
+
+    Do NOT edit existing files or interact with the user.
 ~~~

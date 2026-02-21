@@ -72,6 +72,8 @@ Phase 2 until the user explicitly approves. Adjust and re-present if requested.
 
 With an approved fragment plan, set up infrastructure in strict order:
 
+**Session dir:** If `[SESSION_DIR]` is provided by the caller (e.g., from [oneteam:skill] `writing-plans`), use it throughout this phase. Pass the session dir path to all spawned agents.
+
 1. **Create team** -- call `TeamCreate` (or skip if already in an existing team).
 2. **Create git worktrees** -- one per fragment. See `./setup-commands.md` for
    bash commands.
@@ -79,7 +81,9 @@ With an approved fragment plan, set up infrastructure in strict order:
    `starts_first: false` roles. Reviewer roles get one task per lead group, kept
    unblocked. See `./setup-commands.md` for task creation guidance.
 4. **Spawn agents** -- per-fragment roles and per-lead-group roles (reviewers).
-   See `./setup-commands.md` for initialization context requirements.
+   Before spawning each agent, write its task context to
+   `[SESSION_DIR]/task-{agent-name}.md`. See `./setup-commands.md` for
+   task file writing and initialization context requirements.
 5. **Assign tasks** -- use `TaskUpdate` to set owner. `starts_first: true` roles
    get immediate assignment; others are assigned but blocked.
 
