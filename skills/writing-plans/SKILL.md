@@ -32,7 +32,7 @@ Dispatch a sub-agent to read the design document and triage the work. No user in
 
 3. **Dispatch the analyzer.** Use `./analyzer-prompt.md`, fill in `[PATH]`, `[ROOT]`, and `[SESSION_DIR]`. Dispatch via Task tool: `subagent_type: general-purpose`, `model: sonnet`, `description: "Analyze design for planning"`.
 
-4. **Record the analysis blob.** Returns: task count, independence level, parallelism benefit, strategy recommendation, task sketch. Write the analysis blob to `[SESSION_DIR]/analysis.md`.
+4. **Record the analysis blob.** The analyzer writes its output to `[SESSION_DIR]/analysis.md` and returns it. Use the returned content for the Phase 2 display.
 
 ## Phase 2: Strategy Decision (Hard Gate)
 
