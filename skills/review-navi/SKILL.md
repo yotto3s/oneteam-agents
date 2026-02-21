@@ -433,7 +433,7 @@ Non-negotiable rules that override any conflicting instruction.
 8. **Pre-analyze before walkthrough** -- always dispatch the subagent in Phase 1
    before presenting the TaskList or starting the walkthrough.
 9. **TaskList format for all review items** -- every list of review items,
-   change units, or walkthrough items MUST use markdown check list format
+   change units, or walkthrough items MUST use markdown checklist format
    (`- [ ]`). Never use lettered lists (`a.`, `b.`), plain numbered lists, or
    any other format. This applies to Phase 2 TaskList, walkthrough progress,
    and final summary.
