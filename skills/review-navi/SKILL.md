@@ -405,7 +405,7 @@ for JSON format, line number calculation, and posting commands.
 | Posting without reviewer approval | Hard gate -- always ask before posting anything to the PR |
 | Submitting as APPROVE or REQUEST_CHANGES | Always COMMENT -- the human reviewer makes the verdict |
 | Skipping TaskList items silently | Every item must be presented; reviewer can say "done" to exit early |
-| Using lettered lists (a. b. c.) or numbered lists without checkboxes | **Always** use markdown check list format: `- [ ] item`. Never use `a.` / `b.` / `1.` / `2.` without the `- [ ]` prefix |
+| Using lettered lists (a. b. c.) or numbered lists without checkboxes | **Always** use markdown checklist format: `- [ ] item`. Never use `a.` / `b.` / `1.` / `2.` without the `- [ ]` prefix |
 | Writing files in read-only mode | Only the concern tracking file is written; no other file writes |
 | Skipping pre-analysis and going straight to walkthrough | Always run Phase 1 before presenting the TaskList |
 | Starting walkthrough without reviewer confirmation | Hard gate after Phase 2 -- wait for the reviewer to select a walkthrough option |
