@@ -10,7 +10,7 @@ Supporting reference for the [oneteam:skill] `bug-hunting` skill. The agent prod
 **Scope:** [what was analyzed -- PRs, modules, files]
 **Branch/Commits:** [git refs]
 
-### Phase Completion Checklist
+### Phase Completion TaskList
 
 - [ ] Phase 1: Scope defined (N items)
 - [ ] Phase 2: Contracts inventoried (N functions)

@@ -1,6 +1,6 @@
 # Bug-Finding Disciplines
 
-Supporting reference for the [oneteam:skill] `bug-hunting` skill. These four tiers guide the adversarial analysis phase (Phase 4) and provide a structured checklist of techniques to apply across all scope items.
+Supporting reference for the [oneteam:skill] `bug-hunting` skill. These four tiers guide the adversarial analysis phase (Phase 4) and provide a structured TaskList of techniques to apply across all scope items.
 
 ## Tier 1: Contract and Invariant Analysis (Primary)
 

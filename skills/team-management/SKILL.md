@@ -52,7 +52,7 @@ slots have defaults that apply when unset.
 | `organization.flow` | Yes | -- | Describes the communication and dependency flow between roles. Human-readable description of how work moves through the team. |
 | `team_name` | No | `{group}-team` | Override the team name used for TeamCreate and task coordination. |
 | `escalation_threshold` | No | `3` | Number of attempts an agent makes before escalating to the leader. |
-| `review_criteria` | No | General code quality | Domain-specific checklist applied during code review. Appended to the standard review process. |
+| `review_criteria` | No | General code quality | Domain-specific TaskList applied during code review. Appended to the standard review process. |
 | `report_fields` | No | None | Extra fields inserted into the top-level section of the final report. |
 | `domain_summary_sections` | No | None | Extra sections appended to the end of the final report. |
 
