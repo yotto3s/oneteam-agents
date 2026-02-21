@@ -45,6 +45,37 @@ For each fragment, create one task per role defined in `organization.roles`:
 Iterate over roles in `organization.roles` and spawn agents. Roles fall into two
 categories:
 
+### Task File Writing
+
+Before spawning each agent, write its task context to a file in the session
+directory. This replaces inlining large task descriptions in the spawn prompt.
+
+For each agent to be spawned, write `[SESSION_DIR]/task-{agent-name}.md`
+containing:
+
+```markdown
+# Task: {agent-name}
+
+## Task Description
+{task description and acceptance criteria from the plan}
+
+## File Scope
+{exact file paths to work on, as absolute paths within the worktree}
+
+## Context
+{relevant context from spec review, if available}
+
+## Role Instructions
+{role-specific instructions from the role definition}
+
+## Teammates
+- **Leader:** {leader name} (for escalation)
+- **Teammates:** {names of other agents on same fragment}
+- **Reviewer:** {paired reviewer name, if applicable}
+```
+
+Then the spawn prompt can reference the file instead of inlining everything.
+
 ### Per-Fragment Roles (most roles)
 
 For each fragment N (1-indexed), spawn one agent:
@@ -55,16 +86,10 @@ For each fragment N (1-indexed), spawn one agent:
 
 Initialization context MUST include:
 
+- The session dir path (`[SESSION_DIR]`)
 - The absolute worktree path for this fragment
-- The complete list of files in the fragment (as absolute paths within the
-  worktree)
-- The names of all other agents working on the same fragment (so they can message
-  each other directly)
+- Instruction to read task details from `[SESSION_DIR]/task-{agent-name}.md`
 - The leader's name for escalation messages
-- If the plan includes a Team Composition table with reviewer assignments: the
-  name of the paired reviewer for this fragment (so the leader knows which
-  reviewer to trigger for per-task reviews)
-- The role-specific `instructions` from the role definition
 
 ### Per-Lead-Group Roles (reviewer roles)
 
@@ -78,11 +103,10 @@ single-lead setups):
 
 Initialization context MUST include:
 
+- The session dir path (`[SESSION_DIR]`)
 - The absolute worktree paths for **all** fragments in the lead group
-- The complete file lists for **all** fragments in the lead group
-- The names of all engineer agents across fragments in the lead group
+- Instruction to read task details from `[SESSION_DIR]/task-{agent-name}.md`
 - The leader's name for escalation messages
-- The role-specific `instructions` from the role definition
 
 ### Multi-Group Organizations
 
