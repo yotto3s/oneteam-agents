@@ -28,9 +28,11 @@ Dispatch a sub-agent to read the design document and triage the work. No user in
 
 1. **Locate the design document.** Find in `plans/` or user context. Note the path -- do NOT read the file yourself.
 
-2. **Dispatch the analyzer.** Use `./analyzer-prompt.md`, fill in `[PATH]` and `[ROOT]`. Dispatch via Task tool: `subagent_type: general-purpose`, `model: sonnet`, `description: "Analyze design for planning"`.
+2. **Create session directory.** Run `mktemp -d -t oneteam-session-XXXXXX` to create a temp directory for this pipeline run. All intermediate context files are written here.
 
-3. **Record the analysis blob.** Returns: task count, independence level, parallelism benefit, strategy recommendation, task sketch. Keep for Phases 2 and 3.
+3. **Dispatch the analyzer.** Use `./analyzer-prompt.md`, fill in `[PATH]`, `[ROOT]`, and `[SESSION_DIR]`. Dispatch via Task tool: `subagent_type: general-purpose`, `model: sonnet`, `description: "Analyze design for planning"`.
+
+4. **Record the analysis blob.** Returns: task count, independence level, parallelism benefit, strategy recommendation, task sketch. Write the analysis blob to `[SESSION_DIR]/analysis.md`.
 
 ## Phase 2: Strategy Decision (Hard Gate)
 
@@ -62,7 +64,7 @@ Dispatch a sub-agent to read the design document and triage the work. No user in
 
 ## Phase 3: Plan Writing (Architect Agent)
 
-1. **Dispatch the [oneteam:agent] `architect`.** Use `./architect-prompt.md`. Fill in `[FEATURE]`, `[PATH]`, `[STRATEGY]` (`subagent`/`team`), `[ANALYSIS_BLOB]`. Dispatch via Task tool: `subagent_type: [oneteam:agent] architect`, `description: "Write implementation plan for [feature name]"`.
+1. **Dispatch the [oneteam:agent] `architect`.** Use `./architect-prompt.md`. Fill in `[FEATURE]`, `[PATH]`, `[STRATEGY]` (`subagent`/`team`), `[SESSION_DIR]`. Dispatch via Task tool: `subagent_type: [oneteam:agent] architect`, `description: "Write implementation plan for [feature name]"`.
 
 2. **Receive the plan.** Complete plan document as markdown.
 
@@ -83,7 +85,7 @@ Dispatch a sub-agent to read the design document and triage the work. No user in
 
    If "Make changes": re-dispatch the [oneteam:agent] `architect` with the user's feedback appended to the original prompt. Do NOT patch the plan yourself -- this is consistent with the "never patch yourself" constraint. After receiving the revised plan, update the file at the same path, and present it again. Repeat until approved.
 
-3. **Invoke execution skill.** Subagent-driven: use [superpowers:skill] `subagent-driven-development`, stay in this session, fresh subagent per task + two-stage review. Team-driven: use [oneteam:skill] `team-management`, pass fragment groupings, starts from Phase 2 (Team Setup).
+3. **Invoke execution skill.** Subagent-driven: use [superpowers:skill] `subagent-driven-development`, stay in this session, fresh subagent per task + two-stage review. Team-driven: use [oneteam:skill] `team-management`, pass fragment groupings and `[SESSION_DIR]`, starts from Phase 2 (Team Setup).
 
 ## Quick Reference
 

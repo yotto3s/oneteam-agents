@@ -15,18 +15,17 @@ Task tool (architect):
 
     **Chosen strategy:** [STRATEGY]
 
-    **Analysis blob:**
-
-    [ANALYSIS_BLOB]
+    **Session dir:** [SESSION_DIR]
+    Read the analysis blob from `[SESSION_DIR]/analysis.md`.
 
     ## Your Job
 
     Follow the plan-authoring skill:
 
     1. **Phase 1: Codebase Reading** — read the design doc at the path
-       above, review the analysis blob, read relevant source files in the
-       scope areas identified by the analyzer, refine agent tier
-       classifications.
+       above, read the analysis blob from `[SESSION_DIR]/analysis.md`,
+       read relevant source files in the scope areas identified by the
+       analyzer, refine agent tier classifications.
 
     2. **Phase 2: Plan Writing** — write the full implementation plan with
        bite-sized tasks, complete code, exact file paths, exact commands,
