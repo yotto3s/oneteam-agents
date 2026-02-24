@@ -9,6 +9,7 @@ color: yellow
 skills:
   - "[oneteam:skill] plan-authoring"
   - "[oneteam:skill] team-collaboration"
+  - "[oneteam:skill] declarative-programming"
 ---
 
 # Architect Agent

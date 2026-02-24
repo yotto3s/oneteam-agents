@@ -9,6 +9,7 @@ color: blue
 skills:
   - "[oneteam:skill] team-collaboration"
   - "[oneteam:skill] implementation"
+  - "[oneteam:skill] declarative-programming"
 ---
 
 # Senior Engineer
