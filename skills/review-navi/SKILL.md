@@ -172,6 +172,7 @@ subagent produces a structured analysis containing:
          (isolated style suggestions like "rename `d` to `duration`" belong in Nit;
          use Principle for systematic naming inconsistencies across the codebase)
        - **Dead code** — Unreachable code or unused imports introduced by the diff
+       - **Declarative decomposition** ([oneteam:skill] `declarative-programming`) — large functions with inline logic blocks that should be extracted into named functions
      - **Nit** — Minor style/naming/comment polish
    - Complexity: LOW / MEDIUM / HIGH
    - Related context: affected callers, tests, or types
