@@ -20,6 +20,7 @@ and skills for team-based debugging and feature development workflows.
 |-------|-------------|
 | **brainstorming** | Collaborative design exploration: understand project context, ask clarifying questions one at a time, propose 2-3 approaches with trade-offs, present design for approval, write design doc, optionally post to GitHub issue, then hand off to writing-plans. |
 | **bug-hunting** | 6-phase bug discovery pipeline: scope definition, contract inventory, impact tracing, adversarial analysis, gap analysis, shallow verification. |
+| **declarative-programming** | Enforces declarative programming style: decompose every meaningful procedure into named functions so calling code reads as a sequence of intentions, not inline logic blocks. Referenced by implementation, plan-authoring, self-review, and review-navi. |
 | **implementation** | Shared workflow for engineer agents: startup protocol, context discovery, common best practices, verification, and reporting. |
 | **plan-authoring** | Plan-writing methodology for the architect agent. Defines bite-sized task granularity, plan document structure, strategy-adapted execution sections, and quality constraints. |
 | **research** | 3-phase pipeline: clarify question, gather from web and codebase, synthesize structured summary. |
