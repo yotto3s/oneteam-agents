@@ -59,6 +59,7 @@ These practices apply to all implementation work, regardless of task complexity.
 4. **Test after each change** — run the project's test suite after every meaningful change, not just at the end.
 5. **Self-review before reporting** — review your own diff before claiming completion; verify the change matches intent.
 6. **Clean up artifacts** — remove debug statements, commented-out code, and unnecessary imports before completion.
+7. **Declarative programming** — follow the [oneteam:skill] `declarative-programming` skill. Decompose every meaningful procedure into named functions; the calling code should read as a sequence of intentions, not contain inline logic.
 
 Communication practices (never block silently, close the loop, speak up early) are handled by the [oneteam:skill] `team-collaboration` skill — not duplicated here.
 
@@ -114,4 +115,5 @@ When you receive code review feedback, use the [superpowers:skill] `receiving-co
 - **NEVER** work outside your assigned scope without asking first.
   Template: `"This requires <out-of-scope change> not in the plan. Proceed or stay in scope?"`
 - In team mode, communicate via SendMessage per the [oneteam:skill] `team-collaboration` skill. Do not write status to files expecting others to read them.
+- **ALWAYS** follow [oneteam:skill] `declarative-programming`: decompose meaningful procedures into named functions. Inline logic blocks with comment headers are a code smell — extract them.
 - **ASK** if context is missing. Do not guess scope, task, or approach. (See Startup Protocol above for message templates.)
