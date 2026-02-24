@@ -76,12 +76,31 @@ containing:
 
 Then the spawn prompt can reference the file instead of inlining everything.
 
+### Model Resolution
+
+When spawning any agent via the Task tool, resolve the model parameter:
+
+1. If the role definition includes an explicit `model` field (`sonnet`, `opus`,
+   or `haiku`), pass it as the Task tool's `model` parameter.
+2. Otherwise, read the agent definition's `model` field from
+   `~/.claude/agents/{agent_type}.md`.
+3. If the agent definition's model is `inherit` **or** absent, do **NOT** pass a
+   `model` parameter to the Task tool. Omitting it causes natural inheritance
+   from the spawning agent.
+4. If the agent definition's model is an explicit value (`sonnet`, `opus`,
+   `haiku`), pass it through.
+
+**Never pass the literal string `"inherit"` as the Task tool's `model`
+parameter.** The Task tool only accepts `sonnet`, `opus`, `haiku`, or omission.
+Passing `"inherit"` causes a model-selection failure and agent freeze.
+
 ### Per-Fragment Roles (most roles)
 
 For each fragment N (1-indexed), spawn one agent:
 
 - Agent name: `{group}-{role}-{N}` (N = fragment index)
 - `subagent_type`: from the role's `agent_type` field
+- `model`: resolved per "Model Resolution" above
 - `team_name`: the team name established in step 1
 
 Initialization context MUST include:
@@ -99,6 +118,7 @@ single-lead setups):
 
 - Agent name: `{group}-{role}-{G}` (G = lead-group index)
 - `subagent_type`: from the role's `agent_type` field
+- `model`: resolved per "Model Resolution" above
 - `team_name`: the team name established in step 1
 
 Initialization context MUST include:

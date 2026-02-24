@@ -48,7 +48,7 @@ slots have defaults that apply when unset.
 | `splitting_strategy` | Yes | -- | How to analyze and split work into fragments. Defines the criteria for decomposing the codebase into independent units of work. |
 | `fragment_size` | Yes | -- | Target number of files per fragment. Guides the granularity of work decomposition. |
 | `organization.group` | Yes | -- | Naming prefix for all agents in this organization. Used to construct agent names as `{group}-{role}-{N}`. |
-| `organization.roles` | Yes | -- | Array of role definitions. Each role has: `name` (string), `agent_type` (string), `starts_first` (bool), `instructions` (string). |
+| `organization.roles` | Yes | -- | Array of role definitions. Each role has: `name` (string), `agent_type` (string), `starts_first` (bool), `instructions` (string), and optionally `model` (string: `sonnet`/`opus`/`haiku`) to override the agent definition's model. See `./setup-commands.md` "Model Resolution" for details. |
 | `organization.flow` | Yes | -- | Describes the communication and dependency flow between roles. Human-readable description of how work moves through the team. |
 | `team_name` | No | `{group}-team` | Override the team name used for TeamCreate and task coordination. |
 | `escalation_threshold` | No | `3` | Number of attempts an agent makes before escalating to the leader. |
