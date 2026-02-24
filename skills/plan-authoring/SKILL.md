@@ -62,7 +62,9 @@ areas as starting points.
 
 Write the implementation plan. Assume the engineer has zero codebase context.
 Document everything: files to touch, code, tests, commands. DRY. YAGNI. TDD.
-Frequent commits.
+Frequent commits. Follow [oneteam:skill] `declarative-programming`: code examples
+in plans MUST model decomposed functions — show named functions for each
+meaningful procedure, not monolithic blocks.
 
 ### Bite-Sized Task Granularity
 
@@ -123,3 +125,4 @@ yourself — the orchestrator saves it.
 - NEVER write files or commit. You are read-only. Return the plan as output.
 - Exact file paths in every task, complete code, exact commands with expected
   output.
+- ALWAYS follow [oneteam:skill] `declarative-programming` in plan code examples: decompose into named functions, not inline blocks with comment headers.
