@@ -28,7 +28,9 @@ Task tool (code-reviewer):
 
     - **Naming conventions** — consistency with surrounding code, clear and
       descriptive names
-    - **Code structure** — function length, nesting depth, single
+    - **Code structure** — [oneteam:skill] `declarative-programming` compliance
+      (meaningful procedures extracted into named functions, no inline logic
+      blocks with comment headers), function length, nesting depth, single
       responsibility principle
     - **Error handling** — uncaught exceptions, swallowed errors, missing
       error paths
@@ -57,6 +59,11 @@ Task tool (code-reviewer):
     - **Important** — meaningful quality issue that should be fixed before
       merge
     - **Minor** — style or convention issue with low impact
+
+    Functions with inline logic blocks separated by comment headers (e.g.,
+    `# validate`, `# process`, `# send`) are **Important** — the blocks should
+    be extracted into named functions per [oneteam:skill]
+    `declarative-programming`.
 
     Summary: total findings, breakdown by severity, PASS / ISSUES FOUND.
 ~~~
