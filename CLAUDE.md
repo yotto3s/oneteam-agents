@@ -58,6 +58,7 @@ YAML frontmatter with `name` and `description`, followed by phased pipeline docu
 | [oneteam:skill] post-review-comment | Posting reference: prerequisites, JSON format, line numbers, gh-pr-review commands |
 | [oneteam:skill] review-navi | 5-phase interactive PR walkthrough: setup, pre-analysis dispatch, summary & TaskList, interactive walkthrough with structured AskUserQuestion pauses, completion with optional posting |
 | [oneteam:skill] implementation | 2-phase: context discovery → verification + common best practices |
+| [oneteam:skill] declarative-programming | Principle definition: decompose into named functions, signal to decompose, good/bad examples, constraints |
 | [oneteam:skill] writing-tests | 5-phase: read spec → read implementation → merge and organize → write tests → verify |
 | [oneteam:skill] test-redundancy-analysis | 6-phase: scope & inventory → build call graph → detect redundancy (3 parallel detectors) → detect coverage gaps → confirm & dedup → present report (hard gate) |
 
