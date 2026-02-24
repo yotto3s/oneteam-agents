@@ -28,7 +28,7 @@ happens -- a sequence of clearly-named steps -- not contain inline *how* logic.
 ## Signal to Decompose
 
 A comment that labels a block of code (e.g., `# validate input`,
-`// calculate totals`) is a signal that block should be a named function instead.
+`// calculate totals`) is a signal the block should be a named function instead.
 
 ## Good Example
 
